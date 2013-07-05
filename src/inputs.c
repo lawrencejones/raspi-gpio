@@ -5,6 +5,8 @@
 // PA Consulting - Lawrence Jones
 ///////////////////////////////////////////////////////////////////////////////
 
+#include "inputs.h"
+
 // Configure the memory access required to alter
 // the GPIO pins. Will request memory access from the system,
 // note that this requires sudo privileges!
@@ -42,4 +44,28 @@ int initialiseGpios()
   // Use volatile pointer to allow shared access of the gpio locations
   // Slows performance but refreshing is required
   gpio = (volatile unsigned *)gpioMap;
+}
+
+// Main function for testing purposes
+int main()
+{
+  int g,rep;
+  // initialise the gpio access
+  initialiseGpios();
+  printf("Enter a pin to flash...\n");
+  // declare temp text entry
+  char pintxt[5];
+  // get user input
+  gets(pintxt);
+  int pin = atoi(pintxt);
+  INP_GPIO(pin); OUT_GPIO(pin);
+  start:
+    GPIO_SET(pin);
+    printf("ON\n");
+    sleep(1);
+    GPIO_CLR(pin);
+    printf("OFF\n");
+    sleep(1);
+  goto start;
+  return 0;
 }

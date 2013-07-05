@@ -9,7 +9,11 @@
 #define INPUTS
 
 #include <stdint.h>
+#include <stdio.h>
+#include <stdlib.h>
+#include <fcntl.h>
 #include <sys/mman.h>
+#include <unistd.h>
 
 ///////////////////////////////////////////////////////////////////////////////
 // DEFINE MACROS
@@ -25,18 +29,23 @@
 
 // Macros to prep pin for accessing
 // INP_GPIO must be used prior to OUT and SET
-#define INP_GPIO(g) *(gpio+((g)/10)) &= ~(7<<(((g)%10)*3))
-#define OUT_GPIO(g) *(gpio+((g)/10)) |=  (1<<(((g)%10)*3))
-#define SET_GPIO_ALT(g,a) *(gpio+(((g)/10))) |= \
-                    (((a)<=3?(a)+4:(a)==4?3:2)<<(((g)%10)*3))
+#define INP_GPIO(g) *(gpio+((g-1)/10)) &= ~(7<<(((g-1)%10)*3))
+#define OUT_GPIO(g) *(gpio+((g-1)/10)) |=  (1<<(((g-1)%10)*3))
+#define SET_GPIO_ALT(g,a) *(gpio+(((g-1)/10))) |= \
+                    (((a)<=3?(a)+4:(a)==4?3:2)<<(((g-1)%10)*3))
 
 // Macros to set and clear individual pins
-#define GPIO_SET *(gpio +  7) // offset to set word
-#define GPIO_CLR *(gpio + 10) // offset to clear word
+#define GPIO_SET(p) *(gpio +  7) |= 1 << (p -1)  // offset to set word
+#define GPIO_CLR(p) *(gpio + 10) &= ~(1 << (p - 1))  // offset to clear word
 
 // Define unsigned int for reading results
 // 16 bits presumed to be sufficient
 typedef uint16_t u16;
+
+// Define the map point for access
+static void* gpioMap;
+// Define the entry point for gpios
+volatile unsigned *gpio;
 
 ///////////////////////////////////////////////////////////////////////////////
 // FUNCTION STUBS
