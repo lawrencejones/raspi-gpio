@@ -8,34 +8,35 @@
 // Define macro values for the paging and block size
 #define PAGE_SIZE  (4*1024)
 #define BLOCK_SIZE (4*1024)
-
-#define VALUE_OF_PIN(g,w) (w & (7 << (g/3))) >> (g/3)
+#define BIT_TO_PIN(bit) (bit / 3)
+#define VALUE_OF_PIN(bit,w) ((7u << 3*BIT_TO_PIN(bit)) & w) >> 3*BIT_TO_PIN(bit)
 void printBinary(uint32_t* base)
 {
 	int pin;
 	printf("|                                          |");
 	printf("   |                                          |");
+	printf("   |                                          |");
 	printf("   |                                          |\n");
 	// printf("|           --- PINS 29-20 ---           |");
 	// printf("     |           --- PINS 19-10 ---           |");
 	// printf("     |            --- PINS 9-0 ---            |\n");
-	for (int j = 0; j < 3; j++)
+	for (int j = 0; j < 4; j++)
 	{
 	  printf("|  ");
 	  for (int i = 9; i >= 0; i--)
-	  	printf(" %02d ", i + (2-j)*10);
+	  	printf(" %02d ", i + (3-j)*10);
 		printf("|   ");
 	}
 	printf("\n");
-	for (int j = 0; j < 3; j++)
+	for (int j = 0; j < 4; j++)
 	{
 		uint32_t x = *(base + (3-j));
 	  for (int i = 0; i < 32; i++)
 	  {
 	  	if (!((i + 1) % 3)) printf(" ");
 	  	if (i > 1) {
-				pin = VALUE_OF_PIN(32 - i, x);
-	  		printf("\x1b[3%d;1m", ((i-2)/3)%7 + 1 + pin);
+				pin = VALUE_OF_PIN((31 - i), x);
+	  		printf("\x1b[3%d;1m", /*(BIT_TO_PIN((31-i))%3) +*/ 2 + 2*pin);
 	  	}
 	  	printf("%d", 0x01 & (x >> (31 - i)));
 	  }
