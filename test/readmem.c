@@ -9,8 +9,10 @@
 #define PAGE_SIZE  (4*1024)
 #define BLOCK_SIZE (4*1024)
 
+#define VALUE_OF_PIN(g,w) (w & (7 << (g/3))) >> (g/3)
 void printBinary(uint32_t* base)
 {
+	int pin;
 	printf("|                                          |");
 	printf("   |                                          |");
 	printf("   |                                          |\n");
@@ -32,7 +34,8 @@ void printBinary(uint32_t* base)
 	  {
 	  	if (!((i + 1) % 3)) printf(" ");
 	  	if (i > 1) {
-	  		printf("\x1b[3%d;1m", ((i-2)/3)%7 + 1);
+				pin = VALUE_OF_PIN(32 - i, x);
+	  		printf("\x1b[3%d;1m", ((i-2)/3)%7 + 1 + pin);
 	  	}
 	  	printf("%d", 0x01 & (x >> (31 - i)));
 	  }
