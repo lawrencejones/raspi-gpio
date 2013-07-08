@@ -38,7 +38,7 @@ status. Once cleared, any value may be sent to the SET_PIN macro.
 #define BCM2708_PERI_BASE  0x20000000u
 #define BCM2835_PERI_BASE  0x20000000u
 // Calculate the base dependent on platform
-#define GPIO_BASE ( BCM2708_PERI_BASE + 0x00200000u )
+#define GPIO_BASE ( BCM2835_PERI_BASE + 0x00200000u )
 // Define macro values for the paging and block size
 #define PAGE_SIZE  (4*1024)
 #define BLOCK_SIZE (4*1024)
