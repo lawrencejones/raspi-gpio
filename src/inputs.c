@@ -46,6 +46,23 @@ int initialiseGpios()
   gpio = (volatile unsigned *)gpioMap;
 }
 
+// Given a pin number, will return 
+state_t pinStatus(int g)
+{
+  // Extract pin control code (3 bits signifying current state)
+  // by retrieving the control word, shifting it the appropriate
+  // distance to the right, then masking for the first 3 bits.
+  int ctrlCode  = ((PIN_CONTROL_WORD(g) >> PIN_SHIFT(g - 1)) & 7),
+      isHigh    = SET_WORD & (1u << (g-1));
+  // Using the ctrlCode (setting in or out) and the current state,
+  // return the state_t type that represents the pins current status
+  switch (1u & ctrlCode)
+  {
+    case INPUT:  if (isHigh) return INHIGH;  else return INLOW;
+    case OUTPUT: if (isHigh) return OUTHIGH; else return OUTLOW;
+  }
+}
+
 // Main function for testing purposes
 int main()
 {
