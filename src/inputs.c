@@ -58,8 +58,8 @@ state_t pinStatus(int g)
   // return the state_t type that represents the pins current status
   switch (1u & ctrlCode)
   {
-    case INPUT:  if (isHigh) return INHIGH;  else return INLOW;
-    case OUTPUT: if (isHigh) return OUTHIGH; else return OUTLOW;
+    case INPUT:  if (isHigh) { return INHIGH;  } else { return INLOW;  }
+    case OUTPUT: if (isHigh) { return OUTHIGH; } else { return OUTLOW; }
   }
 }
 

@@ -16,9 +16,9 @@ The process to go from x to pin(g) on, is shown below...
 ...which first sets the pin to input mode to clear the current
 setting. This is entirely optional and is only present to highlight
 the possible entry at step 2, regardless of previous states.
-The clear pin is
+The clear pin is required to prep the pi for changing the said pins
+status. Once cleared, any value may be sent to the SET_PIN macro.
 */
-
 
 #ifndef INPUTS
 #define INPUTS
@@ -46,12 +46,10 @@ The clear pin is
 #define SET_WORD *(gpio +  7)
 #define CLR_WORD *(gpio + 10)
 
-#define INPUT 
-
-//-----------------------------------------------------------------------------
-// Macros to prep pin for accessing
+///////////////////////////////////////////////////////////////////////////////
+// Macros to prep pins for accessing
 // INP_GPIO must be used prior to OUT and SET
-//-----------------------------------------------------------------------------
+///////////////////////////////////////////////////////////////////////////////
 // Returns the shift required for a given pins control code
 #define PIN_SHIFT(g) ((g-1) % 10)*3
 // Using the gpio counter plus (pin number - 1)/10  locate 
