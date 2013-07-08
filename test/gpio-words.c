@@ -10,6 +10,8 @@
 #define BLOCK_SIZE (4*1024)
 #define BIT_TO_PIN(bit) (bit / 3)
 #define VALUE_OF_PIN(bit,w) ((7u << 3*BIT_TO_PIN(bit)) & w) >> 3*BIT_TO_PIN(bit)
+#define BASE 0x20200000u
+
 void printBinary(uint32_t* base)
 {
 	int pin;
@@ -17,9 +19,6 @@ void printBinary(uint32_t* base)
 	printf("   |                                          |");
 	printf("   |                                          |");
 	printf("   |                                          |\n");
-	// printf("|           --- PINS 29-20 ---           |");
-	// printf("     |           --- PINS 19-10 ---           |");
-	// printf("     |            --- PINS 9-0 ---            |\n");
 	for (int j = 0; j < 4; j++)
 	{
 	  printf("|  ");
@@ -45,17 +44,8 @@ void printBinary(uint32_t* base)
 	printf("\x1b[0m\n");
 }
 
-#define BASE 0x20200000u
-
 int main(int argv, char** argc)
 {
-	if (argv != 2)
-  {
-  	fprintf(stderr, "Wrong number of arguments.");
-  	exit(EXIT_FAILURE);
-  }
-  //uint32_t addr = strtol(argc[1], NULL, 16);
-	//int addr = atoi(argc[1]);
 	int gpio_file = open("/dev/mem", O_RDWR|O_SYNC); 
 	void* gpioMap = mmap(
     NULL,        // specific address not required
