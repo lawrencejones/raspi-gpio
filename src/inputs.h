@@ -73,6 +73,9 @@ The clear pin is
 typedef uint16_t u16;
 // Define type to represent all four pin states
 typedef enum { OUTHIGH, OUTLOW, INHIGH, INLOW } state_t;
+static char* stateLabels[] = {
+  "OUT / HIGH", "OUT / LOW", "IN / HIGH", "IN / LOW"
+};
 
 // Define the map point for access
 static void* gpioMap;
@@ -94,7 +97,6 @@ u16 getCO();
 
 // GPIO helpers
 int initialiseGpios();
-int pinStatus(int g);
 int pinWrite(int g);
 
 // Given a pin number, will return it's current state

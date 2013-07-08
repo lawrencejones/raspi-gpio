@@ -66,23 +66,20 @@ state_t pinStatus(int g)
 // Main function for testing purposes
 int main()
 {
-  int g,rep;
-  // initialise the gpio access
-  initialiseGpios();
-  printf("Enter a pin to flash...\n");
+  int g,rep; state_t state;
   // declare temp text entry
   char pintxt[5];
+  // initialise the gpio access
+  initialiseGpios();
+start:
+  printf("Enter a pin to find status...\n");
   // get user input
   gets(pintxt);
   int pin = atoi(pintxt);
-  INP_GPIO(pin); OUT_GPIO(pin);
-  start:
-    GPIO_SET(pin);
-    printf("ON\n");
-    sleep(1);
-    GPIO_CLR(pin);
-    printf("OFF\n");
-    sleep(1);
+  if (pintxt[0] == 'X') goto end;
+  state = pinStatus(pin);
+  printf("Pin %d is currently %s\n\n", pin, stateLabels[state]);
   goto start;
+end:
   return 0;
 }
