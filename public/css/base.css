@@ -1,0 +1,21 @@
+.centered-diagram {
+  position : absolute;
+  width : 800px;
+  left : 50%;
+  margin-top : 30px;
+  margin-left : -400px;
+}
+
+td {
+  cursor: pointer;
+}
+
+.grid {
+  position: absolute;
+  left : 50%;
+  height : 118px;
+  width : 800px;
+  margin : 145px auto auto -400px;
+  border: 1px solid black;
+  z-index : 99;
+}

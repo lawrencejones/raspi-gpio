@@ -1,0 +1,31 @@
+!!!
+%html
+  %head
+    %script{:src => "/js/jquery.js"}
+    %script{:src => '/js/bootstrap.min.js'}
+    %link{:href => "/css/bootstrap.css", :rel => "stylesheet"}
+    %link{:href => '/css/base.css', :type => 'text/css', :rel => :stylesheet}
+    %script{:src => '/script.js'}
+    %title Raspberry Pi
+  %body
+    .container
+      .navbar{style: :'position:relative;margin-top:20px;'}
+        .navbar-inner
+          %a.brand RASPIPins
+          %ul.nav
+            %li.active
+              %a{href: :overview} GPIO Overview
+            %li
+              %a{href: :general_pins} GP Pins
+            %li
+              %a{href: :signals} Signals
+      .row
+        .span12.text-center
+          %h1 General Raspi Overview
+      .row
+        %table.grid#chip
+          %tr.odds
+          %tr.evens
+      .row
+        %img.centered-diagram{src: :'/img/Diagram.png'}
+        
