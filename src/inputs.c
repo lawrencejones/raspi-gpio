@@ -104,15 +104,28 @@ Pin* mallocPin(int p)
   return pin;
 }
 
-char* yn[] = {"YES", "NO"};
+static const char* yn[] = {"\x1b[32mINP\x1b[0m", "OUT"};
+static const char* vals[] = {"0", "\x1b[91m1\x1b[0m"};
+
+void printHeader()
+{
+	printf("+------------------------------------+\n");
+  printf("| PIN  | MEM ADDR  | STATE  | VALUE  |\n"); 
+	printf("+------------------------------------+\n");
+}
 
 void printPin(Pin *pin)
 {
-  printf("The physical pin %d on the chip, location %d\n", 
-    pin->chipIndex, pin->memIndex);
-  printf("in memory, is currently...\n");
-  printf("    Input? %s\n", yn[pin->state]);
-  printf("    Value? %d\n", pin->value);
+  printf("| %02d   | %02d        | %s    | %sV     |\n", 
+    pin->chipIndex, pin->memIndex, yn[pin->state], vals[pin->value]);
+}
+
+void printAll()
+{
+	printHeader();
+	for (int i = 1; i < 27; i++)
+		printPin(pinStatus(i));
+	printf("+------------------------------------+\n");
 }
 
 // Given a --PHYSICAL-- chip pin index, return a
@@ -124,8 +137,8 @@ Pin* pinStatus(int p)
   // Extract pin control code (3 bits signifying current state)
   // by retrieving the control word, shifting it the appropriate
   // distance to the right, then masking for the first 3 bits.
-  int ctrlCode  = ((PIN_CONTROL_WORD(g) >> PIN_SHIFT(g - 1)) & 7),
-      isHigh    = SET_WORD & (1u << (g-1));
+  int ctrlCode  = ((PIN_CONTROL_WORD(g) >> PIN_SHIFT(g)) & 7),
+      isHigh    = (SET_WORD & (1u << (g-1)) != 0);
   // Using the ctrlCode (setting in or out) and the current state,
   // return the state_t type that represents the pins current status
   Pin *pin = mallocPin(p);
@@ -144,13 +157,15 @@ int main()
   // initialise the gpio access
   initialiseGpios();
 start:
-  printf("Enter a pin to find status...\n");
+/*  printf("Enter a pin to find status...\n");
   // get user input
   gets(pintxt);
   int pin = atoi(pintxt);
   if (pintxt[0] == 'X') goto end;
-  printPin(pinStatus(pin));
-  goto start;
+	printHeader();
+  printPin(pinStatus(pin)); 
+  goto start;*/
+	printAll();
 end:
   return 0;
 }

@@ -51,11 +51,13 @@ status. Once cleared, any value may be sent to the SET_PIN macro.
 // Macros to prep pins for accessing
 // INP_GPIO must be used prior to OUT and SET
 ///////////////////////////////////////////////////////////////////////////////
-// Returns the shift required for a given pins control code
-#define PIN_SHIFT(g) ((g-1) % 10)*3
-// Using the gpio counter plus (pin number - 1)/10  locate 
-// the correct word to represent the pins physical address
-#define PIN_CONTROL_WORD(g) *(gpio + ((g - 1) / 10))
+// Given g, the physical memory index of a pin, return the
+// shift required to bring the pins control word to
+// the pin control value being it's three least significant bits
+#define PIN_SHIFT(g) 3*(g%10)
+// Given g, a pins memory index, find the control word value
+// for that specific pin.
+#define PIN_CONTROL_WORD(g) *(gpio + (g/10))
 // Modify the pin control word to represent the given pin
 // in input mode, 000. Pin specific bits found at input code 
 // left shifted by the pin number modulo 10, multiplied by 3
