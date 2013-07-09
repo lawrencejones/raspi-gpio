@@ -47,36 +47,6 @@ int initialiseGpios()
   return EXIT_SUCCESS;
 }
 
-static const int memIndexes[] = {
-  /* Not applicable */                NA,
-  /* Pin 1  - 3.3v Power        */    0,
-  /* Pin 2  - 5v Power          */    1,
-  /* Pin 3  - SDA - Gpio 8      */    2,
-  /* Pin 4  - 5v Power          */    NA,
-  /* Pin 5  - SCL - Gpio 9      */    3,
-  /* Pin 6  - 0v Ground         */    NA,
-  /* Pin 7  - GPCLK0 - Gpio 7   */    4,
-  /* Pin 8  - TXD - Gpio 15     */    14,
-  /* Pin 9  - 0v Ground         */    NA,
-  /* Pin 10 - RXD - Gpio 16     */    15,
-  /* Pin 11 - Gpio 0            */    17,
-  /* Pin 12 - PCM_CLK - Gpio 1  */    18,
-  /* Pin 13 - Gpio 2            */    27,
-  /* Pin 14 - 0v Ground         */    NA,
-  /* Pin 15 - Gpio 3            */    22,
-  /* Pin 16 - Gpio 4            */    23,
-  /* Pin 17 - 3.3v Power        */    NA,
-  /* Pin 18 - Gpio 5            */    24,
-  /* Pin 19 - MOSI - Gpio 12    */    10,
-  /* Pin 20 - 0v Ground         */    NA,
-  /* Pin 21 - MISO - Gpio 13    */    9,
-  /* Pin 22 - Gpio 6            */    25,
-  /* Pin 23 - SCLK - Gpio 14    */    11,
-  /* Pin 24 - CE0 - Gpio 10     */    8,
-  /* Pin 25 - 0v Ground         */    NA,
-  /* Pin 26 - CE1 - Gpio 11     */    7,
-};
-
 // Takes p, the physical pin number and translates to the
 // memory address pin location
 int chipIndexToMem(int p)
@@ -109,15 +79,20 @@ static const char* vals[] = {"0", "\x1b[91m1\x1b[0m"};
 
 void printHeader()
 {
-	printf("+------------------------------------+\n");
-  printf("| PIN  | MEM ADDR  | STATE  | VALUE  |\n"); 
-	printf("+------------------------------------+\n");
+	printf("+------------------------------------------------+\n");
+  printf("| PIN  | MEM ADDR  | GPIO NAME | STATE  | VALUE  |\n"); 
+	printf("+------------------------------------------------+\n");
 }
 
 void printPin(Pin *pin)
 {
-  printf("| %02d   | %02d        | %s    | %sV     |\n", 
-    pin->chipIndex, pin->memIndex, yn[pin->state], vals[pin->value]);
+	int gpio = memToGpioLabel(pin->memIndex);
+  printf("| %02d   |    %02d     | ", 
+    pin->chipIndex, pin->memIndex);
+	if (gpio > 0) printf("Gpio %2d   ", gpio);
+	else printf("          ");
+	printf("| %s    |  %sV    |\n",
+		yn[pin->state], vals[pin->value]);
 }
 
 void printAll()
@@ -125,7 +100,7 @@ void printAll()
 	printHeader();
 	for (int i = 1; i < 27; i++)
 		printPin(pinStatus(i));
-	printf("+------------------------------------+\n");
+	printf("+------------------------------------------------+\n");
 }
 
 // Given a --PHYSICAL-- chip pin index, return a
@@ -138,7 +113,7 @@ Pin* pinStatus(int p)
   // by retrieving the control word, shifting it the appropriate
   // distance to the right, then masking for the first 3 bits.
   int ctrlCode  = ((PIN_CONTROL_WORD(g) >> PIN_SHIFT(g)) & 7),
-      isHigh    = (SET_WORD & (1u << (g-1)) != 0);
+      isHigh    = (VAL_WORD & (1u << (g-1)) != 0);
   // Using the ctrlCode (setting in or out) and the current state,
   // return the state_t type that represents the pins current status
   Pin *pin = mallocPin(p);

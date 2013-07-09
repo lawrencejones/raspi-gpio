@@ -29,6 +29,7 @@ status. Once cleared, any value may be sent to the SET_PIN macro.
 #include <fcntl.h>
 #include <sys/mman.h>
 #include <unistd.h>
+#include "pinmaps.h"
 
 ///////////////////////////////////////////////////////////////////////////////
 // DEFINE MACROS
@@ -45,6 +46,7 @@ status. Once cleared, any value may be sent to the SET_PIN macro.
 
 #define SET_WORD *(gpio +  7)
 #define CLR_WORD *(gpio + 10)
+#define VAL_WORD *(gpio + (0x34 >> 2))
 #define NA 0 
 
 ///////////////////////////////////////////////////////////////////////////////
