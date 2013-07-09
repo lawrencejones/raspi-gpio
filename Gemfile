@@ -1,5 +1,8 @@
 source "https://rubygems.org"
 
-gem 'sinatra'
-gem 'socket'
+gem 'rubygems'
+gem 'em-websocket'
+gem 'coffee-script'
 gem 'haml'
+gem 'thin'
+gem 'sinatra/base'

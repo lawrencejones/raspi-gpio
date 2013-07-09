@@ -45,6 +45,7 @@ status. Once cleared, any value may be sent to the SET_PIN macro.
 
 #define SET_WORD *(gpio +  7)
 #define CLR_WORD *(gpio + 10)
+#define NA 0 
 
 ///////////////////////////////////////////////////////////////////////////////
 // Macros to prep pins for accessing
@@ -70,10 +71,18 @@ status. Once cleared, any value may be sent to the SET_PIN macro.
 // 16 bits presumed to be sufficient
 typedef uint16_t u16;
 // Define type to represent all four pin states
-typedef enum { OUTHIGH, OUTLOW, INHIGH, INLOW } state_t;
+typedef enum { INPUT, OUTPUT } state_t;
 static char* stateLabels[] = {
-  "OUT / HIGH", "OUT / LOW", "IN / HIGH", "IN / LOW"
+  "INPUT", "OUTPUT"
 };
+
+// Define the Pin struct
+typedef struct {
+  int chipIndex;
+  int memIndex;
+  state_t state;
+  int value;
+} Pin;
 
 // Define the map point for access
 static void* gpioMap;
@@ -98,7 +107,7 @@ int initialiseGpios();
 int pinWrite(int g);
 
 // Given a pin number, will return it's current state
-state_t pinStatus(int g);
+Pin* pinStatus(int p);
 
 
 #endif

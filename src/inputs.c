@@ -44,11 +44,83 @@ int initialiseGpios()
   // Use volatile pointer to allow shared access of the gpio locations
   // Slows performance but refreshing is required
   gpio = (volatile unsigned *)gpioMap;
+  return EXIT_SUCCESS;
 }
 
-// Given a pin number, will return 
-state_t pinStatus(int g)
+static const int memIndexes[] = {
+  /* Not applicable */                NA,
+  /* Pin 1  - 3.3v Power        */    0,
+  /* Pin 2  - 5v Power          */    1,
+  /* Pin 3  - SDA - Gpio 8      */    2,
+  /* Pin 4  - 5v Power          */    NA,
+  /* Pin 5  - SCL - Gpio 9      */    3,
+  /* Pin 6  - 0v Ground         */    NA,
+  /* Pin 7  - GPCLK0 - Gpio 7   */    4,
+  /* Pin 8  - TXD - Gpio 15     */    14,
+  /* Pin 9  - 0v Ground         */    NA,
+  /* Pin 10 - RXD - Gpio 16     */    15,
+  /* Pin 11 - Gpio 0            */    17,
+  /* Pin 12 - PCM_CLK - Gpio 1  */    18,
+  /* Pin 13 - Gpio 2            */    27,
+  /* Pin 14 - 0v Ground         */    NA,
+  /* Pin 15 - Gpio 3            */    22,
+  /* Pin 16 - Gpio 4            */    23,
+  /* Pin 17 - 3.3v Power        */    NA,
+  /* Pin 18 - Gpio 5            */    24,
+  /* Pin 19 - MOSI - Gpio 12    */    10,
+  /* Pin 20 - 0v Ground         */    NA,
+  /* Pin 21 - MISO - Gpio 13    */    9,
+  /* Pin 22 - Gpio 6            */    25,
+  /* Pin 23 - SCLK - Gpio 14    */    11,
+  /* Pin 24 - CE0 - Gpio 10     */    8,
+  /* Pin 25 - 0v Ground         */    NA,
+  /* Pin 26 - CE1 - Gpio 11     */    7,
+};
+
+// Takes p, the physical pin number and translates to the
+// memory address pin location
+int chipIndexToMem(int p)
 {
+  if ((p < 27) && (p > 0)) return memIndexes[p];
+  fprintf(stderr, "Not a valid physical pin number.\n");
+  return NA;
+}
+
+// Given the --MEMORY-- pin index, return the current input
+// reading
+int inputReading(int g)
+{
+  // Function stub
+  return 0;
+}
+
+// Given the --PHYSICAL-- chip pin index, create a
+// pin struct and return the pointer
+Pin* mallocPin(int p)
+{
+  Pin *pin = malloc(sizeof(Pin));
+  pin->chipIndex = p;
+  pin->memIndex = chipIndexToMem(p);
+  return pin;
+}
+
+char* yn[] = {"YES", "NO"};
+
+void printPin(Pin *pin)
+{
+  printf("The physical pin %d on the chip, location %d\n", 
+    pin->chipIndex, pin->memIndex);
+  printf("in memory, is currently...\n");
+  printf("    Input? %s\n", yn[pin->state]);
+  printf("    Value? %d\n", pin->value);
+}
+
+// Given a --PHYSICAL-- chip pin index, return a
+// pin struct containing the current information
+Pin* pinStatus(int p)
+{
+  // Convert the physical chip pin index to it's memory index
+  int g = chipIndexToMem(p);
   // Extract pin control code (3 bits signifying current state)
   // by retrieving the control word, shifting it the appropriate
   // distance to the right, then masking for the first 3 bits.
@@ -56,17 +128,17 @@ state_t pinStatus(int g)
       isHigh    = SET_WORD & (1u << (g-1));
   // Using the ctrlCode (setting in or out) and the current state,
   // return the state_t type that represents the pins current status
-  switch (1u & ctrlCode)
-  {
-    case 0u /*INPUT*/  : if (isHigh) { return INHIGH;  } else { return INLOW;  }
-    case 1u /*OUTPUT*/ : if (isHigh) { return OUTHIGH; } else { return OUTLOW; }
-  }
+  Pin *pin = mallocPin(p);
+  pin->state = 1u & ctrlCode;
+  pin->value = isHigh;
+  // Note mem dealloc responsibility
+  return pin;
 }
 
 // Main function for testing purposes
 int main()
 {
-  int g,rep; state_t state;
+  int g,rep; Pin* status;
   // declare temp text entry
   char pintxt[5];
   // initialise the gpio access
@@ -77,8 +149,7 @@ start:
   gets(pintxt);
   int pin = atoi(pintxt);
   if (pintxt[0] == 'X') goto end;
-  state = pinStatus(pin);
-  printf("Pin %d is currently %s\n\n", pin, stateLabels[state]);
+  printPin(pinStatus(pin));
   goto start;
 end:
   return 0;
