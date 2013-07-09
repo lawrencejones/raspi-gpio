@@ -89,7 +89,7 @@ void printPin(Pin *pin)
 	int gpio = memToGpioLabel(pin->memIndex);
   printf("| %02d   |    %02d     | ", 
     pin->chipIndex, pin->memIndex);
-	if (gpio > 0) printf("Gpio %2d   ", gpio);
+	if (gpio >= 0) printf("Gpio %2d   ", gpio);
 	else printf("          ");
 	printf("| %s    |  %sV    |\n",
 		yn[pin->state], vals[pin->value]);
@@ -99,7 +99,11 @@ void printAll()
 {
 	printHeader();
 	for (int i = 1; i < 27; i++)
-		printPin(pinStatus(i));
+	{
+		Pin *p = pinStatus(i);
+		if (p->memIndex) printPin(pinStatus(i));
+		free(p);
+	}
 	printf("+------------------------------------------------+\n");
 }
 
@@ -113,7 +117,7 @@ Pin* pinStatus(int p)
   // by retrieving the control word, shifting it the appropriate
   // distance to the right, then masking for the first 3 bits.
   int ctrlCode  = ((PIN_CONTROL_WORD(g) >> PIN_SHIFT(g)) & 7),
-      isHigh    = (VAL_WORD & (1u << (g-1)) != 0);
+      isHigh    = ((VAL_WORD & (1u << g)) != 0);
   // Using the ctrlCode (setting in or out) and the current state,
   // return the state_t type that represents the pins current status
   Pin *pin = mallocPin(p);
