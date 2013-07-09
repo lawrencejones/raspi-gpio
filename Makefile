@@ -3,7 +3,7 @@ CFLAGS  = -fPIC -g -std=c99 -Werror -pedantic
 
 # list final targets
 PROG=gpio
-TESTS=readmem
+TESTS=gpio-words
 
 all: $(PROG)
 
@@ -16,5 +16,5 @@ clean:
 gpio: src/inputs.c src/inputs.h
 	$(CC) $(CFLAGS) $< -o bin/$@
 
-readmem: test/readmem.c
-	$(CC) $(CFLAGS) $< -o ~/readmem
+gpio-words: test/gpio-words.c
+	sudo $(CC) $(CFLAGS) $< -o /usr/local/gpio-words
