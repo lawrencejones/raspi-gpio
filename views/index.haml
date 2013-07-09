@@ -1,15 +1,15 @@
 !!!
 %html
   %head
+    %title Raspberry Pi
     %script{:src => "/js/jquery.js"}
     %script{:src => '/js/bootstrap.min.js'}
+    %script{:src => '/script.js'}
     %link{:href => "/css/bootstrap.css", :rel => "stylesheet"}
     %link{:href => '/css/base.css', :type => 'text/css', :rel => :stylesheet}
-    %script{:src => '/script.js'}
-    %title Raspberry Pi
   %body
     .container
-      .navbar{style: :'position:relative;margin-top:20px;'}
+      .navbar{style: :'margin-top:20px;'}
         .navbar-inner
           %a.brand RASPIPins
           %ul.nav
@@ -22,10 +22,12 @@
       .row
         .span12.text-center
           %h1 General Raspi Overview
+          %p Click on the pins to change their state or view details
       .row
-        %table.grid#chip
-          %tr.odds
+        %table.grid.odd
+          %tr#even-readings
+        %table.grid#chip.table-bordered
           %tr.evens
-      .row
-        %img.centered-diagram{src: :'/img/Diagram.png'}
-        
+          %tr.odds
+        %table.grid.even
+          %tr#odd-readings
