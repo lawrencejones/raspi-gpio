@@ -68,8 +68,8 @@ status. Once cleared, any value may be sent to the SET_PIN macro.
 // given pin number, 001
 #define OUT_GPIO(g) PIN_CONTROL_WORD(g) |=  (1 << PIN_SHIFT(g))
 // Macros to set and clear individual pins
-#define GPIO_SET(g) SET_WORD |= 1 << (g - 1)  // offset to set word
-#define GPIO_CLR(g) CLR_WORD &= 1 << (g - 1)  // offset to clear word
+#define GPIO_SET(g,v) SET_WORD |= v << g  // offset to set word
+#define GPIO_CLR(g) CLR_WORD &= 1 << g  // offset to clear word
 
 // Define unsigned int for reading results
 // 16 bits presumed to be sufficient

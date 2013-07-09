@@ -6,6 +6,7 @@
 ///////////////////////////////////////////////////////////////////////////////
 
 #include "inputs.h"
+#include "print.c"
 
 // Configure the memory access required to alter
 // the GPIO pins. Will request memory access from the system,
@@ -56,14 +57,6 @@ int chipIndexToMem(int p)
   return NA;
 }
 
-// Given the --MEMORY-- pin index, return the current input
-// reading
-int inputReading(int g)
-{
-  // Function stub
-  return 0;
-}
-
 // Given the --PHYSICAL-- chip pin index, create a
 // pin struct and return the pointer
 Pin* mallocPin(int p)
@@ -72,39 +65,6 @@ Pin* mallocPin(int p)
   pin->chipIndex = p;
   pin->memIndex = chipIndexToMem(p);
   return pin;
-}
-
-static const char* yn[] = {"\x1b[32mINP\x1b[0m", "OUT"};
-static const char* vals[] = {"0", "\x1b[91m1\x1b[0m"};
-
-void printHeader()
-{
-	printf("+------------------------------------------------+\n");
-  printf("| PIN  | MEM ADDR  | GPIO NAME | STATE  | VALUE  |\n"); 
-	printf("+------------------------------------------------+\n");
-}
-
-void printPin(Pin *pin)
-{
-	int gpio = memToGpioLabel(pin->memIndex);
-  printf("| %02d   |    %02d     | ", 
-    pin->chipIndex, pin->memIndex);
-	if (gpio >= 0) printf("Gpio %2d   ", gpio);
-	else printf("          ");
-	printf("| %s    |  %sV    |\n",
-		yn[pin->state], vals[pin->value]);
-}
-
-void printAll()
-{
-	printHeader();
-	for (int i = 1; i < 27; i++)
-	{
-		Pin *p = pinStatus(i);
-		if (p->memIndex) printPin(pinStatus(i));
-		free(p);
-	}
-	printf("+------------------------------------------------+\n");
 }
 
 // Given a --PHYSICAL-- chip pin index, return a
@@ -127,24 +87,20 @@ Pin* pinStatus(int p)
   return pin;
 }
 
+// Given a --PHYSICAL-- chip pin index, set it's output
+// value to v
+void setPin(int p, int v)
+{
+	int g = chipIndexToMem(p);
+	// Clear the pin
+	GPIO_CLR(g);
+	// Now set it
+	GPIO_SET(g,v);
+}
+
 // Main function for testing purposes
 int main()
 {
-  int g,rep; Pin* status;
-  // declare temp text entry
-  char pintxt[5];
-  // initialise the gpio access
-  initialiseGpios();
-start:
-/*  printf("Enter a pin to find status...\n");
-  // get user input
-  gets(pintxt);
-  int pin = atoi(pintxt);
-  if (pintxt[0] == 'X') goto end;
-	printHeader();
-  printPin(pinStatus(pin)); 
-  goto start;*/
-	printAll();
-end:
+	printf("Not yet implemented C interface.\n");
   return 0;
 }
