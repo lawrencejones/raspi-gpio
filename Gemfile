@@ -1,6 +1,6 @@
 source "https://rubygems.org"
 
-gem 'rubygems'
+gem 'ffi'
 gem 'em-websocket'
 gem 'coffee-script'
 gem 'haml'
