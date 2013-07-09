@@ -7,15 +7,47 @@
 }
 
 td {
+  text-align : center;
+}
+
+#chip td {
   cursor: pointer;
+  border-bottom : 1px solid #dddddd;
 }
 
 .grid {
+  font-family : "Courier New", Courier, monospace;
+  font-weight:bold;
+  font-size : 14pt;
+  table-layout : fixed;
   position: absolute;
   left : 50%;
-  height : 118px;
   width : 800px;
-  margin : 145px auto auto -400px;
-  border: 1px solid black;
+  margin : 60px auto auto -400px;
   z-index : 99;
+}
+
+#chip {
+  border: 1px solid black;
+  height : 118px;
+}
+
+.grid.even {
+  height : 50px;
+  margin-top : 20px;
+}
+.grid.odd {
+  height : 50px;
+  margin-top : 170px;
+}
+
+.input {
+  background-color: #FF5F5F;
+} .output {
+  background-color: #99FF66;
+}
+
+.pinchart {
+  width : 100%;
+  height : 200px;
 }
