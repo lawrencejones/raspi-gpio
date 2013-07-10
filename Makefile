@@ -1,5 +1,5 @@
 CC      = gcc
-CFLAGS  = -fPIC -pie -rdynamic -g -std=c99 -Werror -pedantic
+CFLAGS  = -fPIC -pie -Qunused-arguments -rdynamic -g -std=c99 -Werror -pedantic
 
 # list final targets
 PROG=gpio
