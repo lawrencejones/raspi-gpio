@@ -95,7 +95,7 @@ EM.run do
     ws.onopen { |handshake|
       puts "New connection from #{handshake.origin}"
       EM.add_periodic_timer(1) {
-        Chip.new Gpio.getChip()
+        chip = Chip.new Gpio.getChip()
         ws.send chip.get_pins.to_json
       }
     }
