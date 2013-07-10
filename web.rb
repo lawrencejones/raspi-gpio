@@ -92,12 +92,12 @@ EM.run do
   end
 
   EM::WebSocket.start(:host => '0.0.0.0', :port => 4567) do |ws|
-    ws.onopen {
-      puts 'this'
-      ws.send "connected!!!!"
-    }
-    ws.onmessage { |message|
-      puts 'message received'
+    ws.onopen { |handshake|
+      puts "New connection from #{handshake.origin}"
+      EM.add_periodic_timer(1) {
+        Chip.new Gpio.getChip()
+        ws.send chip.get_pins.to_json
+      }
     }
   end
 

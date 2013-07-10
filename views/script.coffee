@@ -18,10 +18,12 @@ $ ->
     $('#odd-readings').append new_pinout(2*i - 1)
     $('#chip .evens').append new_pin(2*i)
     $('#even-readings').append new_pinout(2*i - 1)
-  populate_pins()
+  socket = new WebSocket "ws://#{document.domain}:4567"
+  socket.onmessage = update_pins
 
 
-populate_pins = ->
+update_pins = (mssg) ->
+  console.log mssg
   for i in [1..26]
     cell = $("#chip .pin#{i}")
     cell.text(i)
