@@ -22,14 +22,13 @@ end
 
 module Gpio extend FFI::Library
   ffi_lib File.join(File.expand_path('bin'), 'gpio')
-  attach_function :initialiseGpios, [], :pointer
+  # attach_function :initialiseGpios, [], :pointer
   attach_function :chipIndexToMem, [:int], :int
   attach_function :mallocPin, [:int], :pointer
   attach_function :pinStatus, [:int], :pointer
   attach_function :setPin, [:int, :int], :void
 end
 
-gpio = Gpio.initialiseGpios
 
 EM.run do
 
