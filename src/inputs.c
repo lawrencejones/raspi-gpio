@@ -12,7 +12,7 @@
 // the GPIO pins. Will request memory access from the system,
 // note that this requires sudo privileges!
 // Based on example at http://elinux.org/RPi_Low-level_peripherals
-int initialiseGpios()
+volatile unsigned* initialiseGpios()
 {
   // Open system /dev/mem location for direct mem access
   int devmem = open("/dev/mem", O_RDWR|O_SYNC);
@@ -45,7 +45,7 @@ int initialiseGpios()
   // Use volatile pointer to allow shared access of the gpio locations
   // Slows performance but refreshing is required
   gpio = (volatile unsigned *)gpioMap;
-  return EXIT_SUCCESS;
+  return gpio;
 }
 
 // Takes p, the physical pin number and translates to the

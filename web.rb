@@ -4,11 +4,32 @@
 # Should serve live state information about all the pins.
 
 require 'rubygems'
+require 'ffi'
 require 'em-websocket'
 require 'coffee-script'
 require 'haml'
 require 'thin'
 require 'sinatra/base'
+
+system "make"
+
+class PinStruct < FFI::Struct
+  layout :chipIndex, :int, 
+    :memIndex, :int,
+    :state, :int,
+    :value, :int
+end
+
+module Gpio extend FFI::Library
+  ffi_lib File.join(File.expand_path('bin'), 'gpio')
+  attach_function :initialiseGpios, [], :pointer
+  attach_function :chipIndexToMem, [:int], :int
+  attach_function :mallocPin, [:int], :pointer
+  attach_function :pinStatus, [:int], :pointer
+  attach_function :setPin, [:int, :int], :void
+end
+
+gpio = Gpio.initialiseGpios
 
 EM.run do
 
@@ -22,6 +43,12 @@ EM.run do
     # Defines script asset serving
     get '/script.js' do
       coffee(:script)
+    end
+
+    # Testing
+    get '/status' do
+      puts 'hello'
+      puts Gpio.pinStatus 5
     end
 
   end

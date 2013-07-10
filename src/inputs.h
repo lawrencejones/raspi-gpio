@@ -107,8 +107,11 @@ u16 getNO2();
 u16 getCO();
 
 // GPIO helpers
-int initialiseGpios();
-int pinWrite(int g);
+volatile unsigned *initialiseGpios();
+int chipIndexToMem(int p);
+Pin* mallocPin(int p);
+Pin* pinStatus(int p);
+void setPin(int p, int v);
 
 // Given a pin number, will return it's current state
 Pin* pinStatus(int p);
