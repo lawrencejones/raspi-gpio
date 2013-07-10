@@ -31,6 +31,7 @@ end
 module Gpio extend FFI::Library
   ffi_lib File.join(File.expand_path('bin'), 'gpio')
   attach_function :initialiseGpioAccess, [], :pointer
+  attach_function :initialiseChip, [], :pointer
   attach_function :chipIndexToMem, [:int], :int
   attach_function :mallocPin, [:int], :pointer
   attach_function :pinStatus, [:int], :pointer
@@ -38,6 +39,9 @@ module Gpio extend FFI::Library
 end
 
 EM.run do
+
+  Gpio.initialiseGpioAccess()
+  chip = Chip.new(Gpio.initialiseChip())
 
   # Define the app behaviour
   class App < Sinatra::Base
@@ -52,10 +56,9 @@ EM.run do
     end
 
     # Testing
-    get '/status' do
-      puts 'hello'
-      pin = PinStruct.new(Gpio.pinStatus 5)
-			puts pin[:value]
+    get '/status/:pin' do
+      pin_no = params[:pin].to_i
+			puts chip.pin(pin_n)[:value]
     end
 
   end
