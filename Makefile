@@ -1,5 +1,7 @@
 CC      = gcc
-CFLAGS  = -fPIC -pie -Qunused-arguments -rdynamic -g -std=c99 -Werror -pedantic
+COMMON  = -fPIC -rdynamic -g -std=c99 -Werror -pedantic 
+GFLAGS  = -pie
+CFLAGS  = $(COMMON) $(GFLAGS) $(MAC)
 
 # list final targets
 PROG=gpio
