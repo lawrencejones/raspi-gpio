@@ -24,11 +24,7 @@ void printPin(Pin *pin)
 void printAll()
 {
 	printHeader();
-	for (int i = 1; i < 27; i++)
-	{
-		Pin *p = pinStatus(i);
-		if (p->memIndex) printPin(pinStatus(i));
-		free(p);
-	}
+	for (int i = 0; i < NO_OF_PINS; i++)
+		printPin(chip->pins[i]);
 	printf("+------------------------------------------------+\n");
 }

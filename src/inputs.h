@@ -48,6 +48,7 @@ status. Once cleared, any value may be sent to the SET_PIN macro.
 #define CLR_WORD *(gpio + 10)
 #define VAL_WORD *(gpio + (0x34 >> 2))
 #define NA 0 
+#define NO_OF_PINS 26
 
 ///////////////////////////////////////////////////////////////////////////////
 // Macros to prep pins for accessing
@@ -88,10 +89,16 @@ typedef struct {
   int value;
 } Pin;
 
+typedef struct {
+  Pin* pins[NO_OF_PINS];
+} Chip;
+
 // Define the map point for access
 static void* gpioMap;
 // Define the entry point for gpios
 volatile unsigned *gpio;
+// Define the chip state
+static Chip* chip;
 
 ///////////////////////////////////////////////////////////////////////////////
 // FUNCTION STUBS
@@ -107,10 +114,11 @@ u16 getNO2();
 u16 getCO();
 
 // GPIO helpers
-volatile unsigned *initialiseGpios();
+volatile unsigned *initialiseGpioAccess();
 int chipIndexToMem(int p);
 Pin* mallocPin(int p);
 Pin* pinStatus(int p);
+Pin* updatePinStatus(Pin* p);
 void setPin(int p, int v);
 
 // Given a pin number, will return it's current state

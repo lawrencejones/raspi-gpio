@@ -12,7 +12,7 @@
 // the GPIO pins. Will request memory access from the system,
 // note that this requires sudo privileges!
 // Based on example at http://elinux.org/RPi_Low-level_peripherals
-volatile unsigned* initialiseGpios()
+volatile unsigned* initialiseGpioAccess()
 {
   // Open system /dev/mem location for direct mem access
   int devmem = open("/dev/mem", O_RDWR|O_SYNC);
@@ -48,11 +48,30 @@ volatile unsigned* initialiseGpios()
   return gpio;
 }
 
+// Allocate memory to a chip struct that will represent the
+// current state of the raspberry pi pins
+Chip *initialiseChip()
+{
+  chip = malloc(sizeof(Chip));
+  for (int i = 1; i <= NO_OF_PINS; i++)
+    chip->pins[i - 1] = mallocPin(i);
+  return chip;
+}
+
+// Doesn't take a chip parameter as it is already
+// globally accessable
+void deallocChip()
+{
+  for (int i = 1; i <= NO_OF_PINS; i++)
+    free(chip->pins[i]);
+  free(chip);
+}
+
 // Takes p, the physical pin number and translates to the
 // memory address pin location
 int chipIndexToMem(int p)
 {
-  if ((p < 27) && (p > 0)) return memIndexes[p];
+  if ((p <= NO_OF_PINS) && (p > 0)) return memIndexes[p];
   fprintf(stderr, "Not a valid physical pin number.\n");
   return NA;
 }
@@ -64,6 +83,7 @@ Pin* mallocPin(int p)
   Pin *pin = malloc(sizeof(Pin));
   pin->chipIndex = p;
   pin->memIndex = chipIndexToMem(p);
+  updatePinStatus(pin);
   return pin;
 }
 
@@ -73,6 +93,25 @@ Pin* pinStatus(int p)
 {
   // Convert the physical chip pin index to it's memory index
   int g = chipIndexToMem(p);
+  Pin *pin = mallocPin(p);
+  // Update the pin with it's current values
+  updatePinStatus(pin);
+  // Note mem dealloc responsibility
+  return pin;
+}
+
+// Updates all the pin values in the chip struct
+void updateAllPins()
+{
+  for (int i = 0; i < NO_OF_PINS; i++)
+    updatePinStatus(chip->pins[i]);
+}
+
+// Helper function to prevent reallocation of memory
+// Given the pin struct pointer, will update it's value
+Pin* updatePinStatus(Pin* pin)
+{
+  int g = pin->memIndex;
   // Extract pin control code (3 bits signifying current state)
   // by retrieving the control word, shifting it the appropriate
   // distance to the right, then masking for the first 3 bits.
@@ -80,10 +119,8 @@ Pin* pinStatus(int p)
       isHigh    = ((VAL_WORD & (1u << g)) != 0);
   // Using the ctrlCode (setting in or out) and the current state,
   // return the state_t type that represents the pins current status
-  Pin *pin = mallocPin(p);
   pin->state = 1u & ctrlCode;
   pin->value = isHigh;
-  // Note mem dealloc responsibility
   return pin;
 }
 
@@ -102,5 +139,9 @@ void setPin(int p, int v)
 int main()
 {
 	printf("Not yet implemented C interface.\n");
+  initialiseGpioAccess();
+  initialiseChip();
+  printAll();
+  deallocChip();
   return 0;
 }

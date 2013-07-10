@@ -20,16 +20,22 @@ class PinStruct < FFI::Struct
     :value, :int
 end
 
+class Chip < FFI::Struct
+  layout :pins, :pointer
+
+  def pin(n)
+    PinStruct.new self[:pins].get_array_of_pointer(0,26)[n-1]
+  end
+end
+
 module Gpio extend FFI::Library
   ffi_lib File.join(File.expand_path('bin'), 'gpio')
-  attach_function :initialiseGpios, [], :pointer
+  attach_function :initialiseGpioAccess, [], :pointer
   attach_function :chipIndexToMem, [:int], :int
   attach_function :mallocPin, [:int], :pointer
   attach_function :pinStatus, [:int], :pointer
   attach_function :setPin, [:int, :int], :void
 end
-
-gpio = Gpio.initialiseGpios()
 
 EM.run do
 
