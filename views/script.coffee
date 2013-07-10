@@ -3,37 +3,42 @@
 #///////////////////////////////////////////////////////////////////////////////
 
 new_pin = (p) ->
+  txt = p
+  txt = pins[p-1].name.split(' ')[0] unless pins[p-1].memory_index 
   pins[p-1].cell = $("<td/ class=\"pin#{p}\">")
-    .text(p)
+    .text(txt)
     .click ->
       $(this).toggleClass 'input'
 
 new_pinout = (p) ->
-  pins[p-1].io = $("<td/ id=\"pin#{p}-io\">").text 'X'
+  pins[p-1].io = pin = $("<td/ id=\"pin#{p}-io\">")
+  pin.text 'X'
+  return pin
 
 $ ->
   for i in [1..13]
     $('#chip .odds').append   new_pin(2*i - 1)
     $('#odd-readings').append new_pinout(2*i - 1)
     $('#chip .evens').append new_pin(2*i)
-    $('#even-readings').append new_pinout(2*i - 1)
+    $('#even-readings').append new_pinout(2*i)
   socket = new WebSocket "ws://#{document.domain}:4567"
   socket.onmessage = update_pins
 
 update_pins = (mssg) ->
-  pin_states = $.parseJSON mssg
-  for i in [1..26]
-    pin_cell = pins[i-1].cell
-    pin_out = pins[i-1].io
-    if pin_states[i-1][0] == 1
-      pin_cell.addClass 'output'
+  pin_states = $.parseJSON mssg.data
+  for i in [0..25]
+    pin = pins[i]
+    if pin.memory_index
+      if pin_states[i][0] == 1
+        pin.cell.addClass 'output'
+        pin.cell.removeClass 'input'
+      else
+        pin.cell.addClass 'input'
+        pin.cell.removeClass 'output'
+    if pin_states[i][1] == 1
+      pin.io.css 'opacity', 1
     else
-      pin_cell.removeClass 'output'
-    if pin_states[i-1][1] == 1
-      pin_out.show
-    else
-      pin_out.hide
-    
+      pin.io.css 'opacity', 0
 
 pins = [
   {   # 1
@@ -146,7 +151,7 @@ pins = [
     name : 'Gpio 6'
     memory_index : 25
   },
-  }   # 23
+  {   # 23
     gpio_no : '14'
     name : 'SCLK - Gpio 14'
     memory_index : 11

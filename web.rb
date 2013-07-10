@@ -99,6 +99,9 @@ EM.run do
         ws.send chip.get_pins.to_json
       }
     }
+    ws.onclose {
+      puts "Closed connection"
+    }
   end
 
   Thin::Server.start App, '0.0.0.0', 3000
