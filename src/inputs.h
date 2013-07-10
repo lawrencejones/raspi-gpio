@@ -120,6 +120,7 @@ Pin* mallocPin(int p);
 Pin* pinStatus(int p);
 Pin* updatePinStatus(Pin* p);
 void setPin(int p, int v);
+Pin** updateAllPins();
 
 // Given a pin number, will return it's current state
 Pin* pinStatus(int p);

@@ -101,10 +101,11 @@ Pin* pinStatus(int p)
 }
 
 // Updates all the pin values in the chip struct
-void updateAllPins()
+Pin** updateAllPins()
 {
   for (int i = 0; i < NO_OF_PINS; i++)
     updatePinStatus(chip->pins[i]);
+  return chip->pins;
 }
 
 // Helper function to prevent reallocation of memory
@@ -134,6 +135,9 @@ void setPin(int p, int v)
 	// Now set it
 	GPIO_SET(g,v);
 }
+
+Chip* getChip()
+{ return chip; }
 
 // Main function for testing purposes
 int main()

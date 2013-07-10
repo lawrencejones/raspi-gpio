@@ -10,23 +10,9 @@ require 'coffee-script'
 require 'haml'
 require 'thin'
 require 'sinatra/base'
+require 'json'
 
 system "make"
-
-class PinStruct < FFI::Struct
-  layout :chipIndex, :int, 
-    :memIndex, :int,
-    :state, :int,
-    :value, :int
-end
-
-class Chip < FFI::Struct
-  layout :pins, :pointer
-
-  def pin(n)
-    PinStruct.new self[:pins].get_array_of_pointer(0,26)[n-1]
-  end
-end
 
 module Gpio extend FFI::Library
   ffi_lib File.join(File.expand_path('bin'), 'gpio')
@@ -36,15 +22,53 @@ module Gpio extend FFI::Library
   attach_function :mallocPin, [:int], :pointer
   attach_function :pinStatus, [:int], :pointer
   attach_function :setPin, [:int, :int], :void
+  attach_function :getChip, [], :pointer
+  attach_function :updateAllPins, [], :pointer
+end
+
+class PinStruct < FFI::Struct
+  layout :chipIndex, :int, 
+    :memIndex, :int,
+    :state, :int,
+    :value, :int
+
+  def get_json
+=begin   # Potential object literal approach
+    { 
+      :chipIndex => self[:chipIndex], 
+      :memIndex => self[:memIndex],
+      :state => self[:state], 
+      :value => self[:value]
+    }.to_json
+=end
+    [ self[:state], self[:value] ]
+  end
+end
+
+class Chip < FFI::Struct
+  layout :pins, :pointer
+
+  def pin(n)
+    PinStruct.new self.p_pointers[n-1]
+  end
+
+  def p_pointers
+    Gpio.updateAllPins().get_array_of_pointer(0,26)
+  end
+
+  def get_pins
+    self.p_pointers().map { |p| PinStruct.new(p).get_json }
+  end
 end
 
 EM.run do
 
   Gpio.initialiseGpioAccess()
-  chip = Chip.new(Gpio.initialiseChip())
+  Gpio.initialiseChip()
 
   # Define the app behaviour
   class App < Sinatra::Base
+
     # Define the get to root
     get '/' do
       haml :index    # render index view
@@ -55,10 +79,14 @@ EM.run do
       coffee(:script)
     end
 
-    # Testing
-    get '/status/:pin' do
-      pin_no = params[:pin].to_i
-			puts chip.pin(pin_n)[:value]
+    # Write to the pin
+    post '/write/:pin/:value' do
+      Gpio.setPin (params[:pin].to_i), (params[:value].to_i)
+    end
+
+    get '/status' do
+      chip = Chip.new Gpio.getChip()
+      chip.get_pins.to_json
     end
 
   end
