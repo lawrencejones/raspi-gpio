@@ -3,14 +3,13 @@
 #///////////////////////////////////////////////////////////////////////////////
 
 new_pin = (p) ->
-  button = $("<td/ class=\"pin#{p}\">")
+  pins[p-1].cell = $("<td/ class=\"pin#{p}\">")
+    .text(p)
     .click ->
       $(this).toggleClass 'input'
 
 new_pinout = (p) ->
-  cell = $("<td/ id=\"pin#{p}-io\">")
-  cell.text 'X'
-  return cell
+  pins[p-1].io = $("<td/ id=\"pin#{p}-io\">").text 'X'
 
 $ ->
   for i in [1..13]
@@ -21,142 +20,150 @@ $ ->
   socket = new WebSocket "ws://#{document.domain}:4567"
   socket.onmessage = update_pins
 
-
 update_pins = (mssg) ->
-  console.log mssg
+  pin_states = $.parseJSON mssg
   for i in [1..26]
-    cell = $("#chip .pin#{i}")
-    cell.text(i)
+    pin_cell = pins[i-1].cell
+    pin_out = pins[i-1].io
+    if pin_states[i-1][0] == 1
+      pin_cell.addClass 'output'
+    else
+      pin_cell.removeClass 'output'
+    if pin_states[i-1][1] == 1
+      pin_out.show
+    else
+      pin_out.hide
+    
 
-pins = {
-  1 : {
+pins = [
+  {   # 1
     gpio_no : 'NA'
     name : '3.3v Power'
     memory_index : 0
-  }
-  2 : {
+  },
+  {   # 2
     gpio_no : 'NA'
     name : '5v Power'
     memory_index : 0
-  }
-  3 : {
+  },
+  {   # 3
     gpio_no : '8'
     name : 'SDA - Gpio 8'
     memory_index : 2
-  }
-  4 : {
+  },
+  {   # 4
     gpio_no : 'NA'
     name : '5v Power'
     memory_index : 0
-  }
-  5 : {
+  },
+  {   # 5
     gpio_no : '9'
     name : 'SCL - Gpio 9'
     memory_index : 3
-  }
-  6 : {
+  },
+  {   # 6
     gpio_no : 'NA'
     name : '0v Ground'
     memory_index : 0
-  }
-  7 : {
+  },
+  {   # 7
     gpio_no : '7'
     name : 'GPCLK - Gpio 7'
     memory_index : 4
-  }
-  8 : {
+  },
+  {   # 8
     gpio_no : '15'
     name : 'TXD - Gpio 15'
     memory_index : 14
-  }
-  9 : {
+  },
+  {   # 9
     gpio_no : 'NA'
     name : '0v Ground'
     memory_index : 0
-  }
-  10 : {
+  },
+  {   # 10
     gpio_no : '16'
     name : 'RXD - Gpio 16'
     memory_index : 15
-  }
-  11 : {
+  },
+  {   # 11
     gpio_no : '0'
     name : 'Gpio 0'
     memory_index : 17
-  }
-  12 : {
+  },
+  {   # 12
     gpio_no : '1'
     name : 'PCM_CLK - Gpio 1'
     memory_index : 18
-  }
-  13 : {
+  },
+  {   # 13
     gpio_no : '2'
     name : 'Gpio 2'
     memory_index : 27
-  }
-  14 : {
+  },
+  {   # 14
     gpio_no : 'NA'
     name : '0v Ground'
     memory_index : 0
-  }
-  15 : {
+  },
+  {   # 15
     gpio_no : '3'
     name : 'Gpio 3'
     memory_index : 22
-  }
-  16 : {
+  },
+  {   # 16
     gpio_no : '4'
     name : 'Gpio 4'
     memory_index : 23
-  }
-  17 : {
+  },
+  {   # 17
     gpio_no : 'NA'
     name : '3.3v Power'
     memory_index : 0
-  }
-  18 : {
+  },
+  {   # 18
     gpio_no : '5'
     name : 'Gpio 5'
     memory_index : 24
-  }
-  19 : {
+  },
+  {   # 19
     gpio_no : '12'
     name : 'MOSI - Gpio 12'
     memory_index : 10
-  }
-  20 : {
+  },
+  {   # 20
     gpio_no : 'NA'
     name : '0v Ground'
     memory_index : 0
-  }
-  21 : {
+  },
+  {   # 21
     gpio_no : '13'
     name : 'MISO - Gpio 13'
     memory_index : 9
-  }
-  22 : {
+  },
+  {   # 22
     gpio_no : '6'
     name : 'Gpio 6'
     memory_index : 25
-  }
-  23 : {
+  },
+  }   # 23
     gpio_no : '14'
     name : 'SCLK - Gpio 14'
     memory_index : 11
-  }
-  24 : {
+  },
+  {   # 24
     gpio_no : '10'
     name : 'CE0 - Gpio 10'
     memory_index : 8
-  }
-  25 : {
+  },
+  {   # 25
     gpio_no : 'NA'
     name : '0v Ground'
     memory_index : 0
-  }
-  26 : {
+  },
+  {   # 26
     gpio_no : '11'
     name : 'CE1 - Gpio 11'
     memory_index : 7
   }
-}
+]
