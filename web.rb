@@ -12,7 +12,7 @@ require 'thin'
 require 'sinatra/base'
 require 'json'
 
-system "make"
+# system "make"
 
 module Gpio extend FFI::Library
   ffi_lib File.join(File.expand_path('bin'), 'gpio')
@@ -94,7 +94,7 @@ EM.run do
   EM::WebSocket.start(:host => '0.0.0.0', :port => 4567) do |ws|
     ws.onopen { |handshake|
       puts "New connection from #{handshake.origin}"
-      EM.add_periodic_timer(1) {
+      EM.add_periodic_timer(0.1) {
         chip = Chip.new Gpio.getChip()
         ws.send chip.get_pins.to_json
       }

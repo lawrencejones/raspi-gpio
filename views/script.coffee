@@ -12,15 +12,33 @@ new_pin = (p) ->
 
 new_pinout = (p) ->
   pins[p-1].io = pin = $("<td/ id=\"pin#{p}-io\">")
+  if pins[p-1].memory_index == 0
+    pin.css 'opacity', 0
   pin.text 'X'
   return pin
+
+new_pin_row = (p) ->
+  row = pins[p-1].row = $('.pin-template').clone()
+  row.removeClass 'pin-template'
+  row.find('.pin').text p
+  row.find('.name').text pins[p-1].name
+  row.find('.gpio').text pins[p-1].gpio_no
+  pins[p-1].rowstate = row.find('.state')
+  pins[p-1].rowvalue = row.find('.value')
+  row.data 'pin', pins[p-1]
+  row.hover \
+    ( -> $(this).data('pin').cell.addClass 'underlined'), \
+    ( -> $(this).data('pin').cell.removeClass 'underlined')
+  return row
 
 $ ->
   for i in [1..13]
     $('#chip .odds').append   new_pin(2*i - 1)
     $('#odd-readings').append new_pinout(2*i - 1)
+    $('#pin-table').append new_pin_row(2*i - 1) if pins[2*i - 2].memory_index
     $('#chip .evens').append new_pin(2*i)
     $('#even-readings').append new_pinout(2*i)
+    $('#pin-table').append new_pin_row(2*i) if pins[2*i - 1].memory_index
   socket = new WebSocket "ws://#{document.domain}:4567"
   socket.onmessage = update_pins
 
@@ -29,16 +47,24 @@ update_pins = (mssg) ->
   for i in [0..25]
     pin = pins[i]
     if pin.memory_index
+      pin.rowstate.find('.active').removeClass 'active'
       if pin_states[i][0] == 1
         pin.cell.addClass 'output'
         pin.cell.removeClass 'input'
+        pin.row.removeClass 'error'
+        pin.row.addClass 'success'
+        pin.rowstate.find('.output-pill').addClass 'active'
       else
         pin.cell.addClass 'input'
         pin.cell.removeClass 'output'
-    if pin_states[i][1] == 1
-      pin.io.css 'opacity', 1
-    else
-      pin.io.css 'opacity', 0
+        pin.row.removeClass 'success'
+        pin.row.addClass 'error'
+        pin.rowstate.find('.input-pill').addClass 'active'
+      if pin_states[i][1] == 1
+        pin.io.css 'opacity', 1
+      else
+        pin.io.css 'opacity', 0
+      pin.rowvalue.text pin_states[i][1]
 
 pins = [
   {   # 1

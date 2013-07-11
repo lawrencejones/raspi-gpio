@@ -29,10 +29,32 @@
               %td.power Power
               %td.output Out
       .row
-        %table.grid.odd
+        %table.grid.even
           %tr#even-readings
         %table.grid#chip.table-bordered
           %tr.evens
           %tr.odds
-        %table.grid.even
+        %table.grid.odd
           %tr#odd-readings
+      .row#pin-summary
+        %table.table.table-striped.table-hover.table-bordered#pin-table
+          %tr
+            %th{:style => 'width:35px'} Pin
+            %th{:style => 'width:250px'} Name
+            %th{:style => 'width:80px'} Gpio Label
+            %th{:style => 'width:200px'} State
+            %th Value
+
+%table.hidden
+  %tbody
+    %tr.pin-template.pin-row
+      %td.pin
+      %td.name
+      %td.gpio
+      %td.state
+        %ul.nav.nav-pills{:style => 'margin: -5px auto -6px 35px; cursor : pointer'}
+          %li.input-pill
+            %a Input
+          %li.output-pill
+            %a Output
+      %td.value{:style => 'font-weight:bold;'}
