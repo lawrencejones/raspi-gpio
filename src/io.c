@@ -144,6 +144,20 @@ Pin** updateAllPins()
 // GPIO WRITE
 ///////////////////////////////////////////////////////////////////////////////
 
+// Given a word, apply it to the set mem address to
+// set multiple pins in one go
+void  setWithWord(uint32_t w)
+{
+  SET_WORD = w;
+}
+
+// As above, given a word, apply to the clearing
+// memory address to turn multiple pins off at once
+void  clrWithWord(uint32_t w)
+{
+  CLR_WORD = w;
+}
+
 // Given a --PHYSICAL-- chip pin index, set it's output
 // value to v
 void setPin(int p, int v)

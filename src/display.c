@@ -21,34 +21,42 @@
 #define D2 19
 #define D3 21
 
+static uint32_t clrWord;
+
 int muls[]    = { 1, 10, 100, 1000 };
 int binPins[] = { B0, B1, B2, B3 };
 int decPins[] = { D0, D1, D2, D3 };
-int value;
+int value; 
 
-static inline void selectDecoder(int index)
+uint32_t generateClearWord()
 {
-  for (int j = 0; j < 4; j++)
-	  setPin(decPins[j], 0);
-	setPin(decPins[index], 1);
+  clrWord = 0;
+  for (int i = 0; i < 4; i++)
+  {
+    clrWord |= 1 << chipPinToMem(binPins[i]);
+    clrWord |= 1 << chipPinToMem(decPins[i]);
+  } return clrWord;
 }
 
 // Assumes pins are already prepped for output
 // and writing
 void outputToDisplay()
 {
-  int v = 0;  
+  int v = 0; uint32_t setWord;
+  generateClearWord();
 start:
   for (int j = 0; j < 4; j++)
   {
-    selectDecoder(j);
+    setWord = 0;
     v = (value / muls[j]) % 10;
     // Run from LSB -> MSB
     for (int i = 0; i < 4; i++)
     {
-      setPin(binPins[i], (0x1u & v));
+      setWord |= (0x1u & v) << chipPinToMem(binPins[i]);
       v >>= 1;
-    } for(int k=0; k<0xfffu; k++);
+    } clrWithWord(clrWord & ~setWord);
+    setWithWord(setWord | (1u << chipPinToMem(decPins[j])));
+    for (int k = 0; k < 0xffff; k++);
   }
   goto start;
 }

@@ -121,6 +121,8 @@ Pin   *pinStatus(int p);
 Pin   *updatePinStatus(Pin* pin);
 Pin   **updateAllPins();
 // Gpio Write    ////////////////////////////
+void  setWithWord(uint32_t w);
+void  clrWithWord(uint32_t w);
 void  setPin(int p, int v);
 void  setPinState(int p, int v);
 // Sinatra Add-ons   ////////////////////////
