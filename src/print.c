@@ -1,7 +1,13 @@
+///////////////////////////////////////////////////////////////////////////////
+// Raspberry Pi GPIO Interface
+// ¯¯¯¯¯¯¯¯¯¯¯¯¯¯¯¯¯¯¯¯¯¯¯¯¯¯¯
+// File: print.c
+// PA Consulting - Lawrence Jones
+///////////////////////////////////////////////////////////////////////////////
+
 // Small unit to deal with the formatting of words etc
 
-static const char* yn[] = {"\x1b[32mINP\x1b[0m", "OUT"};
-static const char* vals[] = {"0", "\x1b[91m1\x1b[0m"};
+#include "print.h"
 
 void printHeader()
 {

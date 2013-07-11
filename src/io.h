@@ -72,6 +72,10 @@ status. Once cleared, any value may be sent to the SET_PIN macro.
 #define GPIO_SET(g,v) SET_WORD = v << g  // offset to set word
 #define GPIO_CLR(g) CLR_WORD   = 1 << g  // offset to clear word
 
+///////////////////////////////////////////////////////////////////////////////
+// TYPEDEFS / STRUCTS
+///////////////////////////////////////////////////////////////////////////////
+
 // Define unsigned int for reading results
 // 16 bits presumed to be sufficient
 typedef uint16_t u16;
@@ -89,6 +93,7 @@ typedef struct {
   int value;
 } Pin;
 
+// Define the Chip struct
 typedef struct {
   Pin* pins[NO_OF_PINS];
 } Chip;
@@ -104,18 +109,21 @@ static Chip* chip;
 // FUNCTION STUBS
 ///////////////////////////////////////////////////////////////////////////////
 
-// GPIO helpers
-volatile unsigned *initialiseGpioAccess();
-int chipIndexToMem(int p);
-Pin* mallocPin(int p);
-Pin* pinStatus(int p);
-Pin* updatePinStatus(Pin* p);
-void setPin(int p, int v);
-Pin** updateAllPins();
-void setPinStatus(int p, int v);
-
-// Given a pin number, will return it's current state
-Pin* pinStatus(int p);
-
+// Initialisation    ////////////////////////
+volatile unsigned* initialiseGpioAccess();
+// Malloc / Dealloc   ///////////////////////
+Chip  *initialiseChip();
+Pin   *mallocPin(int p);
+void  deallocChip();
+int   chipIndexToMem(int p);
+// Gpio Read    /////////////////////////////
+Pin   *pinStatus(int p);
+Pin   *updatePinStatus(Pin* pin);
+Pin   **updateAllPins();
+// Gpio Write    ////////////////////////////
+void  setPin(int p, int v);
+void  setPinState(int p, int v);
+// Sinatra Add-ons   ////////////////////////
+Chip  *getChip();
 
 #endif

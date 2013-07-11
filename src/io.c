@@ -6,9 +6,14 @@
 ///////////////////////////////////////////////////////////////////////////////
 
 #include "io.h"
-#include "print.c"
+#include "print.h"
+#include "pinmaps.h"
 #include <pthread.h>
 #include <semaphore.h>
+
+///////////////////////////////////////////////////////////////////////////////
+// INITIALISATION
+///////////////////////////////////////////////////////////////////////////////
 
 // Configure the memory access required to alter
 // the GPIO pins. Will request memory access from the system,
@@ -50,6 +55,10 @@ volatile unsigned* initialiseGpioAccess()
   return gpio;
 }
 
+///////////////////////////////////////////////////////////////////////////////
+// MALLOC / DEALLOC
+///////////////////////////////////////////////////////////////////////////////
+
 // Allocate memory to a chip struct that will represent the
 // current state of the raspberry pi pins
 Chip *initialiseChip()
@@ -58,6 +67,17 @@ Chip *initialiseChip()
   for (int i = 1; i <= NO_OF_PINS; i++)
     chip->pins[i - 1] = mallocPin(i);
   return chip;
+}
+
+// Given the --PHYSICAL-- chip pin index, create a
+// pin struct and return the pointer
+Pin* mallocPin(int p)
+{
+  Pin *pin = malloc(sizeof(Pin));
+  pin->chipIndex = p;
+  pin->memIndex = chipIndexToMem(p);
+  updatePinStatus(pin);
+  return pin;
 }
 
 // Doesn't take a chip parameter as it is already
@@ -73,21 +93,14 @@ void deallocChip()
 // memory address pin location
 int chipIndexToMem(int p)
 {
-  if ((p <= NO_OF_PINS) && (p > 0)) return memIndexes[p];
+  if ((p <= NO_OF_PINS) && (p > 0)) return chipPinToMem(p);
   fprintf(stderr, "Not a valid physical pin number.\n");
   return NA;
 }
 
-// Given the --PHYSICAL-- chip pin index, create a
-// pin struct and return the pointer
-Pin* mallocPin(int p)
-{
-  Pin *pin = malloc(sizeof(Pin));
-  pin->chipIndex = p;
-  pin->memIndex = chipIndexToMem(p);
-  updatePinStatus(pin);
-  return pin;
-}
+///////////////////////////////////////////////////////////////////////////////
+// GPIO READ
+///////////////////////////////////////////////////////////////////////////////
 
 // Given a --PHYSICAL-- chip pin index, return a
 // pin struct containing the current information
@@ -100,14 +113,6 @@ Pin* pinStatus(int p)
   updatePinStatus(pin);
   // Note mem dealloc responsibility
   return pin;
-}
-
-// Updates all the pin values in the chip struct
-Pin** updateAllPins()
-{
-  for (int i = 0; i < NO_OF_PINS; i++)
-    updatePinStatus(chip->pins[i]);
-  return chip->pins;
 }
 
 // Helper function to prevent reallocation of memory
@@ -126,6 +131,18 @@ Pin* updatePinStatus(Pin* pin)
   pin->value = isHigh;
   return pin;
 }
+
+// Updates all the pin values in the chip struct
+Pin** updateAllPins()
+{
+  for (int i = 0; i < NO_OF_PINS; i++)
+    updatePinStatus(chip->pins[i]);
+  return chip->pins;
+}
+
+///////////////////////////////////////////////////////////////////////////////
+// GPIO WRITE
+///////////////////////////////////////////////////////////////////////////////
 
 // Given a --PHYSICAL-- chip pin index, set it's output
 // value to v
@@ -148,7 +165,9 @@ void setPinState(int p, int v)
   if (v) OUT_GPIO(g);
 }
 
+///////////////////////////////////////////////////////////////////////////////
+// SINATRA ADDONS
+///////////////////////////////////////////////////////////////////////////////
+
 Chip* getChip()
 { return chip; }
-
-

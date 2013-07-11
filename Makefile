@@ -6,21 +6,22 @@ CFLAGS  = $(COMMON) $(GFLAGS) $(MAC)
 # list final targets
 PROG  = gpio display
 TESTS = gpio-words
-OBJ   = $(addprefix 'obj/', $(io))
+OS    = io print pinmaps
+OBJ   = $(addsuffix .o, $(addprefix obj/, $(OS)))
 
 all: $(PROG)
 
 tests: $(TESTS)
 
 clean:
-	rm $(OBJS)
-	rm $(BINS)
+	rm $(OBJ)
+	rm $(addprefix bin/, $(PROG))
 
-gpio: obj/io.o src/gpio.c $(OBJ)
-	$(CC) $(CFLAGS) $(OBJ) -o bin/$@ src/gpio.c
+gpio:  src/gpio.c $(OBJ)
+	$(CC) $(CFLAGS) -o bin/$@ src/gpio.c $(OBJ)
 
-display: obj/io.o src/display.c src/display.h
-	$(CC) $(CFLAGS) $< -o bin/$@
+display: src/display.c $(OBJ)
+	$(CC) $(CFLAGS) -o bin/$@ src/display.c $(OBJ) 
 
 gpio-words: test/gpio-words.c
 	sudo $(CC) $(CFLAGS) $< -o /usr/local/gpio-words

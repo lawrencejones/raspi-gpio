@@ -1,6 +1,9 @@
-// Contains mapping arrays to convert from physical
-// on chip pin indexes (1-26) to the memory address indexes
-// and from gpio label numbers to the memory address indexes
+///////////////////////////////////////////////////////////////////////////////
+// Raspberry Pi GPIO Interface
+// ¯¯¯¯¯¯¯¯¯¯¯¯¯¯¯¯¯¯¯¯¯¯¯¯¯¯¯
+// File: pinmaps.h
+// PA Consulting - Lawrence Jones
+///////////////////////////////////////////////////////////////////////////////
 
 #ifndef PIN_MAPS
 #define PIN_MAPS
@@ -28,15 +31,6 @@ static const int gpioIndexes[] = {
   /* Gpio 15 */ 14,
   /* Gpio 16 */ 15,
 };
-
-// Takes the pin memory address index and returns
-// it's gpio label
-int memToGpioLabel(int p)
-{
-	for (int i = 0; i < 17; i++)
-		if (gpioIndexes[i] == p) return i;
-	return -1;
-}
 
 // Maps the physical ON CHIP pin indexes by means of an
 // array to their memory address index counterparts
@@ -69,5 +63,8 @@ static const int memIndexes[] = {
   /* Pin 25 - 0v Ground         */    NA,
   /* Pin 26 - CE1 - Gpio 11     */    7,
 };
+
+int chipPinToMem(int p);
+int memToGpioLabel(int p);
 
 #endif
