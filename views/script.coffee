@@ -6,9 +6,18 @@ new_pin = (p) ->
   txt = p
   txt = pins[p-1].name.split(' ')[0] unless pins[p-1].memory_index 
   pins[p-1].cell = $("<td/ class=\"pin#{p}\">")
+    .data('pin_no', p)
     .text(txt)
     .click ->
-      $(this).toggleClass 'input'
+      toggle_pin $(this).data('pin_no')
+
+toggle_pin = (p) ->
+  console.log p + ' / ' + pins[p-1].value
+  if pins[p-1].value
+    $.post "/write/#{p}/0"
+  else
+    $.post "/write/#{p}/1"
+
 
 new_pinout = (p) ->
   pins[p-1].io = pin = $("<td/ id=\"pin#{p}-io\">")
@@ -16,6 +25,7 @@ new_pinout = (p) ->
     pin.css 'opacity', 0
   pin.text 'X'
   return pin
+
 
 new_pin_row = (p) ->
   row = pins[p-1].row = $('.pin-template').clone()
@@ -29,6 +39,11 @@ new_pin_row = (p) ->
   row.hover \
     ( -> $(this).data('pin').cell.addClass 'underlined'), \
     ( -> $(this).data('pin').cell.removeClass 'underlined')
+  pins[p-1].rowstate.data 'pin_no', p
+  pins[p-1].rowstate.find('.input-pill, .output-pill').click ->
+    pin_no = $(this).parent().parent().data 'pin_no'
+    console.log pin_no
+    $.post "/set/#{pin_no}/#{$(this).attr('val')}"
   return row
 
 $ ->
@@ -45,6 +60,8 @@ $ ->
 update_pins = (mssg) ->
   pin_states = $.parseJSON mssg.data
   for i in [0..25]
+    pins[i].state = pin_states[i][0]
+    pins[i].value = pin_states[i][1]
     pin = pins[i]
     if pin.memory_index
       pin.rowstate.find('.active').removeClass 'active'

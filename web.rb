@@ -22,6 +22,7 @@ module Gpio extend FFI::Library
   attach_function :mallocPin, [:int], :pointer
   attach_function :pinStatus, [:int], :pointer
   attach_function :setPin, [:int, :int], :void
+  attach_function :setPinState, [:int, :int], :void
   attach_function :getChip, [], :pointer
   attach_function :updateAllPins, [], :pointer
 end
@@ -82,6 +83,10 @@ EM.run do
     # Write to the pin
     post '/write/:pin/:value' do
       Gpio.setPin (params[:pin].to_i), (params[:value].to_i)
+    end
+
+    post '/set/:pin/:value' do
+      Gpio.setPinState (params[:pin].to_i), (params[:value].to_i)
     end
 
     get '/status' do

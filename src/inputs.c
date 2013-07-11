@@ -130,10 +130,20 @@ Pin* updatePinStatus(Pin* pin)
 void setPin(int p, int v)
 {
 	int g = chipIndexToMem(p);
-	// Clear the pin
-	GPIO_CLR(g);
-	// Now set it
-	GPIO_SET(g,v);
+  if (v == 0)
+	  // Clear the pin
+	  GPIO_CLR(g);
+  else
+	  // Now set it
+	  GPIO_SET(g,v);
+}
+
+void setPinState(int p, int v)
+{
+  int g = chipIndexToMem(p);
+  INP_GPIO(g);
+  // If output
+  if (v) OUT_GPIO(g);
 }
 
 Chip* getChip()

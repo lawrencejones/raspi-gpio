@@ -39,6 +39,10 @@ td {
   text-align : center;
 }
 
+.pin-row {
+  cursor : pointer;
+}
+
 .underlined {
   border-style : 1px solid black;
   text-decoration: underline overline;
