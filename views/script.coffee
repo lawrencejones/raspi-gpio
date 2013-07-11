@@ -44,6 +44,7 @@ new_pin_row = (p) ->
     pin_no = $(this).parent().parent().data 'pin_no'
     console.log pin_no
     $.post "/set/#{pin_no}/#{$(this).attr('val')}"
+  row.click -> $(this).data('pin').cell.trigger 'click'
   return row
 
 $ ->

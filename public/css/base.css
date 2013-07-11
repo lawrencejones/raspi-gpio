@@ -19,6 +19,14 @@ td {
   z-index : 99;
 }
 
+#pin-summary {
+  padding-bottom : 30px;
+}
+
+.chip-row {
+  height : 250px;
+}
+
 .legend {
   width : 183px;
   margin-left : -91px;

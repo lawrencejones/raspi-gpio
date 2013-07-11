@@ -27,7 +27,7 @@ static uint32_t clrWord;
 int muls[]    = { 1, 10, 100, 1000 };
 int binPins[] = { B0, B1, B2, B3 };
 int decPins[] = { D0, D1, D2, D3 };
-int *value; 
+int *value; pthread_t clockThread; 
 
 uint32_t generateClearWord()
 {
@@ -72,37 +72,45 @@ void setDisplayPinsOut()
   }
 }
 
+void stopClock(void)
+{
+  pthread_cancel(clockThread);
+}
+
 void setValue(int val)
-{ *value = val; }
+{ 
+  if (value)
+  {
+    free(value);
+  }
+  value = malloc(sizeof(int));
+  *value = val; 
+}
 
 int *runme(int val)
 {
   initialiseGpioAccess();
   initialiseChip();
   setDisplayPinsOut();
-	*value = val;
-  pthread_t task;
-  pthread_create(&task, NULL, &outputToDisplay, NULL);
-  pthread_detach(task);
+  setValue(val);
+  pthread_create(&clockThread, NULL, &outputToDisplay, NULL);
+  pthread_detach(clockThread);
   return value;
 }
 
 
 int main(int argv, char** argc)
 {
-  value = malloc(sizeof(int));
+  int val;
   if (argv)
   {
-    *value = atoi(argc[1]);
+    val = atoi(argc[1]);
   }
   else 
   {
-    *value = (int)argc;
+    val = (int)argc;
   }
-  initialiseGpioAccess();
-  initialiseChip();
-  setDisplayPinsOut();
-	outputToDisplay((void*) 0);
+  runme(*value);
   deallocChip();
   return 0;
 }

@@ -29,10 +29,11 @@ end
 
 module Display extend FFI::Library
   ffi_lib File.join(File.expand_path('bin'), 'display')
-  attach_function :main, [:int, :int], :int
   attach_function :setValue, [:int], :void
   attach_function :runme, [:int], :pointer
+  attach_function :stopClock, [], :void
 end
+
 
 class PinStruct < FFI::Struct
   layout :chipIndex, :int, 
@@ -69,11 +70,10 @@ class Chip < FFI::Struct
   end
 end
 
-EM.run do
+Gpio.initialiseGpioAccess()
+Gpio.initialiseChip()
 
-  Gpio.initialiseGpioAccess()
-  Gpio.initialiseChip()
-  Display.runme(5432)
+EM.run do
 
   # Define the app behaviour
   class App < Sinatra::Base
@@ -98,11 +98,15 @@ EM.run do
     end
 
     get '/startclock/:value' do
-      Display.main 0, (params[:value].to_i)
+      Display.runme params[:value].to_i
     end 
 
     get '/setvalue/:value' do
       Display.setValue params[:value].to_i
+    end
+
+    get '/stopclock' do
+      Display.stopClock()
     end
 
     get '/status' do
@@ -115,7 +119,7 @@ EM.run do
   EM::WebSocket.start(:host => '0.0.0.0', :port => 4567) do |ws|
     ws.onopen { |handshake|
       puts "New connection from #{handshake.origin}"
-      EM.add_periodic_timer(0.1) {
+      EM.add_periodic_timer(0.5) {
         chip = Chip.new Gpio.getChip()
         ws.send chip.get_pins.to_json
       }
