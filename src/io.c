@@ -1,12 +1,14 @@
 ///////////////////////////////////////////////////////////////////////////////
 // Raspberry Pi GPIO Interface
 // ¯¯¯¯¯¯¯¯¯¯¯¯¯¯¯¯¯¯¯¯¯¯¯¯¯¯¯
-// File: inputs.c
+// File: io.c
 // PA Consulting - Lawrence Jones
 ///////////////////////////////////////////////////////////////////////////////
 
-#include "inputs.h"
+#include "io.h"
 #include "print.c"
+#include <pthread.h>
+#include <semaphore.h>
 
 // Configure the memory access required to alter
 // the GPIO pins. Will request memory access from the system,
@@ -149,13 +151,4 @@ void setPinState(int p, int v)
 Chip* getChip()
 { return chip; }
 
-// Main function for testing purposes
-int main()
-{
-	printf("Not yet implemented C interface.\n");
-  initialiseGpioAccess();
-  initialiseChip();
-  printAll();
-  deallocChip();
-  return 0;
-}
+

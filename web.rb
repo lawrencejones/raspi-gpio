@@ -25,6 +25,9 @@ module Gpio extend FFI::Library
   attach_function :setPinState, [:int, :int], :void
   attach_function :getChip, [], :pointer
   attach_function :updateAllPins, [], :pointer
+  attach_function :initiateDisplay, [:int], :void
+  attach_function :setValue, [:int], :void
+  attach_function :startDigitalDisplay, [:int], :void
 end
 
 class PinStruct < FFI::Struct
@@ -87,6 +90,14 @@ EM.run do
 
     post '/set/:pin/:value' do
       Gpio.setPinState (params[:pin].to_i), (params[:value].to_i)
+    end
+
+    get '/startclock/:value' do
+      Gpio.startDigitalDisplay params[:value].to_i
+    end 
+
+    get '/setvalue/:value' do
+      Gpio.setValue params[:value].to_i
     end
 
     get '/status' do
