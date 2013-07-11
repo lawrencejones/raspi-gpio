@@ -1,5 +1,5 @@
 CC      = gcc
-COMMON  = -fPIC -rdynamic -g -std=c99 -Werror -pedantic
+COMMON  = -fPIC -rdynamic -g -ansi -std=c99 -Werror -pedantic
 GFLAGS  = -pie
 CFLAGS  = $(COMMON) $(GFLAGS) $(MAC)
 

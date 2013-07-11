@@ -84,7 +84,7 @@ Pin* mallocPin(int p)
 // globally accessable
 void deallocChip()
 {
-  for (int i = 1; i <= NO_OF_PINS; i++)
+  for (int i = 0; i < NO_OF_PINS; i++)
     free(chip->pins[i]);
   free(chip);
 }

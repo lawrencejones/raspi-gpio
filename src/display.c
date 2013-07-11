@@ -6,47 +6,74 @@
 ///////////////////////////////////////////////////////////////////////////////
 
 #include "io.h"
-#include <pthread.h>
-#include <semaphore.h>
 #include <unistd.h>
+#include <time.h>
 #include <stdio.h>
 #include <stdlib.h>
 
-#define PIN1 3
-#define PIN2 5
-#define PIN3 7
-#define PIN4 8
+#define B0 26
+#define B1 24
+#define B2 23
+#define B3 22
 
-#define PAUSE 1000000
-int muls[] = { 1000, 100, 10, 0 };
+#define D0 16
+#define D1 18
+#define D2 19
+#define D3 21
 
-static int *value;
+int muls[]    = { 1, 10, 100, 1000 };
+int binPins[] = { B0, B1, B2, B3 };
+int decPins[] = { D0, D1, D2, D3 };
+int value;
 
-void setValue(int v)
-{ *value = v; }
+static inline void selectDecoder(int index)
+{
+  for (int j = 0; j < 4; j++)
+	  setPin(decPins[j], 0);
+	setPin(decPins[index], 1);
+}
 
 // Assumes pins are already prepped for output
 // and writing
-void *initiateDisplay(int _value)
+void outputToDisplay()
 {
-  value = malloc(sizeof(int));
-  setValue((int)_value);
-  int v;
+  int v = 0;  
 start:
-  for (int i = 0; i < 4; i++)
+  for (int j = 0; j < 4; j++)
   {
-    v = (*value / muls[i]) % muls[3-i];
-    setPin(PIN1, v & 0x1u);
-    setPin(PIN2, v & 0x2u);
-    setPin(PIN3, v & 0x4u);
-    setPin(PIN4, v & 0x8u);
-    sleep(1);
+    selectDecoder(j);
+    v = (value / muls[j]) % 10;
+    // Run from LSB -> MSB
+    for (int i = 0; i < 4; i++)
+    {
+      setPin(binPins[i], (0x1u & v));
+      v >>= 1;
+    } for(int k=0; k<0xfffu; k++);
   }
   goto start;
 }
 
+void setDisplayPinsOut()
+{
+  for (int i = 0; i < 4; i++)
+  {
+    setPinState(decPins[i], 1);
+    setPinState(binPins[i], 1);
+  }
+}
+
+void setValue(int val)
+{ value = val; }
+
 int main(int argv, char** argc)
 {
-	initiateDisplay(atoi(argc[1]));
+  if (argv)
+    value = atoi(argc[1]);
+  else value = (int)argc;
+  initialiseGpioAccess();
+  initialiseChip();
+  setDisplayPinsOut();
+	outputToDisplay();
+  deallocChip();
   return 0;
 }
