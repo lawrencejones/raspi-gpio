@@ -31,6 +31,7 @@ module Display extend FFI::Library
   ffi_lib File.join(File.expand_path('bin'), 'display')
   attach_function :main, [:int, :int], :int
   attach_function :setValue, [:int], :void
+  attach_function :runme, [:int], :pointer
 end
 
 class PinStruct < FFI::Struct
@@ -72,6 +73,7 @@ EM.run do
 
   Gpio.initialiseGpioAccess()
   Gpio.initialiseChip()
+  Display.runme(5432)
 
   # Define the app behaviour
   class App < Sinatra::Base
