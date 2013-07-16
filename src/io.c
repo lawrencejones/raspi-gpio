@@ -189,7 +189,6 @@ void wait_i2c_done()
   }
 }
 
-
 void dealloc_i2c_bus(i2c_bus *bus)
 {
   // Assign first bus dev to d1
@@ -217,8 +216,10 @@ i2c_bus* i2c_bus_refresh()
     BSC_S = CLEAR_STATUS;
     // Initiate read using bus control
     BSC_C = START_READ;
+    wait_i2c_done();
     // If the status doesn't report no ack
-    if (!(BSC_S & BSC_S_ERR))
+    printf("%03d - %08x - %08x\n", addr, BSC_FIFO, BSC_S);
+    if (!(0xfff & BSC_S >> 8))
     {
       // Add the current address to the bus
       add_i2c_dev(bus, addr);
