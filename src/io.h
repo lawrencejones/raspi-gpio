@@ -202,6 +202,19 @@ typedef struct {
   Pin* pins[NO_OF_PINS];
 } Chip;
 
+// Define an i2c device type
+typedef struct i2c_dev i2c_dev;
+struct i2c_dev {
+  uint8_t addr;
+  i2c_dev *next;
+}; 
+
+// Define an i2c bus
+typedef struct {
+  short no_of_devs;
+  i2c_dev *first;
+} i2c_bus;
+
 // Define the entry point for gpios
 volatile unsigned *gpio;
 // Define the entry point for I2C interface
@@ -216,23 +229,29 @@ static Chip* chip;
 // Initialisation    ////////////////////////
 volatile unsigned* init_gpio_access();
 // Malloc / Dealloc   ///////////////////////
-Chip  *init_chip();
-Pin   *malloc_pin(int p);
-void  dealloc_chip();
-int   chip_index_to_mem(int p);
+Chip     *init_chip();
+Pin      *malloc_pin(int p);
+void     dealloc_chip();
+int      chip_index_to_mem(int p);
+i2c_dev  *malloc_i2c_dev(short addr);
+i2c_bus *malloc_i2c_bus();
 // Gpio Read    /////////////////////////////
-Pin   *get_pin_status(int p);
-Pin   *update_pin_status(Pin* pin);
-Pin   **update_all_pins();
+Pin      *get_pin_status(int p);
+Pin      *update_pin_status(Pin* pin);
+Pin      **update_all_pins();
 // Gpio Write    ////////////////////////////
-void  set_with_word(uint32_t w);
-void  clr_with_word(uint32_t w);
-void  set_pin_value(int p, int v);
-void  set_pin_state(int p, int v);
+void     set_with_word(uint32_t w);
+void     clr_with_word(uint32_t w);
+void     set_pin_value(int p, int v);
+void     set_pin_state(int p, int v);
 // I2C Interface    /////////////////////////
-void  init_i2c();
-void  wait_i2c_done();
+void     init_i2c();
+void     wait_i2c_done();
+i2c_bus  *i2c_bus_refresh();
+void     add_i2c_dev(i2c_bus *bus, short addr);
+uint32_t i2c_read_byte(i2c_dev *dev);
+uint8_t  *i2c_read_block(i2c_dev *dev, short block_size);
 // Sinatra Add-ons   ////////////////////////
-Chip  *get_chip();
+Chip     *get_chip();
 
 #endif

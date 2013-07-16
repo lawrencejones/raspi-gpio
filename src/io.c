@@ -190,6 +190,103 @@ void wait_i2c_done()
   }
 }
 
+
+void dealloc_i2c_bus(i2c_bus *bus)
+{
+  i2c_dev *d1 = bus->first, *d2;
+  do {
+    d2 = d1->next;
+    free(d1);
+  } while (d2);
+  free(bus);
+}
+
+i2c_bus* i2c_bus_refresh()
+{
+  // malloc new bus struct
+  i2c_bus *bus = malloc_i2c_bus();
+  // For all of the available addresses
+  for (short addr = 1; addr < 128; addr++)
+  {
+    // Set new slave address
+    BSC_SLAVE_ADDR = addr;
+    // Clear current bus status
+    BSC_S = CLEAR_STATUS;
+    // Initiate read using bus control
+    BSC_C = START_READ;
+    // If the status doesn't report no ack
+    if (!(BSC_S & BSC_S_ERR))
+    {
+      // Add the current address to the bus
+      add_i2c_dev(bus, addr);
+    }
+  }
+  // Return the i2c bus pointer
+  return bus;
+}
+
+i2c_bus *malloc_i2c_bus()
+{
+  // Allocate memory space for the bus
+  i2c_bus *bus = malloc(sizeof(i2c_bus));
+  // Assign the first i2c dev, the dummy ctrl
+  bus->first = malloc_i2c_dev(0);
+  // Return the allocated bus
+  return bus;
+}
+
+void add_i2c_dev(i2c_bus *bus, short addr)
+{
+  // Increment the no of devices
+  bus->no_of_devs++;
+  // Pick up bus first device
+  i2c_dev *dev = bus->first;
+  // bus->first will never be NULL due to ctrl dummy
+  // so iterate till we get to a dev that has no next
+  while (dev->next)
+  { // Assign the next device
+    dev = dev->next;
+  }
+  // Once final device has been found, malloc new
+  dev->next = malloc_i2c_dev(addr);
+}
+
+i2c_dev* malloc_i2c_dev(short addr)
+{
+  // malloc the dev struct
+  i2c_dev *dev = malloc(sizeof(i2c_dev));
+  // Set address value
+  dev->addr = addr;
+  // Set the next dev to NULL
+  dev->next = NULL;
+  // Return dev pointer
+  return dev;
+}
+
+uint32_t i2c_read_byte(i2c_dev *dev)
+{
+  // Read block of 1 byte
+  uint8_t *fifo = i2c_read_block(dev, 1);
+  // Read the contents from the FIFO
+  return *fifo; 
+}
+
+uint8_t *i2c_read_block(i2c_dev *dev, short block_size)
+{
+  // Set new address
+  BSC_SLAVE_ADDR = dev->addr;
+  // Clear the bus status
+  BSC_S = CLEAR_STATUS;
+  // Set length to 1 byte
+  BSC_DATA_LEN = block_size;
+  // Start the bus read
+  BSC_C = START_READ;
+  // Wait for the bus to clear
+  wait_i2c_done();
+  // Return pointer to the FIFO
+  return (uint8_t *)&BSC_FIFO;
+}
+
 ///////////////////////////////////////////////////////////////////////////////
 // MALLOC / DEALLOC
 ///////////////////////////////////////////////////////////////////////////////
