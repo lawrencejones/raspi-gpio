@@ -8,6 +8,7 @@
 #include "io.h"
 #include "print.h"
 #include "pinmaps.h"
+#include <stdlib.h>
 #include <pthread.h>
 #include <semaphore.h>
 
@@ -62,9 +63,7 @@ volatile unsigned* init_gpio_access()
   // Use volatile pointer to allow shared access of the gpio locations
   // Slows performance but refreshing is required
   gpio = (volatile unsigned *)gpioMap;
-  free(gpioMap);
   i2c = (volatile unsigned *)i2cMap;
-  free(i2cMap);
   return gpio;
 }
 
@@ -75,15 +74,15 @@ void init_i2c()
 {
   // Rememeber to set gpio's to INP initially to reset
   // the current alt setting
-  // Set gpio 0 to input
-  INP_GPIO(0);
-  // Set the gpio 0 to it's alternate state - in this case,
+  // Set gpio 2 to input
+  INP_GPIO(2);
+  // Set the gpio 2 to it's alternate state - in this case,
   // we want state 0, SDA0, the I2C data line
-  SET_GPIO_ALT(0, 0);
-  // Set gpio 1 to input
-  INP_GPIO(1);
-  // Set gpio 1 to alternate state, SCL0
-  SET_GPIO_ALT(1, 0);
+  SET_GPIO_ALT(2, 0);
+  // Set gpio 3 to input
+  INP_GPIO(3);
+  // Set gpio 3 to alternate state, SCL0
+  SET_GPIO_ALT(3, 0);
 }
 
 ///////////////////////////////////////////////////////////////////////////////
@@ -193,11 +192,15 @@ void wait_i2c_done()
 
 void dealloc_i2c_bus(i2c_bus *bus)
 {
+  // Assign first bus dev to d1
+  // Make d2 pointer available for use
   i2c_dev *d1 = bus->first, *d2;
   do {
+    // Assign the next dev to d2
     d2 = d1->next;
-    free(d1);
-  } while (d2);
+    // Free the current dev
+    free(d1); 
+  } while (d1 = d2);
   free(bus);
 }
 
@@ -297,7 +300,9 @@ Chip *init_chip()
 {
   chip = malloc(sizeof(Chip));
   for (int i = 1; i <= NO_OF_PINS; i++)
+  {
     chip->pins[i - 1] = malloc_pin(i);
+  }
   return chip;
 }
 

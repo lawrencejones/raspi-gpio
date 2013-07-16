@@ -9,7 +9,7 @@ TESTS = gpio-words i2c-test
 OS    = io print pinmaps
 OBJ   = $(addsuffix .o, $(addprefix obj/, $(OS)))
 
-all: $(PROG)
+all: $(PROG) $(TESTS)
 
 tests: $(TESTS)
 
@@ -23,10 +23,10 @@ gpio:  src/gpio.c $(OBJ)
 display: src/display.c $(OBJ)
 	$(CC) $(CFLAGS) -o bin/$@ src/display.c $(OBJ) 
 
-gpio-words: test/gpio_words.c
+gpio-words: test/gpio_words.c $(OBJ)
 	sudo $(CC) $(CFLAGS) $< -o /usr/local/gpio_words
 
-i2c-test: test/i2c_test.c
+i2c-test: test/i2c_test.c $(OBJ)
 	$(CC) $(CFLAGS) -o bin/$@ $< $(OBJ)
 
 obj/%.o: src/%.c src/%.h
