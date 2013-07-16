@@ -202,8 +202,6 @@ typedef struct {
   Pin* pins[NO_OF_PINS];
 } Chip;
 
-// Define the map point for access
-static void* gpioMap;
 // Define the entry point for gpios
 volatile unsigned *gpio;
 // Define the entry point for I2C interface
