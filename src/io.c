@@ -210,24 +210,15 @@ void dealloc_i2c_bus(i2c_bus *bus)
 // Detect all devices on the current bus and return a
 // pointer to an i2c_bus struct containing all discovered
 // i2c devices
-i2c_bus* i2c_bus_refresh()
+i2c_bus* i2c_bus_detect()
 {
   // malloc new bus struct
   i2c_bus *bus = malloc_i2c_bus();
   // For all of the available addresses
   for (short addr = 1; addr < 128; addr++)
   {
-    // Set new slave address
-    BSC_SLAVE_ADDR = addr;
-    // Clear current bus status
-    BSC_S = CLEAR_STATUS;
-    // Only wish to read a single byte
-    BSC_DATA_LEN = 1;
-    // Initiate read using bus control
-    BSC_C = START_READ;
-    wait_i2c_done();
-    // If the status doesn't report no ack
-    if (!(BSC_S & BSC_S_ERR))
+    // If the i2c addr is active
+    if (i2c_bus_addr_active(addr))
     {
       // Add the current address to the bus
       add_i2c_dev(bus, addr);
@@ -235,6 +226,20 @@ i2c_bus* i2c_bus_refresh()
   }
   // Return the i2c bus pointer
   return bus;
+}
+
+int i2c_bus_addr_active(short addr)
+{
+  // Set new slave address
+  BSC_SLAVE_ADDR = addr;
+  // Clear current bus status
+  BSC_S = CLEAR_STATUS;
+  // Only wish to read a single byte
+  BSC_DATA_LEN = 1;
+  // Initiate read using bus control
+  BSC_C = START_READ;
+  wait_i2c_done();
+  return !(BSC_S & BSC_S_ERR);
 }
 
 // Allocate memory in the heap for an i2c_bus struct
@@ -279,18 +284,25 @@ i2c_dev* malloc_i2c_dev(short addr)
 }
 
 // Read a single byte from an i2c device. Once read, return
-// a pointer to the FIFO register. Does not return value.
-uint8_t *i2c_read_byte(i2c_dev *dev)
+// the literal byte read from the dev
+uint8_t i2c_read_byte(i2c_dev *dev)
 {
   // Read block of 1 byte
-  return i2c_read_block(dev, 1);
+  uint8_t *result = i2c_read_block(dev, 1),
+           byte = result[0];
+  // Free the result pointer
+  free(result);
+  // Return the literal uint8_t byte
+  return byte;
 }
 
 // Same as the read byte, just allows specification of block
-// size to read. Once again, returns pointer to the FIFO
-// register, not the actual value read from the dev
+// size to read. Returns an array of uint32_t in the heap
+// that contains all the information read out of the FIFO reg
 uint8_t *i2c_read_block(i2c_dev *dev, short block_size)
 {
+  // Declare result array
+  uint8_t *result;
   // Set new address
   BSC_SLAVE_ADDR = dev->addr;
   // Clear the bus status
@@ -301,9 +313,51 @@ uint8_t *i2c_read_block(i2c_dev *dev, short block_size)
   BSC_C = START_READ;
   // Wait for the bus to clear
   wait_i2c_done();
-  // Return pointer to the FIFO
-  return (uint8_t *)&BSC_FIFO;
+  // Allocate the uint8_t array
+  result = malloc(sizeof(uint8_t) * block_size);
+  // Verify successful malloc
+  if (!result)
+  {
+    fprintf(stderr, "Error allocating memory (malloc). Read failed.\n");
+    exit(EXIT_FAILURE);
+  }
+  // Read result into the result array
+  for (int i = 0; i < block_size; i++)
+  {
+    result[i] = 0xff & BSC_FIFO;
+  }
+  // Return the result
+  // NOTE - Memory responsibility passed to calling function
+  return result;
 }
+
+uint32_t i2c_write_block(i2c_transaction *trans)
+{
+  if (trans->read)
+  {
+    fprintf(stderr, "Invalid write transaction - read should not be true.\n\n");
+    exit(EXIT_FAILURE);
+  }
+  if (!i2c_bus_addr_active(trans->addr))
+  {
+    fprintf(stderr, "No device found at current address (0x%02x)\n\n", trans->addr);
+    exit(EXIT_FAILURE);
+  }
+  
+  return 0;
+}
+
+// Given a pointer to a i2c_dev and a 
+// Prints the devices with their addresses on the given bus
+void print_i2c_bus(i2c_bus *bus)
+{
+  int count = 0;
+  i2c_dev *dev = bus->first;
+  do {
+    printf("  Dev %d  -  Addr 0x%02x\n", count++, dev->addr);
+  } while (dev = dev->next);
+}
+
 
 ///////////////////////////////////////////////////////////////////////////////
 // MALLOC / DEALLOC

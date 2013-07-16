@@ -4,32 +4,108 @@
 // File: i2c_test.c
 // PA Consulting - Lawrence Jones
 ///////////////////////////////////////////////////////////////////////////////
+// Usage Examples  
+// ¯¯¯¯¯¯¯¯¯¯¯¯¯¯
+// i2c-test detect
+// i2c-test read  0x77 4 > read_result
+// i2c-test write 0x12 8 0x2020c1d3 0x11e0a248
+///////////////////////////////////////////////////////////////////////////////
 
 #include <stdio.h>
+#include <string.h>
 #include "../src/io.h"
 #include "../src/print.h"
 
-void print_i2c_bus(i2c_bus *bus)
-{
-  int count = 0;
-  i2c_dev *dev = bus->first;
-  do {
-    printf("  Dev %d  -  Addr 0x%02x\n", count++, dev->addr);
-  } while (dev = dev->next);
-}
+#define DEX_TO_INT(str) strtoul(str, NULL, 10 + ((strlen(str) > 2) && (str[1] == 'x'))*6)
+#define PRINT_BIN(byte) \
+  for (int i=7;i>=0;i--) printf("%d", 1u & (byte >> i));
 
+static inline void verify_arg_count(int expected, int argc)
+{
+  // If the arguments do not equal the expected
+  if (argc < expected)
+  {
+    // Then print to standard out
+    fprintf(stderr, "Error. See i2c-test --help for correct usage.\n\n");
+    // And exit with failure
+    exit(EXIT_FAILURE);
+  }
+}
 
 // Main function for testing purposes
+// i2c-test [function] [addr] [size] [content]
+// [function] = detect | read | write
+// [addr] = device bus address
+// [size] = no of bytes
+// [content] = hex numbers representing bytes
 int main(int argc, char** argv)
 {
+  // Clear a line
+  printf("\n");
+  // Initialise gpio access
   init_gpio_access();
+  // Initialise the chip struct
   init_chip();
+  // Initialise i2c protocol
   init_i2c();
-  i2c_bus *bus = i2c_bus_refresh();
-  print_i2c_bus(bus);
+  // Generate bus model by detecting devs
+  i2c_bus *bus = i2c_bus_detect();
+  // If no arguments or detect argument
+  if ((argc == 1) || !(strcmp(argv[1], "detect")))
+  {
+    // Print bus
+    print_i2c_bus(bus);
+  }
+  // Else if another command
+  else
+  { 
+    // Create a dev from the given address
+    i2c_dev dev  = {DEX_TO_INT(argv[2]), NULL}; 
+    // Pick off the number of bytes to transfer
+    int bytes = DEX_TO_INT(argv[3]);
+    // Verify that address is within i2c bus range
+    if (dev.addr > 127)
+    {
+      fprintf(stderr, "Address not in range of bus.\n\n");
+      exit(EXIT_FAILURE);
+    }
+    // Verify that the device is on the bus
+    if (!i2c_bus_addr_active(dev.addr))
+    {
+      fprintf(stderr, "Device not found on bus. Use `detect` to list devs.\n\n");
+      exit(EXIT_FAILURE);
+    }
+    // General verification now finished, split on command
+    // If `read` command
+    if (!(strcmp(argv[1], "read")))
+    // i2c-test read [addr] [bytes]
+    {
+      // Verify correct number of args
+      verify_arg_count(/* expected */ 4, /* got */ argc);
+      printf("Reading %d bytes from dev with address 0x%02x...\n\n", bytes, dev.addr);
+      uint8_t *read = i2c_read_block(&dev, bytes);
+      for (int i = 0; i < bytes; i++)
+      {
+        printf("   Byte %03d - 0x%02x - ", i, read[i]);
+        PRINT_BIN(read[i]); 
+        printf("\n");
+      }
+      printf("\nFinished read. I2C bus status is 0x%03x / ");
+      PRINT_BIN(BSC_S); printf("\n");
+    } 
+    else if (!(strcmp(argv[1], "write")))
+    // i2c-test write [addr] [bytes] [content]
+    {
+      // Verify the correct number of args
+      verify_arg_count(/* expected */ 5, /* got */ argc);
+      uint8_t *content = interpret_content(DEX_TO_INT(argv[3]), argv + 5);
+      
+      
+    }
+  }
   dealloc_i2c_bus(bus);
   dealloc_chip();
+  // Clear a line
+  printf("\n");
   return 0;
 }
-
-

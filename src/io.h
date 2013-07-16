@@ -215,6 +215,25 @@ typedef struct {
   i2c_dev *first;
 } i2c_bus;
 
+// Define a `block` that will represent the chunks of data
+// to be transfered between i2c devices
+typedef struct {
+  short size;
+  uint8_t *content;
+} block;
+
+// Define a i2c_transaction for each transfer
+// This struct will contain a field representing the type
+// of transaction (read/write) while the i2c_status will contain 
+// the BSC_S at end of transfer. The raw field will be a pointer 
+// to a block struct, representing the transactions content.
+typedef struct {
+  int read;
+  short addr;
+  uint32_t i2c_status;
+  block *raw;
+} i2c_transaction;
+
 // Define the entry point for gpios
 volatile unsigned *gpio;
 // Define the entry point for I2C interface
@@ -248,10 +267,12 @@ void     set_pin_state(int p, int v);
 // I2C Interface    /////////////////////////
 void     init_i2c();
 void     wait_i2c_done();
-i2c_bus  *i2c_bus_refresh();
+i2c_bus  *i2c_bus_detect();
 void     add_i2c_dev(i2c_bus *bus, short addr);
-uint8_t *i2c_read_byte(i2c_dev *dev);
+uint8_t  i2c_read_byte(i2c_dev *dev);
 uint8_t  *i2c_read_block(i2c_dev *dev, short block_size);
+void     print_i2c_bus(i2c_bus *bus);
+int      i2c_bus_addr_active(short addr);
 // Sinatra Add-ons   ////////////////////////
 Chip     *get_chip();
 
