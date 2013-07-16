@@ -9,6 +9,16 @@
 #include "../src/io.h"
 #include "../src/print.h"
 
+void print_i2c_bus(i2c_bus *bus)
+{
+  int count = 0;
+  i2c_dev *dev = bus->first;
+  do {
+    printf("  Dev %d  -  Addr 0x%02x\n");
+  } while (dev = dev->next);
+}
+
+
 // Main function for testing purposes
 int main(int argc, char** argv)
 {
@@ -22,11 +32,4 @@ int main(int argc, char** argv)
   return 0;
 }
 
-void print_i2c_bus(i2c_bus *bus)
-{
-  int count = 0;
-  i2c_dev *dev = i2c_bus->first;
-  do {
-    printf("  Dev %d  -  Addr 0x%02x\n");
-  } while (dev = dev->next);
-}
+

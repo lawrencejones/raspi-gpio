@@ -234,7 +234,8 @@ Pin      *malloc_pin(int p);
 void     dealloc_chip();
 int      chip_index_to_mem(int p);
 i2c_dev  *malloc_i2c_dev(short addr);
-i2c_bus *malloc_i2c_bus();
+i2c_bus  *malloc_i2c_bus();
+void     dealloc_i2c_bus(i2c_bus *bus);
 // Gpio Read    /////////////////////////////
 Pin      *get_pin_status(int p);
 Pin      *update_pin_status(Pin* pin);
