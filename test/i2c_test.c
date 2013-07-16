@@ -14,7 +14,7 @@ void print_i2c_bus(i2c_bus *bus)
   int count = 0;
   i2c_dev *dev = bus->first;
   do {
-    // printf("  Dev %d  -  Addr 0x%02x\n", count++, dev->addr);
+    printf("  Dev %d  -  Addr 0x%02x\n", count++, dev->addr);
   } while (dev = dev->next);
 }
 

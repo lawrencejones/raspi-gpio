@@ -170,15 +170,17 @@ void set_pin_state(int p, int v)
 // I2C PROTOCOL
 ///////////////////////////////////////////////////////////////////////////////
 
+// Wait for the i2c bus to register DONE status
+// Pauses execution of the thread using nanosleep
 void wait_i2c_done()
 {
-  // Pause should be 5x10^6 nanoseconds, timeout should
+  // Pause should be 5x10^4 nanoseconds, timeout should
   // be 1x10^9/pause
-  int pause = 5000000, timeout = 1000000000/pause;
+  int pause = 50000, timeout = 1000000000/pause;
   // While Broadcom Serial Controller status not registering DONE
   while (!(BSC_S & BSC_S_DONE) && --timeout)
   {
-    // Sleep the process for 5,000,000 nanoseconds
+    // Sleep the process for 50,000 nanoseconds
     nanosleep((struct timespec[]) {{0, pause}}, NULL);  
   }
   // If timeout is 0 then the device failed to respond
@@ -189,6 +191,8 @@ void wait_i2c_done()
   }
 }
 
+// Deallocate all the heap memory required for the
+// bus, including all it's devices
 void dealloc_i2c_bus(i2c_bus *bus)
 {
   // Assign first bus dev to d1
@@ -203,6 +207,9 @@ void dealloc_i2c_bus(i2c_bus *bus)
   free(bus);
 }
 
+// Detect all devices on the current bus and return a
+// pointer to an i2c_bus struct containing all discovered
+// i2c devices
 i2c_bus* i2c_bus_refresh()
 {
   // malloc new bus struct
@@ -214,12 +221,13 @@ i2c_bus* i2c_bus_refresh()
     BSC_SLAVE_ADDR = addr;
     // Clear current bus status
     BSC_S = CLEAR_STATUS;
+    // Only wish to read a single byte
+    BSC_DATA_LEN = 1;
     // Initiate read using bus control
     BSC_C = START_READ;
     wait_i2c_done();
     // If the status doesn't report no ack
-    printf("%03d - %08x - %08x\n", addr, BSC_FIFO, BSC_S);
-    if (!(0xfff & BSC_S >> 8))
+    if (!(BSC_S & BSC_S_ERR))
     {
       // Add the current address to the bus
       add_i2c_dev(bus, addr);
@@ -229,6 +237,7 @@ i2c_bus* i2c_bus_refresh()
   return bus;
 }
 
+// Allocate memory in the heap for an i2c_bus struct
 i2c_bus *malloc_i2c_bus()
 {
   // Allocate memory space for the bus
@@ -239,6 +248,7 @@ i2c_bus *malloc_i2c_bus()
   return bus;
 }
 
+// Add an i2c device to an existing i2c_bus
 void add_i2c_dev(i2c_bus *bus, short addr)
 {
   // Increment the no of devices
@@ -255,6 +265,7 @@ void add_i2c_dev(i2c_bus *bus, short addr)
   dev->next = malloc_i2c_dev(addr);
 }
 
+// Allocate memory for an i2c_dev struct in the heap
 i2c_dev* malloc_i2c_dev(short addr)
 {
   // malloc the dev struct
@@ -267,14 +278,17 @@ i2c_dev* malloc_i2c_dev(short addr)
   return dev;
 }
 
-uint32_t i2c_read_byte(i2c_dev *dev)
+// Read a single byte from an i2c device. Once read, return
+// a pointer to the FIFO register. Does not return value.
+uint8_t *i2c_read_byte(i2c_dev *dev)
 {
   // Read block of 1 byte
-  uint8_t *fifo = i2c_read_block(dev, 1);
-  // Read the contents from the FIFO
-  return *fifo; 
+  return i2c_read_block(dev, 1);
 }
 
+// Same as the read byte, just allows specification of block
+// size to read. Once again, returns pointer to the FIFO
+// register, not the actual value read from the dev
 uint8_t *i2c_read_block(i2c_dev *dev, short block_size)
 {
   // Set new address

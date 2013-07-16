@@ -250,7 +250,7 @@ void     init_i2c();
 void     wait_i2c_done();
 i2c_bus  *i2c_bus_refresh();
 void     add_i2c_dev(i2c_bus *bus, short addr);
-uint32_t i2c_read_byte(i2c_dev *dev);
+uint8_t *i2c_read_byte(i2c_dev *dev);
 uint8_t  *i2c_read_block(i2c_dev *dev, short block_size);
 // Sinatra Add-ons   ////////////////////////
 Chip     *get_chip();
