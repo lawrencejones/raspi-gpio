@@ -13,9 +13,9 @@
 int main(int argc, char** argv)
 {
 	printf("Not yet implemented C interface.\n");
-  initialiseGpioAccess();
-  initialiseChip();
+  init_gpio_access();
+  init_chip();
   printAll();
-  deallocChip();
+  dealloc_chip();
   return 0;
 }

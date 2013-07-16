@@ -216,22 +216,25 @@ static Chip* chip;
 ///////////////////////////////////////////////////////////////////////////////
 
 // Initialisation    ////////////////////////
-volatile unsigned* initialiseGpioAccess();
+volatile unsigned* init_gpio_access();
 // Malloc / Dealloc   ///////////////////////
-Chip  *initialiseChip();
-Pin   *mallocPin(int p);
-void  deallocChip();
-int   chipIndexToMem(int p);
+Chip  *init_chip();
+Pin   *malloc_pin(int p);
+void  dealloc_chip();
+int   chip_index_to_mem(int p);
 // Gpio Read    /////////////////////////////
-Pin   *pinStatus(int p);
-Pin   *updatePinStatus(Pin* pin);
-Pin   **updateAllPins();
+Pin   *get_pin_status(int p);
+Pin   *update_pin_status(Pin* pin);
+Pin   **update_all_pins();
 // Gpio Write    ////////////////////////////
-void  setWithWord(uint32_t w);
-void  clrWithWord(uint32_t w);
-void  setPin(int p, int v);
-void  setPinState(int p, int v);
+void  set_with_word(uint32_t w);
+void  clr_with_word(uint32_t w);
+void  set_pin_value(int p, int v);
+void  set_pin_state(int p, int v);
+// I2C Interface    /////////////////////////
+void  init_i2c();
+void  wait_i2c_done();
 // Sinatra Add-ons   ////////////////////////
-Chip  *getChip();
+Chip  *get_chip();
 
 #endif

@@ -19,7 +19,7 @@
 // the GPIO pins. Will request memory access from the system,
 // note that this requires sudo privileges!
 // Based on example at http://elinux.org/RPi_Low-level_peripherals
-volatile unsigned* initialiseGpioAccess()
+volatile unsigned* init_gpio_access()
 {
   // Open system /dev/mem location for direct mem access
   int devmem = open("/dev/mem", O_RDWR|O_SYNC);
@@ -61,28 +61,28 @@ volatile unsigned* initialiseGpioAccess()
 
 // Allocate memory to a chip struct that will represent the
 // current state of the raspberry pi pins
-Chip *initialiseChip()
+Chip *init_chip()
 {
   chip = malloc(sizeof(Chip));
   for (int i = 1; i <= NO_OF_PINS; i++)
-    chip->pins[i - 1] = mallocPin(i);
+    chip->pins[i - 1] = malloc_pin(i);
   return chip;
 }
 
 // Given the --PHYSICAL-- chip pin index, create a
 // pin struct and return the pointer
-Pin* mallocPin(int p)
+Pin* malloc_pin(int p)
 {
   Pin *pin = malloc(sizeof(Pin));
   pin->chipIndex = p;
-  pin->memIndex = chipIndexToMem(p);
-  updatePinStatus(pin);
+  pin->memIndex = chip_index_to_mem(p);
+  update_pin_status(pin);
   return pin;
 }
 
 // Doesn't take a chip parameter as it is already
 // globally accessable
-void deallocChip()
+void dealloc_chip()
 {
   for (int i = 0; i < NO_OF_PINS; i++)
     free(chip->pins[i]);
@@ -91,7 +91,7 @@ void deallocChip()
 
 // Takes p, the physical pin number and translates to the
 // memory address pin location
-int chipIndexToMem(int p)
+int chip_index_to_mem(int p)
 {
   if ((p <= NO_OF_PINS) && (p > 0)) return chipPinToMem(p);
   fprintf(stderr, "Not a valid physical pin number.\n");
@@ -104,20 +104,20 @@ int chipIndexToMem(int p)
 
 // Given a --PHYSICAL-- chip pin index, return a
 // pin struct containing the current information
-Pin* pinStatus(int p)
+Pin* get_pin_status(int p)
 {
   // Convert the physical chip pin index to it's memory index
-  int g = chipIndexToMem(p);
-  Pin *pin = mallocPin(p);
+  int g = chip_index_to_mem(p);
+  Pin *pin = malloc_pin(p);
   // Update the pin with it's current values
-  updatePinStatus(pin);
+  update_pin_status(pin);
   // Note mem dealloc responsibility
   return pin;
 }
 
 // Helper function to prevent reallocation of memory
 // Given the pin struct pointer, will update it's value
-Pin* updatePinStatus(Pin* pin)
+Pin* update_pin_status(Pin* pin)
 {
   int g = pin->memIndex;
   // Extract pin control code (3 bits signifying current state)
@@ -133,10 +133,10 @@ Pin* updatePinStatus(Pin* pin)
 }
 
 // Updates all the pin values in the chip struct
-Pin** updateAllPins()
+Pin** update_all_pins()
 {
   for (int i = 0; i < NO_OF_PINS; i++)
-    updatePinStatus(chip->pins[i]);
+    update_pin_status(chip->pins[i]);
   return chip->pins;
 }
 
@@ -146,23 +146,23 @@ Pin** updateAllPins()
 
 // Given a word, apply it to the set mem address to
 // set multiple pins in one go
-void  setWithWord(uint32_t w)
+void  set_with_word(uint32_t w)
 {
   SET_WORD = w;
 }
 
 // As above, given a word, apply to the clearing
 // memory address to turn multiple pins off at once
-void  clrWithWord(uint32_t w)
+void  clr_with_word(uint32_t w)
 {
   CLR_WORD = w;
 }
 
 // Given a --PHYSICAL-- chip pin index, set it's output
 // value to v
-void setPin(int p, int v)
+void set_pin_value(int p, int v)
 {
-	int g = chipIndexToMem(p);
+	int g = chip_index_to_mem(p);
   if (v == 0)
 	  // Clear the pin
 	  GPIO_CLR(g);
@@ -171,9 +171,9 @@ void setPin(int p, int v)
 	  GPIO_SET(g,v);
 }
 
-void setPinState(int p, int v)
+void set_pin_state(int p, int v)
 {
-  int g = chipIndexToMem(p);
+  int g = chip_index_to_mem(p);
   INP_GPIO(g);
   // If output
   if (v) OUT_GPIO(g);
@@ -183,5 +183,5 @@ void setPinState(int p, int v)
 // SINATRA ADDONS
 ///////////////////////////////////////////////////////////////////////////////
 
-Chip* getChip()
+Chip* get_chip()
 { return chip; }

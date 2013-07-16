@@ -56,8 +56,8 @@ void *outputToDisplay(void *arg)
       {
         setWord |= (0x1u & v) << chipPinToMem(binPins[i]);
         v >>= 1;
-      } clrWithWord(clrWord & ~setWord);
-      setWithWord(setWord | (1u << chipPinToMem(decPins[j])));
+      } clr_with_word(clrWord & ~setWord);
+      set_with_word(setWord | (1u << chipPinToMem(decPins[j])));
       nanosleep((struct timespec[]) {{0, 1000000}}, NULL);
     }
   }
@@ -67,8 +67,8 @@ void setDisplayPinsOut()
 {
   for (int i = 0; i < 4; i++)
   {
-    setPinState(decPins[i], 1);
-    setPinState(binPins[i], 1);
+    set_pin_state(decPins[i], 1);
+    set_pin_state(binPins[i], 1);
   }
 }
 
@@ -89,8 +89,8 @@ void setValue(int val)
 
 int *runme(int val)
 {
-  initialiseGpioAccess();
-  initialiseChip();
+  init_gpio_access();
+  init_chip();
   setDisplayPinsOut();
   setValue(val);
   pthread_create(&clockThread, NULL, &outputToDisplay, NULL);
@@ -111,6 +111,6 @@ int main(int argv, char** argc)
     val = (int)argc;
   }
   runme(*value);
-  deallocChip();
+  dealloc_chip();
   return 0;
 }

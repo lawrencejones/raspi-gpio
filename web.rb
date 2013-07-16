@@ -16,15 +16,15 @@ require 'json'
 
 module Gpio extend FFI::Library
   ffi_lib File.join(File.expand_path('bin'), 'gpio')
-  attach_function :initialiseGpioAccess, [], :pointer
-  attach_function :initialiseChip, [], :pointer
-  attach_function :chipIndexToMem, [:int], :int
-  attach_function :mallocPin, [:int], :pointer
-  attach_function :pinStatus, [:int], :pointer
-  attach_function :setPin, [:int, :int], :void
-  attach_function :setPinState, [:int, :int], :void
-  attach_function :getChip, [], :pointer
-  attach_function :updateAllPins, [], :pointer
+  attach_function :init_gpio_access, [], :pointer
+  attach_function :init_chip, [], :pointer
+  attach_function :chip_index_to_mem, [:int], :int
+  attach_function :malloc_pin, [:int], :pointer
+  attach_function :get_pin_status, [:int], :pointer
+  attach_function :set_pin_value, [:int, :int], :void
+  attach_function :set_pin_state, [:int, :int], :void
+  attach_function :get_chip, [], :pointer
+  attach_function :update_all_pins, [], :pointer
 end
 
 module Display extend FFI::Library
@@ -62,7 +62,7 @@ class Chip < FFI::Struct
   end
 
   def p_pointers
-    Gpio.updateAllPins().get_array_of_pointer(0,26)
+    Gpio.update_all_pins().get_array_of_pointer(0,26)
   end
 
   def get_pins
@@ -70,8 +70,8 @@ class Chip < FFI::Struct
   end
 end
 
-Gpio.initialiseGpioAccess()
-Gpio.initialiseChip()
+Gpio.init_gpio_access()
+Gpio.init_chip()
 
 EM.run do
 
@@ -90,11 +90,11 @@ EM.run do
 
     # Write to the pin
     post '/write/:pin/:value' do
-      Gpio.setPin (params[:pin].to_i), (params[:value].to_i)
+      Gpio.set_pin_value (params[:pin].to_i), (params[:value].to_i)
     end
 
     post '/set/:pin/:value' do
-      Gpio.setPinState (params[:pin].to_i), (params[:value].to_i)
+      Gpio.set_pin_state (params[:pin].to_i), (params[:value].to_i)
     end
 
     get '/startclock/:value' do
@@ -110,7 +110,7 @@ EM.run do
     end
 
     get '/status' do
-      chip = Chip.new Gpio.getChip()
+      chip = Chip.new Gpio.get_chip()
       chip.get_pins.to_json
     end
 
@@ -120,7 +120,7 @@ EM.run do
     ws.onopen { |handshake|
       puts "New connection from #{handshake.origin}"
       EM.add_periodic_timer(0.5) {
-        chip = Chip.new Gpio.getChip()
+        chip = Chip.new Gpio.get_chip()
         ws.send chip.get_pins.to_json
       }
     }
