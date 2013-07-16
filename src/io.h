@@ -88,7 +88,7 @@
 // Note that BSC2 is linked to HDMI, inadvisable to mess with
 #define BSC2_BASE  (BCM2835_PERI_BASE + 0x00805000u)
 // Repeat the BSC0 base for ease of access
-#define I2C_BASE   (BSC0_BASE)
+#define I2C_BASE   (BSC1_BASE)
 
 // Define the base independant offsets
 // Hex is actual offset (in byte addressable), but will
