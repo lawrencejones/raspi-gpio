@@ -45,6 +45,16 @@
 #define BLOCK_SIZE (4*1024)
 #define NA 0 
 #define NO_OF_PINS 26
+#define WRITE 0
+#define READ  1
+
+// Colours!
+#define BLUE   "\x1b[34m" 
+#define RED    "\x1b[31m"
+#define GREEN  "\x1b[32m" 
+#define CLRCOL "\x1b[0m"
+#define PRINTC(str, col) \
+  printf("%s%s%s", col, str, CLRCOL);
 
 ///////////////////////////////////////////////////////////////////////////////
 // Macros to prep pins for accessing
@@ -245,35 +255,37 @@ static Chip* chip;
 // FUNCTION STUBS
 ///////////////////////////////////////////////////////////////////////////////
 
-// Initialisation    ////////////////////////
+// Initialisation    ////////////////////////////////////////
 volatile unsigned* init_gpio_access();
-// Malloc / Dealloc   ///////////////////////
-Chip     *init_chip();
-Pin      *malloc_pin(int p);
-void     dealloc_chip();
-int      chip_index_to_mem(int p);
-i2c_dev  *malloc_i2c_dev(short addr);
-i2c_bus  *malloc_i2c_bus();
-void     dealloc_i2c_bus(i2c_bus *bus);
-// Gpio Read    /////////////////////////////
-Pin      *get_pin_status(int p);
-Pin      *update_pin_status(Pin* pin);
-Pin      **update_all_pins();
-// Gpio Write    ////////////////////////////
-void     set_with_word(uint32_t w);
-void     clr_with_word(uint32_t w);
-void     set_pin_value(int p, int v);
-void     set_pin_state(int p, int v);
-// I2C Interface    /////////////////////////
-void     init_i2c();
-void     wait_i2c_done();
-i2c_bus  *i2c_bus_detect();
-void     add_i2c_dev(i2c_bus *bus, short addr);
-uint8_t  i2c_read_byte(i2c_dev *dev);
-uint8_t  *i2c_read_block(i2c_dev *dev, short block_size);
-void     print_i2c_bus(i2c_bus *bus);
-int      i2c_bus_addr_active(short addr);
-// Sinatra Add-ons   ////////////////////////
-Chip     *get_chip();
+// Malloc / Dealloc   ///////////////////////////////////////
+Chip            *init_chip();
+Pin             *malloc_pin(int p);
+void            dealloc_chip();
+int             chip_index_to_mem(int p);
+i2c_dev         *malloc_i2c_dev(short addr);
+i2c_bus         *malloc_i2c_bus();
+void            dealloc_i2c_bus(i2c_bus *bus);
+i2c_transaction *malloc_transaction(short addr, int read);
+// Gpio Read    /////////////////////////////////////////////
+Pin             *get_pin_status(int p);
+Pin             *update_pin_status(Pin* pin);
+Pin             **update_all_pins();
+// Gpio Write    ////////////////////////////////////////////
+void            set_with_word(uint32_t w);
+void            clr_with_word(uint32_t w);
+void            set_pin_value(int p, int v);
+void            set_pin_state(int p, int v);
+// I2C Interface    /////////////////////////////////////////
+void            init_i2c();
+void            wait_i2c_done();
+i2c_bus         *i2c_bus_detect();
+void            add_i2c_dev(i2c_bus *bus, short addr);
+uint8_t         i2c_read_byte(i2c_dev *dev);
+uint8_t         *i2c_read_block(i2c_dev *dev, short block_size);
+void            print_i2c_bus(i2c_bus *bus);
+int             i2c_bus_addr_active(short addr);
+uint32_t        i2c_write_block(i2c_transaction *trans);
+// Sinatra Add-ons   ////////////////////////////////////////
+Chip            *get_chip();
 
 #endif

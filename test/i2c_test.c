@@ -16,7 +16,8 @@
 #include "../src/io.h"
 #include "../src/print.h"
 
-#define DEX_TO_INT(str) strtoul(str, NULL, 10 + ((strlen(str) > 2) && (str[1] == 'x'))*6)
+#define DEX_TO_INT(str) \
+  strtoul(str, NULL, 10 + ((strlen(str) > 2) && (str[1] == 'x'))*6)
 #define PRINT_BIN(byte) \
   for (int i=7;i>=0;i--) printf("%d", 1u & (byte >> i));
 
@@ -30,6 +31,40 @@ static inline void verify_arg_count(int expected, int argc)
     // And exit with failure
     exit(EXIT_FAILURE);
   }
+}
+
+// Content can come as any mix of hex/decimal numbers
+// This is valid - 0x66f8ae 22 1 0x9a
+// As is this - 0xffff812a
+// PRE - No token may exceed a 32 bit int
+// NB - Tokens will be interpretted in byte chunks
+uint8_t *interpret_content(char **args, int no_of_tokens, short bytes)
+{
+  uint8_t *content = malloc(sizeof(uint8_t) * bytes);
+  int count = 0, i = 0;
+  uint32_t buffer = 0;
+  // While the count of bytes interpretted is less than the number
+  // required to be collected and we have arguments left to process
+  while (count < bytes && i < no_of_tokens)
+  {
+    buffer = DEX_TO_INT(args[i]);
+    while (buffer > 0xff && count < bytes)
+    {
+      content[count++] = buffer & 0xff;
+      buffer >>= 8u;
+    }
+  }
+  return content;
+}
+
+void print_usage()
+{
+  printf("Usage:       i2c (optional) detect\n");
+  printf("             i2c read  [addr] [noOfBytes]\n");
+  printf("             i2c write [addr] [noOfBytes] [content]\n\n");
+  printf("[addr]:      device address\n");
+  printf("[noOfBytes]: to either read or write\n");
+  printf("[content]:   to write to device. any mix of dec or hex numbers.\n\n");
 }
 
 // Main function for testing purposes
@@ -55,6 +90,11 @@ int main(int argc, char** argv)
   {
     // Print bus
     print_i2c_bus(bus);
+    // Print the usage message
+    if (argc == 1)
+    {
+      print_usage();
+    }
   }
   // Else if another command
   else
@@ -98,14 +138,24 @@ int main(int argc, char** argv)
     {
       // Verify the correct number of args
       verify_arg_count(/* expected */ 5, /* got */ argc);
-      uint8_t *content = interpret_content(DEX_TO_INT(argv[3]), argv + 5);
-      
-      
+      // Fetch no of bytes to write
+      short no_of_bytes = (short) (0xff & DEX_TO_INT(argv[3]));
+      // Select what args represent content
+      char** tokens = (char**)(argv + 4);
+      // Interpret the content
+      uint8_t *content = interpret_content(tokens, (argc - 4), no_of_bytes);
+      // Create an i2c transaction
+      i2c_transaction *trans = malloc_transaction(dev.addr, WRITE);
+      // Set content
+      trans->raw->content = content;
+      // Set no of bytes
+      trans->raw->size = no_of_bytes;
+      // Write to device
+      i2c_write_block(trans);
     }
   }
   dealloc_i2c_bus(bus);
   dealloc_chip();
-  // Clear a line
   printf("\n");
   return 0;
 }

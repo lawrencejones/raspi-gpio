@@ -247,6 +247,11 @@ i2c_bus *malloc_i2c_bus()
 {
   // Allocate memory space for the bus
   i2c_bus *bus = malloc(sizeof(i2c_bus));
+  if (!bus)
+  {
+    fprintf(stderr, "Memory allocation failed (malloc) of bus.\n\n");
+    exit(EXIT_FAILURE);
+  }
   // Assign the first i2c dev, the dummy ctrl
   bus->first = malloc_i2c_dev(0);
   // Return the allocated bus
@@ -275,6 +280,12 @@ i2c_dev* malloc_i2c_dev(short addr)
 {
   // malloc the dev struct
   i2c_dev *dev = malloc(sizeof(i2c_dev));
+  // Verify successful malloc
+  if (!dev)
+  {
+    fprintf(stderr, "Memory allocation failed (malloc) of dev.\n\n");
+    exit(EXIT_FAILURE);
+  }
   // Set address value
   dev->addr = addr;
   // Set the next dev to NULL
@@ -318,7 +329,7 @@ uint8_t *i2c_read_block(i2c_dev *dev, short block_size)
   // Verify successful malloc
   if (!result)
   {
-    fprintf(stderr, "Error allocating memory (malloc). Read failed.\n");
+    fprintf(stderr, "Error allocating memory (malloc). Read failed.\n\n");
     exit(EXIT_FAILURE);
   }
   // Read result into the result array
@@ -333,29 +344,68 @@ uint8_t *i2c_read_block(i2c_dev *dev, short block_size)
 
 uint32_t i2c_write_block(i2c_transaction *trans)
 {
+  // Verify this is a write transaction
   if (trans->read)
   {
     fprintf(stderr, "Invalid write transaction - read should not be true.\n\n");
     exit(EXIT_FAILURE);
   }
+  // Verify that the addressed device is currently active and registered
+  // on the bus
   if (!i2c_bus_addr_active(trans->addr))
   {
     fprintf(stderr, "No device found at current address (0x%02x)\n\n", trans->addr);
     exit(EXIT_FAILURE);
   }
-  
-  return 0;
+  // Set dev address
+  BSC_SLAVE_ADDR = trans->addr;
+  // Clear the current status
+  BSC_S = CLEAR_STATUS;
+  // Set the length of the transfer + addr byte
+  BSC_DATA_LEN = trans->raw->size + 1;
+  // Load the content into the fifo buffer
+  for (int i = 0; i < trans->raw->size; i++)
+  {
+    BSC_FIFO = trans->raw->content[i];
+  }
+  // Start the write
+  BSC_C = START_WRITE;
+  // Wait for the i2c transfer to finish
+  wait_i2c_done();
+  // Save the current status into the transaction
+  trans->i2c_status = BSC_S;
+  // Return the value of the status register
+  return BSC_S;
+}
+
+i2c_transaction *malloc_transaction(short addr, int read)
+{
+  i2c_transaction *trans = malloc(sizeof(i2c_transaction));
+  if (!trans)
+  {
+    fprintf(stderr, "Memory allocation failed (malloc) of transaction.\n\n");
+    exit(EXIT_FAILURE);
+  }
+  trans->read = read;
+  trans->addr = addr;
+  return trans;
 }
 
 // Given a pointer to a i2c_dev and a 
 // Prints the devices with their addresses on the given bus
 void print_i2c_bus(i2c_bus *bus)
 {
+  // Set count to 0
   int count = 0;
+  // Initialise first device in chain
   i2c_dev *dev = bus->first;
+  PRINTC("Printing i2c bus devices...\n\n", GREEN);
+  // Print the device while one exists
   do {
     printf("  Dev %d  -  Addr 0x%02x\n", count++, dev->addr);
   } while (dev = dev->next);
+  // Clear a line
+  PRINTC("\n...done.\n\n", GREEN);
 }
 
 
@@ -367,11 +417,21 @@ void print_i2c_bus(i2c_bus *bus)
 // current state of the raspberry pi pins
 Chip *init_chip()
 {
+  // Allocate heap memory for the chip
   chip = malloc(sizeof(Chip));
+  // Verify successful malloc of chip
+  if (!chip)
+  {
+    fprintf(stderr, "Memory allocation failed (malloc) of chip.\n\n");
+    exit(EXIT_FAILURE);
+  }
+  // For all the pins on the chip
   for (int i = 1; i <= NO_OF_PINS; i++)
   {
+    // Initialise the pin struct
     chip->pins[i - 1] = malloc_pin(i);
   }
+  // Return the pointer to the chip
   return chip;
 }
 
@@ -379,10 +439,21 @@ Chip *init_chip()
 // pin struct and return the pointer
 Pin* malloc_pin(int p)
 {
+  // Allocate space in heap for the Pin struct
   Pin *pin = malloc(sizeof(Pin));
+  // Verify successful malloc
+  if (!pin)
+  {
+    fprintf(stderr, "Memory allocation failed (malloc) of pin.\n\n");
+    exit(EXIT_FAILURE);
+  }
+  // Set the chip index (chip pin, physical 1-26)
   pin->chipIndex = p;
+  // Set the memory index
   pin->memIndex = chip_index_to_mem(p);
+  // Fetch current pin data
   update_pin_status(pin);
+  // Return the pin pointer
   return pin;
 }
 
