@@ -15,6 +15,7 @@
 #include <string.h>
 #include "../src/io.h"
 #include "../src/print.h"
+#include "../tools/src/tokeniser.h"
 
 static inline void verify_arg_count(int expected, int argc)
 {
@@ -62,6 +63,64 @@ void print_usage()
   printf("[content]:   to write to device. any mix of dec or hex numbers.\n\n");
 }
 
+void process_command(char** tokens, int no_of_tokens)
+{
+  // Create a dev from the given address
+  i2c_dev dev  = {DEX_TO_INT(tokens[1]), NULL}; 
+  // Pick off the number of bytes to transfer
+  int bytes = DEX_TO_INT(tokens[2]);
+  // Verify that address is within i2c bus range
+  if (dev.addr > 127)
+  {
+    fprintf(stderr, "Address not in range of bus.\n\n");
+    exit(EXIT_FAILURE);
+  }
+  // Verify that the device is on the bus
+  if (!i2c_bus_addr_active(dev.addr))
+  {
+    fprintf(stderr, "Device not found on bus. Use `detect` to list devs.\n\n");
+    exit(EXIT_FAILURE);
+  }
+  // General verification now finished, split on command
+  // If `read` command
+  if (!(strcmp(tokens[0], "read")))
+  // read [addr] [bytes]
+  {
+    // Verify correct number of args
+    verify_arg_count(/* expected */ 3, /* got */ no_of_tokens);
+    printf("Reading %d bytes from dev with address 0x%02x...\n\n", bytes, dev.addr);
+    uint8_t *read = i2c_read_block(&dev, bytes);
+    for (int i = 0; i < bytes; i++)
+    {
+      printf("   Byte %03d - 0x%02x - ", i, read[i]);
+      PRINT_BIN_BYTE(read[i]); 
+      printf("\n");
+    }
+    printf("\nFinished read. I2C bus status is 0x%03x / ");
+    PRINT_BIN_BYTE(BSC_S); printf("\n");
+  } 
+  else if (!(strcmp(tokens[0], "write")))
+  // write [addr] [bytes] [content]
+  {
+    // Verify the correct number of args
+    verify_arg_count(/* expected */ 4, /* got */ no_of_tokens);
+    // Fetch no of bytes to write
+    short no_of_bytes = (short) (0xff & DEX_TO_INT(tokens[2]));
+    // Select what args represent content
+    char** content_args = (char**)(tokens + 3);
+    // Interpret the content
+    uint8_t *content = interpret_content(content_args, (no_of_tokens - 3), no_of_bytes);
+    // Create an i2c transaction
+    i2c_transaction *trans = malloc_transaction(dev.addr, WRITE);
+    // Set content
+    trans->raw->content = content;
+    // Set no of bytes
+    trans->raw->size = no_of_bytes;
+    // Write to device
+    i2c_write_block(trans);
+  }
+}
+
 // Main function for testing purposes
 // i2c-test [function] [addr] [size] [content]
 // [function] = detect | read | write
@@ -91,63 +150,24 @@ int main(int argc, char** argv)
       print_usage();
     }
   }
-  // Else if another command
-  else
-  { 
-    // Create a dev from the given address
-    i2c_dev dev  = {DEX_TO_INT(argv[2]), NULL}; 
-    // Pick off the number of bytes to transfer
-    int bytes = DEX_TO_INT(argv[3]);
-    // Verify that address is within i2c bus range
-    if (dev.addr > 127)
+  // If sourcing commands from file
+  else if ((argc == 3) && !(strcmp(argv[1], "file")))
+  {
+    source_t *src = tokenise_file(argv[2]);
+    for (int i = 0; i < src->noOfLines; i++)
     {
-      fprintf(stderr, "Address not in range of bus.\n\n");
-      exit(EXIT_FAILURE);
-    }
-    // Verify that the device is on the bus
-    if (!i2c_bus_addr_active(dev.addr))
-    {
-      fprintf(stderr, "Device not found on bus. Use `detect` to list devs.\n\n");
-      exit(EXIT_FAILURE);
-    }
-    // General verification now finished, split on command
-    // If `read` command
-    if (!(strcmp(argv[1], "read")))
-    // i2c-test read [addr] [bytes]
-    {
-      // Verify correct number of args
-      verify_arg_count(/* expected */ 4, /* got */ argc);
-      printf("Reading %d bytes from dev with address 0x%02x...\n\n", bytes, dev.addr);
-      uint8_t *read = i2c_read_block(&dev, bytes);
-      for (int i = 0; i < bytes; i++)
-      {
-        printf("   Byte %03d - 0x%02x - ", i, read[i]);
-        PRINT_BIN_BYTE(read[i]); 
-        printf("\n");
-      }
-      printf("\nFinished read. I2C bus status is 0x%03x / ");
-      PRINT_BIN_BYTE(BSC_S); printf("\n");
+      process_command(src->lines[i], src->sizes[i]);
     } 
-    else if (!(strcmp(argv[1], "write")))
-    // i2c-test write [addr] [bytes] [content]
-    {
-      // Verify the correct number of args
-      verify_arg_count(/* expected */ 5, /* got */ argc);
-      // Fetch no of bytes to write
-      short no_of_bytes = (short) (0xff & DEX_TO_INT(argv[3]));
-      // Select what args represent content
-      char** tokens = (char**)(argv + 4);
-      // Interpret the content
-      uint8_t *content = interpret_content(tokens, (argc - 4), no_of_bytes);
-      // Create an i2c transaction
-      i2c_transaction *trans = malloc_transaction(dev.addr, WRITE);
-      // Set content
-      trans->raw->content = content;
-      // Set no of bytes
-      trans->raw->size = no_of_bytes;
-      // Write to device
-      i2c_write_block(trans);
-    }
+  }
+  // Else if single read or write
+  else if (!(strcmp(argv[1], "read")) || !(strcmp(argv[1], "write")))
+  {
+    process_command(argv + 1, argc - 1);
+  }
+  else
+  {
+    fprintf(stderr, "Incorrent usage.\n\n");
+    print_usage();
   }
   dealloc_i2c_bus(bus);
   dealloc_chip();
