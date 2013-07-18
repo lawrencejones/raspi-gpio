@@ -30,6 +30,7 @@
 #include <sys/mman.h>
 #include <unistd.h>
 #include "pinmaps.h"
+#include "../tools/src/macros.h"
 
 ///////////////////////////////////////////////////////////////////////////////
 // DEFINE MACROS
@@ -47,14 +48,6 @@
 #define NO_OF_PINS 26
 #define WRITE 0
 #define READ  1
-
-// Colours!
-#define BLUE   "\x1b[34m" 
-#define RED    "\x1b[31m"
-#define GREEN  "\x1b[32m" 
-#define CLRCOL "\x1b[0m"
-#define PRINTC(str, col) \
-  printf("%s%s%s", col, str, CLRCOL);
 
 ///////////////////////////////////////////////////////////////////////////////
 // Macros to prep pins for accessing

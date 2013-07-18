@@ -16,11 +16,6 @@
 #include "../src/io.h"
 #include "../src/print.h"
 
-#define DEX_TO_INT(str) \
-  strtoul(str, NULL, 10 + ((strlen(str) > 2) && (str[1] == 'x'))*6)
-#define PRINT_BIN(byte) \
-  for (int i=7;i>=0;i--) printf("%d", 1u & (byte >> i));
-
 static inline void verify_arg_count(int expected, int argc)
 {
   // If the arguments do not equal the expected
@@ -65,98 +60,6 @@ void print_usage()
   printf("[addr]:      device address\n");
   printf("[noOfBytes]: to either read or write\n");
   printf("[content]:   to write to device. any mix of dec or hex numbers.\n\n");
-}
-
-#define MAX_CHAR_PER_LINE 100
-#define MAX_ARG_PER_LINE 10
-
-typedef struct {
-  char*** lines; 
-  int noOfLines;
-} source_t;
-
-source_t *init_source(int no_of_lines)
-{ 
-  // Initialise a source struct
-  source_t *src = calloc(sizeof(Source), 1);
-  // Set the number of lines in source
-  src->noOfLines = no_of_lines;
-  // Allocate heap memory for the content
-  src->lines = calloc(no_of_lines * sizeof(char*), 1);
-  // Verify success of malloc
-  if (!src->lines)
-  {
-    fprintf(stderr, "Memory allocation error with source.\n\n");
-    exit(EXIT_FAILURE);
-  }
-  // For all the lines in source
-  for (int i = 0; i < no_of_lines; i++)
-  {
-    // Allocate memory
-    src->lines[i] = malloc(MAX_ARG_PER_LINE * sizeof(char*));
-    // Verify that malloc was successful
-    if (!src->lines[i])
-    {
-      fprintf(stderr, "Memory allocation error (malloc) of source line.\n\n");
-      exit(EXIT_FAILURE);
-    }
-  }
-  // Return pointer to source
-  return src;
-}
-
-int linesInFile(FILE* file, char* line)
-{
-  // Initialise line count
-  int lines = 0;
-  // Seek to start of file
-  fseek(file, 0, SEEK_SET);
-  // Calculate the no of lines
-  while (fgets(line, MAX_CHAR_PER_LINE, file) != NULL) lines++;
-  // Reset the seek
-  fseek(file, 0, SEEK_SET);
-  // Return the no of lines
-  return lines;
-}
-
-FILE *open_file(char* filepath)
-{
-  // Open the file for reading
-  FILE *file = fopen(filepath, "r");
-  // Declare the temporary char array and li
-  char line[MAX_CHAR_PER_LINE], *tmp;
-  source_t *src = init_source(;
-  // Check file opened correctly
-  if (!file)
-  {
-    fprintf(stderr, "File (%s) failed to open. Does it exist?\n\n", filepath);
-    exit(EXIT_FAILURE);
-  }
-  // for all the lines in the file
-  for (int i = 0; i < src->noOfLines; i++)
-  {
-    fgets(line, MAX_CHAR_PER_LINE, file);
-    // apply strtok for the first time
-    tmp = strtok(line, ", \n");
-    // for all the potential arguments
-    for (int j = 0; j < MAX_ARG_PER_LINE; j++)
-    {
-      // allocate memory for the copied string, say
-      // 20 characters will be max length of args
-      src->lines[i][j] = malloc(sizeof(char) * 200);
-      // if tmp is not null, then copy the string
-      if (tmp != NULL) strcpy(src->lines[i][j], tmp );
-      // else just make null
-      else src->lines[i][j] = NULL;
-      // repeat the strtok
-      tmp = strtok(NULL, ", \n");
-    }
-  }
-  // close the file stream
-  fclose(file);
-  // return the array of string arrays
-  return src;
-}
 }
 
 // Main function for testing purposes
@@ -219,11 +122,11 @@ int main(int argc, char** argv)
       for (int i = 0; i < bytes; i++)
       {
         printf("   Byte %03d - 0x%02x - ", i, read[i]);
-        PRINT_BIN(read[i]); 
+        PRINT_BIN_BYTE(read[i]); 
         printf("\n");
       }
       printf("\nFinished read. I2C bus status is 0x%03x / ");
-      PRINT_BIN(BSC_S); printf("\n");
+      PRINT_BIN_BYTE(BSC_S); printf("\n");
     } 
     else if (!(strcmp(argv[1], "write")))
     // i2c-test write [addr] [bytes] [content]
