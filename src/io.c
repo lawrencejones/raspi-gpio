@@ -362,7 +362,7 @@ uint32_t i2c_write_block(i2c_transaction *trans)
   // Clear the current status
   BSC_S = CLEAR_STATUS;
   // Set the length of the transfer + addr byte
-  BSC_DATA_LEN = trans->raw->size + 1;
+  BSC_DATA_LEN = trans->raw->size;// + 1;
   // Load the content into the fifo buffer
   for (int i = 0; i < trans->raw->size; i++)
   {
