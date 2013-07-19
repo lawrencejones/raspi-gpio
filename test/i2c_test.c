@@ -86,7 +86,7 @@ void process_command(char** tokens, int no_of_tokens)
     exit(EXIT_FAILURE);
   }
   // Verify register is within reasonable limit
-  if (!(reg > 0 && reg < 256))
+  if (!(reg >= 0 && reg < 256))
   {
     ERR("Register 0x%02x is out of range.\n\n", reg);
     exit(EXIT_FAILURE);
