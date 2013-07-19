@@ -28,7 +28,7 @@ volatile unsigned* init_gpio_access()
   if (devmem < 0)
   {
     // Access not successful, print error and exit
-    fprintf(stderr, "Failed to access dev/mem - verify sudo?\n");
+    ERR("Failed to access dev/mem - verify sudo?\n");
     exit(EXIT_FAILURE);
   }
   // Use mmap to map to the gpio direct memory locations
@@ -57,7 +57,7 @@ volatile unsigned* init_gpio_access()
   if ((gpioMap == MAP_FAILED) | (i2cMap == MAP_FAILED))
   {
     // Mapping not successful, print error and exit
-    fprintf(stderr, "Error from builtin mmap - code %d\n", (int) gpioMap);
+    ERR("Error from builtin mmap - code %d\n", (int) gpioMap);
     exit(EXIT_FAILURE);
   }
   // Use volatile pointer to allow shared access of the gpio locations
@@ -250,7 +250,7 @@ i2c_bus *malloc_i2c_bus()
   i2c_bus *bus = malloc(sizeof(i2c_bus));
   if (!bus)
   {
-    fprintf(stderr, "Memory allocation failed (malloc) of bus.\n\n");
+    ERR("Memory allocation failed (malloc) of bus.\n\n");
     exit(EXIT_FAILURE);
   }
   // Assign the first i2c dev, the dummy ctrl
@@ -284,7 +284,7 @@ i2c_dev* malloc_i2c_dev(short addr)
   // Verify successful malloc
   if (!dev)
   {
-    fprintf(stderr, "Memory allocation failed (malloc) of dev.\n\n");
+    ERR("Memory allocation failed (malloc) of dev.\n\n");
     exit(EXIT_FAILURE);
   }
   // Set address value
@@ -343,7 +343,7 @@ uint8_t *i2c_read_block(i2c_dev *dev, short reg, short block_size)
   // Verify successful malloc
   if (!result)
   {
-    fprintf(stderr, "Error allocating memory (malloc). Read failed.\n\n");
+    ERR("Error allocating memory (malloc). Read failed.\n\n");
     exit(EXIT_FAILURE);
   }
   // Read result into the result array
@@ -363,7 +363,7 @@ uint32_t i2c_write_block(i2c_dev *dev, short size, uint8_t *content)
   // on the bus
   if (!i2c_bus_addr_active(dev->addr))
   {
-    fprintf(stderr, "No device found at current address (0x%02x)\n\n", dev->addr);
+    ERR("No device found at current address (0x%02x)\n\n", dev->addr);
     exit(EXIT_FAILURE);
   }
   // Clear the current fifo
@@ -436,7 +436,7 @@ Chip *init_chip()
   // Verify successful malloc of chip
   if (!chip)
   {
-    fprintf(stderr, "Memory allocation failed (malloc) of chip.\n\n");
+    ERR("Memory allocation failed (malloc) of chip.\n\n");
     exit(EXIT_FAILURE);
   }
   // For all the pins on the chip
@@ -458,7 +458,7 @@ Pin* malloc_pin(int p)
   // Verify successful malloc
   if (!pin)
   {
-    fprintf(stderr, "Memory allocation failed (malloc) of pin.\n\n");
+    ERR("Memory allocation failed (malloc) of pin.\n\n");
     exit(EXIT_FAILURE);
   }
   // Set the chip index (chip pin, physical 1-26)
@@ -485,7 +485,7 @@ void dealloc_chip()
 int chip_index_to_mem(int p)
 {
   if ((p <= NO_OF_PINS) && (p > 0)) return chipPinToMem(p);
-  fprintf(stderr, "Not a valid physical pin number.\n");
+  ERR("Not a valid physical pin number.\n");
   return NA;
 }
 

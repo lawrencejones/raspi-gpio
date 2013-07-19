@@ -124,6 +124,8 @@ void process_command(char** tokens, int no_of_tokens)
     uint8_t *content = interpret_content(content_args, (no_of_tokens - 4), no_of_bytes);
     // Write to device
     i2c_write_reg(&dev, reg, content, no_of_bytes);
+    // Print success
+    PRINTC("Write successful.\n", GREEN);
   }
 }
 
