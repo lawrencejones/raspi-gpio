@@ -9,6 +9,7 @@
 // i2c-test detect
 // i2c-test read  0x77 0x3e 4 > read_result
 // i2c-test write 0x12 0x2d 8 0x2020c1d3 0x11e0a248
+// i2c-test file  test_file.i2c
 ///////////////////////////////////////////////////////////////////////////////
 
 #include <stdio.h>
@@ -22,8 +23,8 @@ static inline void verify_arg_count(int expected, int argc)
   // If the arguments do not equal the expected
   if (argc < expected)
   {
-    // Then print to standard out
-    fprintf(stderr, "Error. See i2c-test --help for correct usage.\n\n");
+    // Then print to standard err
+    ERR("Error. See i2c-test --help for correct usage.\n\n");
     // And exit with failure
     exit(EXIT_FAILURE);
   }
@@ -57,11 +58,13 @@ void print_usage()
 {
   printf("Usage:       i2c (optional) detect\n");
   printf("             i2c read  [addr] [reg] [noOfBytes]\n");
-  printf("             i2c write [addr] [reg] [noOfBytes] [content]\n\n");
+  printf("             i2c write [addr] [reg] [noOfBytes] [content]\n");
+  printf("             i2c file  [filename]\n\n");
   printf("[addr]:      device address\n");
   printf("[reg]:       data register\n");
   printf("[noOfBytes]: to either read or write\n");
-  printf("[content]:   to write to device. any mix of dec or hex numbers.\n\n");
+  printf("[content]:   to write to device. any mix of dec or hex numbers.\n");
+  printf("[filename]:  the filename containing commands\n\n");
 }
 
 void process_command(char** tokens, int no_of_tokens)
@@ -131,7 +134,7 @@ void process_command(char** tokens, int no_of_tokens)
 
 // Main function for testing purposes
 // i2c-test [function] [addr] [size] [content]
-// [function] = detect | read | write
+// [function] = detect | read | write | file
 // [addr] = device bus address
 // [size] = no of bytes
 // [content] = hex numbers representing bytes
@@ -161,10 +164,16 @@ int main(int argc, char** argv)
   // If sourcing commands from file
   else if ((argc == 3) && !(strcmp(argv[1], "file")))
   {
+    // TODO - Consider adding syntax checker (in own time!)
+    // Tokenise the file
     source_t *src = tokenise_file(argv[2]);
+    // For all lines in the file, process them
     for (int i = 0; i < src->noOfLines; i++)
     {
+      // Run command
       process_command(src->lines[i], src->sizes[i]);
+      // Echo line to stdout
+      printf("\n");
     } 
   }
   // Else if single read or write
@@ -174,11 +183,14 @@ int main(int argc, char** argv)
   }
   else
   {
-    fprintf(stderr, "Incorrent usage.\n\n");
+    // Notify of incorrect usage
+    ERR("Incorrent usage.\n\n");
+    // Print the usage guidelines
     print_usage();
   }
+  // Deallocate the bus
   dealloc_i2c_bus(bus);
+  // Deallocate the chip
   dealloc_chip();
-  printf("\n");
   return 0;
 }

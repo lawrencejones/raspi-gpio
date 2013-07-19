@@ -1,5 +1,8 @@
 bin/*
 
+# i2c Scripts
+*.i2c
+
 # Object files
 *.o
 
