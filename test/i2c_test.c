@@ -44,7 +44,7 @@ uint8_t *interpret_content(char **args, int no_of_tokens, short bytes)
   while (count < bytes && i < no_of_tokens)
   {
     buffer = DEX_TO_INT(args[i]);
-    while (buffer > 0xff && count < bytes)
+    while (buffer > 0 && count < bytes)
     {
       content[count++] = buffer & 0xff;
       buffer >>= 8u;
@@ -88,7 +88,9 @@ void process_command(char** tokens, int no_of_tokens)
   {
     // Verify correct number of args
     verify_arg_count(/* expected */ 3, /* got */ no_of_tokens);
+    printf(GREEN);
     printf("Reading %d bytes from dev with address 0x%02x...\n\n", bytes, dev.addr);
+    printf(CLRCOL);
     uint8_t *read = i2c_read_block(&dev, bytes);
     for (int i = 0; i < bytes; i++)
     {
@@ -96,8 +98,10 @@ void process_command(char** tokens, int no_of_tokens)
       PRINT_BIN_BYTE(read[i]); 
       printf("\n");
     }
+    printf(GREEN);
     printf("\nFinished read. I2C bus status is 0x%03x / ");
     PRINT_BIN_BYTE(BSC_S); printf("\n");
+    printf(CLRCOL);
   } 
   else if (!(strcmp(tokens[0], "write")))
   // write [addr] [bytes] [content]
