@@ -28,7 +28,7 @@ gpio-words: test/gpio_words.c $(OBJ) $(TOOLS)
 	sudo $(CC) $(CFLAGS) $< -o /usr/local/gpio_words
 
 i2c-test: test/i2c_test.c $(OBJ) $(TOOLS)
-	$(CC) $(CFLAGS) -o bin/$@ $< $(OBJ) tools/obj/tokeniser.o
+	$(CC) $(CFLAGS) -o bin/$@ $^
 
 obj/%.o: src/%.c src/%.h
 	$(CC) $(CFLAGS) -c -o $@ $<
