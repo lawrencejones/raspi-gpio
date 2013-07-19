@@ -7,6 +7,7 @@ CFLAGS  = $(COMMON) $(GFLAGS) $(MAC)
 PROG  = gpio display
 TESTS = gpio-words i2c-test
 OS    = io print pinmaps
+TOOLS = $(addsuffix .o, $(addprefix tools/obj/, tokeniser))
 OBJ   = $(addsuffix .o, $(addprefix obj/, $(OS)))
 TOOLS = $(addsuffix .o, $(addprefix tools/obj/, tokeniser))
 
@@ -15,17 +16,16 @@ all: $(PROG) $(TESTS)
 tests: $(TESTS)
 
 clean:
-	rm $(OBJ)
-	rm $(addprefix bin/, $(PROG))
+	rm -f $(OBJ) $(addprefix bin/, $(PROG)) $(TOOLS)
 
-gpio:  src/gpio.c $(OBJ) $(TOOLS)
-	$(CC) $(CFLAGS) -o bin/$@ src/gpio.c $(OBJ)
+gpio:  src/gpio.c $(OBJ)
+	$(CC) $(CFLAGS) -o bin/$@ $^
 
-display: src/display.c $(OBJ) $(TOOLS)
-	$(CC) $(CFLAGS) -o bin/$@ src/display.c $(OBJ) 
+display: src/display.c $(OBJ)
+	$(CC) $(CFLAGS) -o bin/$@ $^
 
-gpio-words: test/gpio_words.c $(OBJ) $(TOOLS)
-	sudo $(CC) $(CFLAGS) $< -o /usr/local/gpio_words
+gpio-words: test/gpio_words.c $(OBJ)
+	sudo $(CC) $(CFLAGS) $< -o /usr/local/$@
 
 i2c-test: test/i2c_test.c $(OBJ) $(TOOLS)
 	$(CC) $(CFLAGS) -o bin/$@ $^

@@ -204,7 +204,7 @@ void dealloc_i2c_bus(i2c_bus *bus)
     d2 = d1->next;
     // Free the current dev
     free(d1); 
-  } while (d1 = d2);
+  } while ((d1 = d2));
   free(bus);
 }
 
@@ -417,7 +417,7 @@ void print_i2c_bus(i2c_bus *bus)
   // Print the device while one exists
   do {
     printf("  Dev %d  -  Addr 0x%02x\n", count++, dev->addr);
-  } while (dev = dev->next);
+  } while ((dev = dev->next));
   // Clear a line
   PRINTC("\n...done.\n\n", GREEN);
 }

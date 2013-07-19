@@ -110,7 +110,7 @@ void process_command(char** tokens, int no_of_tokens)
       printf("\n");
     }
     printf(GREEN);
-    printf("\nFinished read. I2C bus status is 0x%03x / ");
+    printf("\nFinished read. I2C bus status is 0x%03x / ", BSC_S);
     PRINT_BIN_BYTE(BSC_S); printf("\n");
     printf(CLRCOL);
   } 
