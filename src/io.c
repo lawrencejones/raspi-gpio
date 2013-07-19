@@ -187,7 +187,8 @@ void wait_i2c_done()
   // after 1 second of wait. Register timeout to stderr
   if (!timeout)
   {
-    fprintf(stderr, "I2C timeout occurred\n");
+    printf("%09x\n", BSC_S);
+    ERR("I2C timeout occurred.\n\n");
   }
 }
 
@@ -294,12 +295,12 @@ i2c_dev* malloc_i2c_dev(short addr)
   return dev;
 }
 
-// Read a single byte from an i2c device. Once read, return
-// the literal byte read from the dev
-uint8_t i2c_read_byte(i2c_dev *dev)
+// Read a single byte from an i2c device at the given register. 
+// Once read, return the literal byte read from the dev
+uint8_t i2c_read_byte(i2c_dev *dev, short reg)
 {
   // Read block of 1 byte
-  uint8_t *result = i2c_read_block(dev, 1),
+  uint8_t *result = i2c_read_block(dev, reg, 1),
            byte = result[0];
   // Free the result pointer
   free(result);
@@ -310,16 +311,29 @@ uint8_t i2c_read_byte(i2c_dev *dev)
 // Same as the read byte, just allows specification of block
 // size to read. Returns an array of uint32_t in the heap
 // that contains all the information read out of the FIFO reg
-uint8_t *i2c_read_block(i2c_dev *dev, short block_size)
+uint8_t *i2c_read_block(i2c_dev *dev, short reg, short block_size)
 {
   // Declare result array
   uint8_t *result;
+  // Clear the fifo
+  BSC_C = BSC_C_CLEAR;
   // Set new address
   BSC_SLAVE_ADDR = dev->addr;
+  // Set size of transfer
+  BSC_DATA_LEN = 1;
+  // Write the register to the fifo
+  BSC_FIFO = reg;
+  // Clear status
+  BSC_S = CLEAR_STATUS;
+  // Initiate the transfer
+  BSC_C = START_WRITE;
+  // Wait for acknowledgement
+  wait_i2c_done();
+  // Set length to block size
+  BSC_DATA_LEN = block_size;
   // Clear the bus status
   BSC_S = CLEAR_STATUS;
-  // Set length to 1 byte
-  BSC_DATA_LEN = block_size;
+  // TODO - Setup error checking for the reg transfer
   // Start the bus read
   BSC_C = START_READ;
   // Wait for the bus to clear
@@ -335,60 +349,60 @@ uint8_t *i2c_read_block(i2c_dev *dev, short block_size)
   // Read result into the result array
   for (int i = 0; i < block_size; i++)
   {
-    result[i] = 0xff & BSC_FIFO;
+    // printf("0x%20x\n", BSC_FIFO);
+    result[i] = BSC_FIFO;
   }
   // Return the result
   // NOTE - Memory responsibility passed to calling function
   return result;
 }
 
-uint32_t i2c_write_block(i2c_transaction *trans)
+uint32_t i2c_write_block(i2c_dev *dev, short size, uint8_t *content)
 {
-  // Verify this is a write transaction
-  if (trans->read)
-  {
-    fprintf(stderr, "Invalid write transaction - read should not be true.\n\n");
-    exit(EXIT_FAILURE);
-  }
   // Verify that the addressed device is currently active and registered
   // on the bus
-  if (!i2c_bus_addr_active(trans->addr))
+  if (!i2c_bus_addr_active(dev->addr))
   {
-    fprintf(stderr, "No device found at current address (0x%02x)\n\n", trans->addr);
+    fprintf(stderr, "No device found at current address (0x%02x)\n\n", dev->addr);
     exit(EXIT_FAILURE);
   }
+  // Clear the current fifo
+  // TODO - Investigate if this is actually the best method
+  BSC_C = BSC_C_CLEAR;
   // Set dev address
-  BSC_SLAVE_ADDR = trans->addr;
+  BSC_SLAVE_ADDR = dev->addr;
   // Clear the current status
   BSC_S = CLEAR_STATUS;
   // Set the length of the transfer + addr byte
-  BSC_DATA_LEN = trans->raw->size;// + 1;
+  BSC_DATA_LEN = size;
   // Load the content into the fifo buffer
-  for (int i = 0; i < trans->raw->size; i++)
+  for (int i = 0; i < size; i++)
   {
-    BSC_FIFO = trans->raw->content[i];
+    BSC_FIFO = content[i];
   }
   // Start the write
   BSC_C = START_WRITE;
   // Wait for the i2c transfer to finish
   wait_i2c_done();
-  // Save the current status into the transaction
-  trans->i2c_status = BSC_S;
   // Return the value of the status register
   return BSC_S;
 }
 
-i2c_transaction *malloc_transaction(short addr, int read)
+uint32_t i2c_write_reg(i2c_dev *dev, short reg, uint8_t *bytes, short size)
 {
-  i2c_transaction *trans = malloc(sizeof(i2c_transaction));
-  if (!trans)
+  // Generate content package
+  uint8_t content[size + 1];
+  // First byte is reg number
+  content[0] = reg;
+  // Copy in the content
+  for (int i = 1; i <= size; i++)
   {
-    fprintf(stderr, "Memory allocation failed (malloc) of transaction.\n\n");
-    exit(EXIT_FAILURE);
+    content[i] = bytes[i - 1];
   }
-  trans->read = read;
-  trans->addr = addr;
-  return trans;
+  // Write the block with the included reg
+  uint32_t status = i2c_write_block(dev, size + 1, content);
+  // Return the i2c bus status
+  return status;
 }
 
 // Given a pointer to a i2c_dev and a 
