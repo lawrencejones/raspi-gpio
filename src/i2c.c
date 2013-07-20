@@ -79,7 +79,7 @@ static void verify_i2c_details(i2c_bus *i2c,
   {
     // If it's not, then exit with error
     ERR("Device (0x%02x) not found on bus. \
-      Use `detect` to list devs.\n\n", addr);
+Use `detect` to list devs.\n\n", addr);
     exit(EXIT_FAILURE);
   }
   // Verify register is within reasonable limit
@@ -125,10 +125,19 @@ void process_command(i2c_bus *i2c,                           // process_command
                      char** tokens,
                      int no_of_tokens)
 {
-  // Extract i2c dev address
-  short addr  = DEX_TO_INT(tokens[1]); 
-  // Pick off the number of bytes to transfer
-  int reg = DEX_TO_INT(tokens[2]), bytes = DEX_TO_INT(tokens[3]);
+  // Declare variables with sensible defaults
+  short addr = 0;
+  int reg = 0, bytes = 1;
+  switch (no_of_tokens)
+  {
+    case 4: // Extract no of bytes in transfer
+      bytes = DEX_TO_INT(tokens[3]);
+    case 3: // Extract the register address
+      reg = DEX_TO_INT(tokens[2]);
+    case 2: // Extract i2c dev address
+      addr = DEX_TO_INT(tokens[1]);
+      break;
+  }
   // Verify i2c dev is present
   verify_i2c_details(i2c, addr, reg);
   // General verification now finished, split on command
@@ -136,8 +145,8 @@ void process_command(i2c_bus *i2c,                           // process_command
   IF_FLAG(0, "read")              // **READ**
   // read [addr] [reg] [bytes]
   {
-    // Verify correct number of args
-    verify_arg_count(/* expected */ 4, /* got */ no_of_tokens);
+    // Verify correct number of args - at least 2
+    verify_arg_count(/* expected */ 2, /* got */ no_of_tokens);
     PRINTC(GREEN, "Reading %d bytes from dev 0x%02x at \
         register 0x%02x...\n\n", bytes, addr, reg);
     // Initiate read from dev
@@ -150,7 +159,7 @@ void process_command(i2c_bus *i2c,                           // process_command
       PRINT_BIN_BYTE(read[i], "\n"); 
     }
     PRINTC(GREEN, "\nFinished read. I2C bus status is 0x%03x / ", BSC_S);
-    PRINT_BIN_BYTE(BSC_S, "\n");
+    PRINT_BIN_BYTE(BSC_S, "\n\n");
   } 
   else IF_FLAG(0, "write")        // **WRITE**
   // write [addr] [reg] [bytes] [content]
