@@ -409,7 +409,7 @@ uint32_t i2c_write_reg(i2c_bus *i2c,                           // i2c_write_reg
     short size)
 {
   // Generate content package
-  uint8_t content[++size];
+  uint8_t content[size + 1];
   // First byte is reg number
   content[0] = reg;
   // Copy in the content
@@ -418,7 +418,7 @@ uint32_t i2c_write_reg(i2c_bus *i2c,                           // i2c_write_reg
     content[i] = bytes[i - 1];
   }
   // Write the block with the included reg
-  uint32_t status = i2c_write_block(i2c, addr, size, content);
+  uint32_t status = i2c_write_block(i2c, addr, size + 1, content);
   // Return the i2c bus status
   return status;
 }
