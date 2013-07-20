@@ -23,6 +23,12 @@
 // HELPERS
 ///////////////////////////////////////////////////////////////////////////////
 
+// Print binary
+void print_binary_byte(uint8_t byte)
+{
+  for (int i=8;i>=0;i--) printf("%d", 1u & (byte >> i));
+}
+
 // Verifies that the expected argument count matches that
 // given. If it doesn't then exit program with error.
 static void verify_arg_count(int expected,                  // verify_arg_count
@@ -130,6 +136,7 @@ void process_command(i2c_bus *i2c,                           // process_command
   int reg = 0, bytes = 1;
   switch (no_of_tokens)
   {
+    case 5: case 6:
     case 4: // Extract no of bytes in transfer
       bytes = DEX_TO_INT(tokens[3]);
     case 3: // Extract the register address
@@ -148,7 +155,7 @@ void process_command(i2c_bus *i2c,                           // process_command
     // Verify correct number of args - at least 2
     verify_arg_count(/* expected */ 2, /* got */ no_of_tokens);
     PRINTC(GREEN, "Reading %d bytes from dev 0x%02x at \
-        register 0x%02x...\n\n", bytes, addr, reg);
+register 0x%02x...\n\n", bytes, addr, reg);
     // Initiate read from dev
     uint8_t *read = i2c_read_block(i2c, addr, reg, bytes);
     // For all bytes received
@@ -156,7 +163,8 @@ void process_command(i2c_bus *i2c,                           // process_command
     {
       // Print to stdout the byte received
       printf("   Byte %03d - 0x%02x - ", i, read[i]);
-      PRINT_BIN_BYTE(read[i], "\n"); 
+      print_binary_byte(read[i]);
+      printf("\n");
     }
     PRINTC(GREEN, "\nFinished read. I2C bus status is 0x%03x / ", BSC_S);
     PRINT_BIN_BYTE(BSC_S, "\n\n");

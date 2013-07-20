@@ -15,6 +15,7 @@
 // TEST RUN
 ///////////////////////////////////////////////////////////////////////////////
 
+void mux_network_print(Mux *m);
 int main(int argc, char** argv)
 {
   printf("\n");
@@ -25,6 +26,8 @@ int main(int argc, char** argv)
   Mux *m = pca_init("MUX1", 116, i2c);
   // Select channel 0
   m->set_channel(m, PCA_C0);
+  // Print mux network
+  mux_network_print(m);
   // Dealloc the mux struct
   pca_dealloc(&m);
   return 0;
