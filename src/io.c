@@ -35,7 +35,7 @@ static inline volatile unsigned* get_mmap(int base)                 // get_mmap
   if (devmem < 0)
   {
     // Access not successful, print error and exit
-    ERR("Failed to access dev/mem - verify sudo?\n");
+    ERR("Failed to access dev/mem - verify sudo?\n\n");
     exit(EXIT_FAILURE);
   }
   // Use mmap to map to direct memory locations
@@ -289,13 +289,13 @@ void i2c_print_bus(i2c_dev *dev)                               // i2c_print_bus
 {
   // Set count to 0
   int count = 0;
-  PRINTC("Printing i2c bus devices...\n\n", GREEN);
+  PRINTC(GREEN, "Printing i2c bus devices...\n\n");
   // Print the device while one exists
   do {
     printf("  Dev %d  -  Addr 0x%02x\n", count++, dev->addr);
   } while ((dev = dev->next));
   // Clear a line
-  PRINTC("\n...done.\n\n", GREEN);
+  PRINTC(GREEN, "\n...done.\n\n");
 }
 
 /////////////////////////////////////////////////////////////

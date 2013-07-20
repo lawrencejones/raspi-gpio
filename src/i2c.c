@@ -177,7 +177,7 @@ void process_command(i2c_bus *i2c,                           // process_command
       i2c_write_reg(i2c, addr, reg, content, no_of_bytes);
     }
     // Print success
-    PRINTC("Write successful.\n\n", GREEN);
+    PRINTC(GREEN, "Write successful.\n\n");
   }
 }
 
