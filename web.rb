@@ -42,14 +42,6 @@ class PinStruct < FFI::Struct
     :value, :int
 
   def get_json
-=begin   # Potential object literal approach
-    { 
-      :chipIndex => self[:chipIndex], 
-      :memIndex => self[:memIndex],
-      :state => self[:state], 
-      :value => self[:value]
-    }.to_json
-=end
     [ self[:state], self[:value] ]
   end
 end
