@@ -1,0 +1,21 @@
+#!/usr/bin/env coffee
+fs = require 'fs'
+readLine = require 'readline'
+regs = []
+
+rs = fs.createReadStream process.argv[2]
+rd = readLine.createInterface {
+  input: rs
+  output: process.stdout
+  terminal: false
+}
+
+rd.on 'line', (l) ->
+  if /^#define/.test l
+    [_, name, addr] = l.split(' ')
+    regs.push {name: name, addr: addr} if addr?
+
+rd.on 'close', ->
+  fs.writeFile (process.argv[2].split('.')[0] + '.json'), \
+    JSON.stringify(regs), (err) -> 
+      console.log (if err then 'Error! Ahh!' else 'Done!')

@@ -238,11 +238,11 @@ typedef struct {
 } i2c_transaction;
 
 // Define the entry point for gpios
-volatile unsigned *gpio;
+extern volatile unsigned *gpio;
 // Define the entry point for I2C interface
-volatile unsigned *i2c;
+extern volatile unsigned *i2c;
 // Define the chip state
-static Chip* chip;
+Chip* chip;
 
 ///////////////////////////////////////////////////////////////////////////////
 // FUNCTION STUBS
