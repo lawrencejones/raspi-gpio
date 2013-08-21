@@ -8,6 +8,7 @@
 #include <stdlib.h>
 #include <stdio.h>
 #include "mpu3300.h"
+#include "../tools/src/macros.h"
 
 ///////////////////////////////////////////////////////////////////////////////
 // INITIALISATION
@@ -49,6 +50,31 @@ Sensor *mpu_init(char*   name,
                  int     i2c_addr,
                  KeyVal* config)
 {
+  // malloc the sensor struct
+  Sensor *s = malloc(sizeof(Sensor));
+  // Verify malloc success
+  if (!s)
+  {
+    // malloc has failed, print error and exit
+    ERR("Failed to allocate memory (malloc) for Sensor *s.\n");
+    exit(EXIT_FAILURE);
+  }
+  // Assign given sensor properties
+  s->name = malloc(sizeof(char) * strlen(name) + 1);
+  // Make copies of strings to avoid stack expiry
+  strcpy(s->name, name);
+  // Assign the i2c addr
+  s->i2c_addr = i2c_addr;
+  // Assign the enum for model
+  s->model = MPU3300;
+  // Assign enum for sensor type
+  s->type = GYRO;
+  // Assign the function pointer for an enable method
+  s->enable = &mpu_enable;
+  // Assign the read function
+  s->read = &mpu_read;
+  // Assign the prep function
+  s->prep = &prep_board;
   return NULL;
 }
 
@@ -65,6 +91,68 @@ Sensor *mpu_init(char*   name,
    this file.
  */
 
+//////////////////////////////////////////////////////////
+// Configures the sample rate of the sensor //////////////
+//    samplerate: Nhz
+static uint8_t mpu_config_samplerate(KeyVal *pairs);
+
+//////////////////////////////////////////////////////////
+// Configures gyro settings //////////////////////////////
+//    selftest: (x|y|z|off)
+//    fs_range:(225:450)
+static uint8_t mpu_config_gyro(KeyVal *pairs);
+
+//////////////////////////////////////////////////////////
+// Configures the fifo settings //////////////////////////
+//    fifo_selection: (tmp|xg|yg|zg|xa|ya|za)
+static uint8_t mpu_config_fifo(KeyVal *pairs);
+
+//////////////////////////////////////////////////////////
+// Configures the user settings //////////////////////////
+//    i2c_mst_en: (yes:no)
+//    fifo: (on:off)
+static uint8_t mpu_config_user_ctrl(KeyVal *pairs);
+
+//////////////////////////////////////////////////////////
+// Configures the mpu power management ///////////////////
+//    sleep: (on:off)
+//    temp_en: (yes:no)
+//    gyro_sleep: (x|y|z|none)
+static uint8_t mpu_config_power(KeyVal *pairs);
+
+///////////////////////////////////////////////////////////////////////////////
+// CONFIGURE AUX SENSOR SETTINGS
+///////////////////////////////////////////////////////////////////////////////
+/*
+   All i2c slave related configuration functionality should appear
+   below. All should be static and only accessed through the mpu_configure
+   function.
+*/
+
+//////////////////////////////////////////////////////////
+// Configures the i2c master /////////////////////////////
+//    multi_mst_en: (yes:no)
+//    wait_for_aux: (yes:no)
+//    i2c_mst_clk: (0..15)
+static uint8_t mpu_config_i2c_mst(KeyVal *pairs);
+
+//////////////////////////////////////////////////////////
+// Configures the i2c slave (0) //////////////////////////
+//    i2c_slave_rw: (read|write) [r|w] optional
+//    i2c_slave_addr: (hex)
+//    i2c_slave_reg: (hex)
+//    i2c_slave_len: (hex) 4-bit
+//    i2c_slave_en: (yes:no)
+//    i2c_slave_byte_swap: (yes:no)
+//    i2c_slave_reg_dis: (yes:no)
+//    i2c_slave_grp: (evenodd|oddeven) [e|o] optional
+static uint8_t mpu_config_i2c_slv(KeyVal *pairs);
+
+//////////////////////////////////////////////////////////
+// Configures the interupts and i2c bus //////////////////
+//    i2c_bypass: (on:off)
+static uint8_t mpu_config_int_pin(KeyVal *pairs);
+
 // Given an array of KeyVal structs, iterate through all pairs and
 // if this setting is implemented, then modify the mpu settings.
 // Sensor *s is a pointer to the mpu that should be configured.
@@ -77,10 +165,22 @@ int mpu_configure(Sensor *s, KeyVal *settings)
 // CONFIGURE AUX SENSOR SETTINGS
 ///////////////////////////////////////////////////////////////////////////////
 /*
-   All i2c slave related configuration functionality should appear
-   below. All should be static and only accessed through the mpu_configure
-   function.
+   For ease of use, two functions are provided to enable and disable
+   the mpu sensor using sensible defaults and/or the configuration
+   provided in KeyVal pairs
 */
+
+// Turns the mpu on and deals with sensible defaults
+int mpu_enable(Sensor *s, KeyVal *settings)
+{
+  return 0;
+}
+
+// Disables the mpu sensor
+int mpu_disable(Sensor *s)
+{
+  return 0;
+}
 
 ///////////////////////////////////////////////////////////////////////////////
 // READ SENSOR DATA
@@ -97,7 +197,7 @@ int mpu_configure(Sensor *s, KeyVal *settings)
 // Entry point for all reads. Takes a Sensor pointer (the selected mpu)
 // and a target. This is currently either `HOST` or `AUX`, as explained
 // above.
-Axes *mpu_read(Sensor *s, enum Target t)
+Axes *mpu_read(Sensor *s, target_t t)
 {
   return NULL;
 }
