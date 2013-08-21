@@ -1,5 +1,5 @@
 CC      = gcc
-COMMON  = -fPIC -D_POSIX_C_SOURCE=200803L -lpthread -rdynamic -g -ansi -std=c99 -Werror -pedantic
+COMMON  = -fPIC -D_POSIX_C_SOURCE=200803L -lpthread -rdynamic -g -std=c99 -Werror -pedantic
 GFLAGS  = -pie
 CFLAGS  = $(COMMON) $(GFLAGS) $(MAC)
 
@@ -9,6 +9,7 @@ TESTS = gpio-words
 OS    = io print pinmaps
 TOOLS = $(addsuffix .o, $(addprefix tools/obj/, tokeniser))
 OBJ   = $(addsuffix .o, $(addprefix obj/, $(OS)))
+TOOLS = $(addsuffix .o, $(addprefix tools/obj/, tokeniser))
 
 all: $(PROG)
 

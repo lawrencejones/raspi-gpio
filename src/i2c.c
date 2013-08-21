@@ -9,6 +9,7 @@
 // i2c detect
 // i2c read  0x77 4 > read_result
 // i2c write 0x12 8 0x2020c1d3 0x11e0a248
+// i2c file  test_file.i2c
 ///////////////////////////////////////////////////////////////////////////////
 
 #include <stdio.h>
@@ -22,8 +23,8 @@ static inline void verify_arg_count(int expected, int argc)
   // If the arguments do not equal the expected
   if (argc < expected)
   {
-    // Then print to standard out
-    fprintf(stderr, "Error. See i2c-test --help for correct usage.\n\n");
+    // Then print to standard err
+    ERR("Error. See i2c-test --help for correct usage.\n\n");
     // And exit with failure
     exit(EXIT_FAILURE);
   }
@@ -44,7 +45,7 @@ uint8_t *interpret_content(char **args, int no_of_tokens, short bytes)
   while (count < bytes && i < no_of_tokens)
   {
     buffer = DEX_TO_INT(args[i]);
-    while (buffer > 0 && count < bytes)
+    while (count < bytes)
     {
       content[count++] = buffer & 0xff;
       buffer >>= 8u;
@@ -56,11 +57,14 @@ uint8_t *interpret_content(char **args, int no_of_tokens, short bytes)
 void print_usage()
 {
   printf("Usage:       i2c (optional) detect\n");
-  printf("             i2c read  [addr] [noOfBytes]\n");
-  printf("             i2c write [addr] [noOfBytes] [content]\n\n");
+  printf("             i2c read  [addr] [reg] [noOfBytes]\n");
+  printf("             i2c write [addr] [reg] [noOfBytes] [content]\n");
+  printf("             i2c file  [filename]\n\n");
   printf("[addr]:      device address\n");
+  printf("[reg]:       data register\n");
   printf("[noOfBytes]: to either read or write\n");
-  printf("[content]:   to write to device. any mix of dec or hex numbers.\n\n");
+  printf("[content]:   to write to device. any mix of dec or hex numbers.\n");
+  printf("[filename]:  the filename containing commands\n\n");
 }
 
 void process_command(char** tokens, int no_of_tokens)
@@ -68,30 +72,37 @@ void process_command(char** tokens, int no_of_tokens)
   // Create a dev from the given address
   i2c_dev dev  = {DEX_TO_INT(tokens[1]), NULL}; 
   // Pick off the number of bytes to transfer
-  int bytes = DEX_TO_INT(tokens[2]);
+  int reg = DEX_TO_INT(tokens[2]), bytes = DEX_TO_INT(tokens[3]);
   // Verify that address is within i2c bus range
   if (dev.addr > 127)
   {
-    fprintf(stderr, "Address not in range of bus.\n\n");
+    ERR("Address not in range of bus.\n\n");
     exit(EXIT_FAILURE);
   }
   // Verify that the device is on the bus
   if (!i2c_bus_addr_active(dev.addr))
   {
-    fprintf(stderr, "Device not found on bus. Use `detect` to list devs.\n\n");
+    ERR("Device not found on bus. Use `detect` to list devs.\n\n");
+    exit(EXIT_FAILURE);
+  }
+  // Verify register is within reasonable limit
+  if (!(reg >= 0 && reg < 256))
+  {
+    ERR("Register 0x%02x is out of range.\n\n", reg);
     exit(EXIT_FAILURE);
   }
   // General verification now finished, split on command
   // If `read` command
   if (!(strcmp(tokens[0], "read")))
-  // read [addr] [bytes]
+  // read [addr] [reg] [bytes]
   {
     // Verify correct number of args
-    verify_arg_count(/* expected */ 3, /* got */ no_of_tokens);
+    verify_arg_count(/* expected */ 4, /* got */ no_of_tokens);
     printf(GREEN);
-    printf("Reading %d bytes from dev with address 0x%02x...\n\n", bytes, dev.addr);
+    printf("Reading %d bytes from dev 0x%02x at register 0x%02x...\n\n", 
+     bytes, dev.addr, reg);
     printf(CLRCOL);
-    uint8_t *read = i2c_read_block(&dev, bytes);
+    uint8_t *read = i2c_read_block(&dev, reg, bytes);
     for (int i = 0; i < bytes; i++)
     {
       printf("   Byte %03d - 0x%02x - ", i, read[i]);
@@ -104,30 +115,26 @@ void process_command(char** tokens, int no_of_tokens)
     printf(CLRCOL);
   } 
   else if (!(strcmp(tokens[0], "write")))
-  // write [addr] [bytes] [content]
+  // write [addr] [reg] [bytes] [content]
   {
     // Verify the correct number of args
-    verify_arg_count(/* expected */ 4, /* got */ no_of_tokens);
+    verify_arg_count(/* expected */ 5, /* got */ no_of_tokens);
     // Fetch no of bytes to write
-    short no_of_bytes = (short) (0xff & DEX_TO_INT(tokens[2]));
+    short no_of_bytes = (short) (0xff & DEX_TO_INT(tokens[3]));
     // Select what args represent content
-    char** content_args = (char**)(tokens + 3);
+    char** content_args = (char**)(tokens + 4);
     // Interpret the content
-    uint8_t *content = interpret_content(content_args, (no_of_tokens - 3), no_of_bytes);
-    // Create an i2c transaction
-    i2c_transaction *trans = malloc_transaction(dev.addr, WRITE);
-    // Set content
-    trans->raw->content = content;
-    // Set no of bytes
-    trans->raw->size = no_of_bytes;
+    uint8_t *content = interpret_content(content_args, (no_of_tokens - 4), no_of_bytes);
     // Write to device
-    i2c_write_block(trans);
+    i2c_write_reg(&dev, reg, content, no_of_bytes);
+    // Print success
+    PRINTC("Write successful.\n", GREEN);
   }
 }
 
 // Main function for testing purposes
 // i2c-test [function] [addr] [size] [content]
-// [function] = detect | read | write
+// [function] = detect | read | write | file
 // [addr] = device bus address
 // [size] = no of bytes
 // [content] = hex numbers representing bytes
@@ -157,10 +164,16 @@ int main(int argc, char** argv)
   // If sourcing commands from file
   else if ((argc == 3) && !(strcmp(argv[1], "file")))
   {
+    // TODO - Consider adding syntax checker (in own time!)
+    // Tokenise the file
     source_t *src = tokenise_file(argv[2]);
+    // For all lines in the file, process them
     for (int i = 0; i < src->noOfLines; i++)
     {
+      // Run command
       process_command(src->lines[i], src->sizes[i]);
+      // Echo line to stdout
+      printf("\n");
     } 
   }
   // Else if single read or write
@@ -170,11 +183,14 @@ int main(int argc, char** argv)
   }
   else
   {
-    fprintf(stderr, "Incorrent usage.\n\n");
+    // Notify of incorrect usage
+    ERR("Incorrent usage.\n\n");
+    // Print the usage guidelines
     print_usage();
   }
+  // Deallocate the bus
   dealloc_i2c_bus(bus);
+  // Deallocate the chip
   dealloc_chip();
-  printf("\n");
   return 0;
 }
