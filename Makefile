@@ -13,7 +13,7 @@ MODS = $(addsuffix .o, $(THIS) $(SUBS))
 all: $(addprefix bin/, $(PROG))
 
 clean:
-	rm -f $(MODS)
+	rm -rf $(MODS) $(addprefix bin/, $(addsuffix *, $(PROG)))
 
 bin/%: src/%.c $(MODS)
 	$(CC) $(CFLAGS) -o $@ $^
