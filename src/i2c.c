@@ -1,20 +1,20 @@
 ///////////////////////////////////////////////////////////////////////////////
 // Raspberry Pi GPIO Interface
 // ¯¯¯¯¯¯¯¯¯¯¯¯¯¯¯¯¯¯¯¯¯¯¯¯¯¯¯
-// File: i2c_test.c
+// File: i2c.c
 // PA Consulting - Lawrence Jones
 ///////////////////////////////////////////////////////////////////////////////
 // Usage Examples  
 // ¯¯¯¯¯¯¯¯¯¯¯¯¯¯
-// i2c-test detect
-// i2c-test read  0x77 4 > read_result
-// i2c-test write 0x12 8 0x2020c1d3 0x11e0a248
+// i2c detect
+// i2c read  0x77 4 > read_result
+// i2c write 0x12 8 0x2020c1d3 0x11e0a248
 ///////////////////////////////////////////////////////////////////////////////
 
 #include <stdio.h>
 #include <string.h>
-#include "../src/io.h"
-#include "../src/print.h"
+#include "io.h"
+#include "print.h"
 #include "../tools/src/tokeniser.h"
 
 static inline void verify_arg_count(int expected, int argc)

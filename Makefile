@@ -4,13 +4,13 @@ GFLAGS  = -pie
 CFLAGS  = $(COMMON) $(GFLAGS) $(MAC)
 
 # list final targets
-PROG  = gpio display
-TESTS = gpio-words i2c-test
+PROG  = gpio display i2c
+TESTS = gpio-words
 OS    = io print pinmaps
 TOOLS = $(addsuffix .o, $(addprefix tools/obj/, tokeniser))
 OBJ   = $(addsuffix .o, $(addprefix obj/, $(OS)))
 
-all: $(PROG) $(TESTS)
+all: $(PROG)
 
 tests: $(TESTS)
 
@@ -26,7 +26,7 @@ display: src/display.c $(OBJ)
 gpio-words: test/gpio_words.c $(OBJ)
 	sudo $(CC) $(CFLAGS) $< -o /usr/local/$@
 
-i2c-test: test/i2c_test.c $(OBJ) $(TOOLS)
+i2c: src/i2c.c $(OBJ) $(TOOLS)
 	$(CC) $(CFLAGS) -o bin/$@ $^
 
 obj/%.o: src/%.c src/%.h
