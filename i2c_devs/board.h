@@ -1,12 +1,12 @@
 ///////////////////////////////////////////////////////////////////////////////
 // Raspberry Pi GPIO Interface
 // ¯¯¯¯¯¯¯¯¯¯¯¯¯¯¯¯¯¯¯¯¯¯¯¯¯¯¯
-// File: sensors.h
+// File: board.h
 // PA Consulting - Lawrence Jones
 ///////////////////////////////////////////////////////////////////////////////
 
-#ifndef IMU_SENSORS_INC
-#define IMU_SENSORS_INC
+#ifndef IMU_BOARD_INC
+#define IMU_BOARD_INC
 
 #include <stdint.h>
 
@@ -24,6 +24,9 @@ enum Target {HOST, AUX};
 
 /////////////////////////////////////////////////////////////
 // Function Typedefs   //////////////////////////////////////
+// Required for definitions
+typedef struct Sensor Sensor;
+typedef struct Axes Axes;
 // Function to return an axes struct pointer
 typedef Axes* (*ReadAxes)(Sensor *s, enum Target t);
 // Typedef for a sensor on/off toggle function
@@ -44,8 +47,7 @@ typedef struct {                                    // KeyVal
 
 // Define a struct to represent 3-axes data
 // Will form a linked list of axes readings
-typedef struct Axes Axes;                             // Axes
-struct Axes {
+struct Axes {                                         // Axes
   // States what type of readings, accel or gyro
   enum Type type;
   // The respective xyz readings
@@ -55,8 +57,7 @@ struct Axes {
 };
 
 // Define a struct to represent a sensor
-typedef struct Sensor Sensor;                       // Sensor
-struct Sensor {
+struct Sensor {                                     // Sensor
   // Both a name and model string for the device
   char *name, *model;
   // Specifies gyro or accel
