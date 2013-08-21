@@ -46,8 +46,8 @@
 // an array of KeyVal pairs which correspond to mpu configuration
 // options. Supported config options are listed in config array.
 Sensor *mpu_init(char*   name, 
-    int     i2c_addr,
-    KeyVal* config)
+                 int     i2c_addr,
+                 KeyVal* config)
 {
   return NULL;
 }

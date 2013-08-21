@@ -3,36 +3,24 @@ COMMON  = -fPIC -D_POSIX_C_SOURCE=200803L -lpthread -rdynamic -g -std=c99 -Werro
 GFLAGS  = -pie
 CFLAGS  = $(COMMON) $(GFLAGS) $(MAC)
 
-# list final targets
-PROG  = gpio display i2c
-TESTS = gpio-words
-OS    = io print pinmaps
-TOOLS = $(addsuffix .o, $(addprefix tools/obj/, tokeniser))
-OBJ   = $(addsuffix .o, $(addprefix obj/, $(OS)))
-TOOLS = $(addsuffix .o, $(addprefix tools/obj/, tokeniser))
+# Final binaries
+PROG  = gpio i2c
+# Module categories
+THIS = $(addprefix obj/, io pinmaps print)
+SUBS = $(addprefix tools/obj/, tokeniser)
+MODS = $(addsuffix .o, $(THIS) $(SUBS))
 
-all: $(PROG)
-
-tests: $(TESTS)
+all: $(addprefix bin/, $(PROG))
 
 clean:
-	rm -f $(OBJ) $(addprefix bin/, $(PROG)) $(TOOLS)
+	rm -f $(MODS)
 
-gpio:  src/gpio.c $(OBJ)
-	$(CC) $(CFLAGS) -o bin/$@ $^
+bin/%: src/%.c $(MODS)
+	$(CC) $(CFLAGS) -o $@ $^
 
-display: src/display.c $(OBJ)
-	$(CC) $(CFLAGS) -o bin/$@ $^
-
-gpio-words: test/gpio_words.c $(OBJ)
-	sudo $(CC) $(CFLAGS) $< -o /usr/local/$@
-
-i2c: src/i2c.c $(OBJ) $(TOOLS)
-	$(CC) $(CFLAGS) -o bin/$@ $^
+tools/obj/%.o:
+	cd tools && make $@
+	cd ..
 
 obj/%.o: src/%.c src/%.h
 	$(CC) $(CFLAGS) -c -o $@ $<
-
-tools/obj/%.o: tools/src/%.c tools/src/%.h
-	$(CC) $(CFLAGS) -c -o $@ $<
-

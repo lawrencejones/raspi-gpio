@@ -16,6 +16,7 @@
 #include <string.h>
 #include "io.h"
 #include "print.h"
+#include "../tools/src/macros.h"
 #include "../tools/src/tokeniser.h"
 
 static inline void verify_arg_count(int expected, int argc)
