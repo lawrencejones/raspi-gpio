@@ -10,6 +10,7 @@
 
 #include <stdlib.h>
 #include "../src/io.h"
+#include "sensors.h"
 
 ///////////////////////////////////////////////////////////////////////////////
 // REGISTERS
@@ -84,5 +85,23 @@
 
 // Identity register
 #define MPU_WHO_AM_I 0x75
+
+///////////////////////////////////////////////////////////////////////////////
+// INTERFACE - FUNCTION STUBS
+///////////////////////////////////////////////////////////////////////////////
+
+// Malloc and initialise an mpu struct, return the pointer
+Sensor  *mpu_init     (  char*       name, 
+                         int         i2c_addr,
+                         KeyVal*     config);
+// Configure the given mpu struct pointer using the keyval array
+int     mpu_configure (  Sensor*     s, 
+                         KeyVal*     settings);
+// Read from the given sensor with the given target
+Axes    *mpu_read     (  Sensor*     s, 
+                         enum Target t);
+// Dealloc an mpu sensor struct. See .c for dependency behaviour
+// and warnings.
+void    mpu_dealloc   (  Sensor**    s);
 
 #endif

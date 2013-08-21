@@ -9,16 +9,16 @@
 // INSTRUCTIONS
 ///////////////////////////////////////////////////////////////////////////////
 /*
-  The process to go from x to pin(g) on, is shown below...
-    
+   The process to go from x to pin(g) on, is shown below...
+
     INP_GPIO(g)  =>  OUT_GPIO(g)  =>  CLR_PIN(g)  =>  SET_PIN(g)
 
-  ...which first sets the pin to input mode to clear the current
-  setting. This is entirely optional and is only present to highlight
-  the possible entry at step 2, regardless of previous states.
-  The clear pin is required to prep the pi for changing the said pins
-  status. Once cleared, any value may be sent to the SET_PIN macro.
-*/
+   ...which first sets the pin to input mode to clear the current
+   setting. This is entirely optional and is only present to highlight
+   the possible entry at step 2, regardless of previous states.
+   The clear pin is required to prep the pi for changing the said pins
+   status. Once cleared, any value may be sent to the SET_PIN macro.
+ */
 
 #ifndef INPUTS
 #define INPUTS
