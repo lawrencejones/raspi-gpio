@@ -30,6 +30,7 @@ typedef enum {MPU3300, ITG3050, L3G4200D} model_t;
 // Required for definitions
 typedef struct Sensor Sensor;
 typedef struct Axes Axes;
+typedef struct ConfigFunctionMap ConfigFunctionMap;
 // Function to return an axes struct pointer
 typedef Axes*   (*ReadAxes)(Sensor *s, target_t t);
 // Typedef for a sensor enable function
@@ -73,6 +74,14 @@ struct Sensor {                                     // Sensor
   ReadAxes read;
   // Function to prep the board for device access
   PrepBoard prep;
+};
+
+// Define a struct to map config keys to functions
+struct ConfigFunctionMap {
+  // String of keys
+  char *keys;
+  // Function pointer to a helper
+  Configs helper;
 };
 
 ///////////////////////////////////////////////////////////////////////////////
