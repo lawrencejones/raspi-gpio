@@ -95,12 +95,14 @@ static void verify_i2c_details(i2c_bus *i2c,
 // STDOUT FORMATTING
 ///////////////////////////////////////////////////////////////////////////////
 
-void print_usage()                                              // print_usage
+void print_usage(int extended)                                   // print_usage
 {
   printf("Usage:       i2c (optional) detect\n");
   printf("             i2c read  [addr] [reg] [noOfBytes]\n");
   printf("             i2c write [addr] [reg] [noOfBytes] [content]\n");
   printf("             i2c file  [filename]\n\n");
+  if (!extended) return;
+  printf("[bus]:       optional flag: supply `bus N`\n");
   printf("[addr]:      device address\n");
   printf("[reg]:       data register\n");
   printf("[noOfBytes]: to either read or write\n");
@@ -189,8 +191,27 @@ int main(int argc, char** argv)                                        // main
 {
   // Clear a line
   printf("\n");
+  // Set default i2c bus
+  int bus_select = 1, offset = 0;
+  // Scan args for a bus flag
+  for (int i = 1; (i + offset) < argc; i++)
+  {
+    argv[i] = argv[i+offset];
+    // If bus flag found
+    if (!strcmp("bus", argv[i]))
+    {
+      // Take next argument as the chosen bus
+      bus_select = atoi(argv[i+1]);
+      // Adjust offset
+      offset = 2;
+      // Decrement i
+      i--;
+    }
+  }
+  // Reduce argc by offset
+  argc -= offset;
   // Initialise i2c access
-  i2c_bus *i2c = i2c_init(1);
+  i2c_bus *i2c = i2c_init(bus_select);
   // Generate list of devices
   i2c_dev *dev = i2c_dev_detect(i2c);
   // If no arguments or detect argument
@@ -201,7 +222,8 @@ int main(int argc, char** argv)                                        // main
     // Print the usage message
     if (argc == 1)
     {
-      print_usage();
+      // Print small usage message
+      print_usage(0);
     }
   }
   // If sourcing commands from file
@@ -228,8 +250,8 @@ int main(int argc, char** argv)                                        // main
   {
     // Notify of incorrect usage
     ERR("Incorrect usage.\n\n");
-    // Print the usage guidelines
-    print_usage();
+    // Print the usage guidelines - extended version
+    print_usage(1);
   }
   // Deallocate the bus
   i2c_dev_dealloc(&dev);
