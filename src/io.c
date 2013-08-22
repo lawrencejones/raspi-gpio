@@ -25,7 +25,7 @@ volatile unsigned *i2c;
 // the GPIO pins. Will request memory access from the system,
 // note that this requires sudo privileges!
 // Based on example at http://elinux.org/RPi_Low-level_peripherals
-volatile unsigned* init_gpio_access()
+static inline volatile unsigned* get_mmap(int base)
 {
   // Open system /dev/mem location for direct mem access
   int devmem = open("/dev/mem", O_RDWR|O_SYNC);
@@ -36,39 +36,37 @@ volatile unsigned* init_gpio_access()
     ERR("Failed to access dev/mem - verify sudo?\n");
     exit(EXIT_FAILURE);
   }
-  // Use mmap to map to the gpio direct memory locations
-  void *gpioMap = mmap(
+  // Use mmap to map to direct memory locations
+  void *map = mmap(
     NULL,        // specific address not required
     BLOCK_SIZE,  // the length of the mapping, to include
-                 // all the gpio reserved space
+                 // all the peripheral reserved space
     PROT_READ|PROT_WRITE,  // enable RW to memory
     MAP_SHARED,  // share this location with other processes
     devmem,      // specific file to open
-    GPIO_BASE    // move to the GPIO reserved space by offset
-  );
-  // User mmap to map to the I2C bus
-  void *i2cMap = mmap(
-    NULL,        // specific address not required
-    BLOCK_SIZE,  // the length of the mapping, to include
-                 // all the I2C reserved space
-    PROT_READ|PROT_WRITE,  // enable RW to memory
-    MAP_SHARED,  // share this location with other processes
-    devmem,      // specific file to open
-    I2C_BASE     // move to the Broadcom Serial Bus 0
+    base         // move to the given base
   );
   // Close the filestream
   close(devmem);
   // Verify the integrity of the memory mapping
-  if ((gpioMap == MAP_FAILED) | (i2cMap == MAP_FAILED))
+  if (map == MAP_FAILED)
   {
     // Mapping not successful, print error and exit
-    ERR("Error from builtin mmap - code %d\n", (int) gpioMap);
+    ERR("Error from builtin mmap - code %d\n", (int) map);
     exit(EXIT_FAILURE);
   }
+  // If successful, return map
+  return map;
+}
+
+// Initialises gpio access specifically
+volatile unsigned* init_gpio_access()
+{
+  // Use the get_mmap function to pull from the devmem page
+  // Initialise with the GPIO_BASE
   // Use volatile pointer to allow shared access of the gpio locations
   // Slows performance but refreshing is required
-  gpio = (volatile unsigned *)gpioMap;
-  i2c = (volatile unsigned *)i2cMap;
+  gpio = (volatile unsigned *)get_mmap(GPIO_BASE);
   return gpio;
 }
 
