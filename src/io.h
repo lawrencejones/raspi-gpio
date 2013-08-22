@@ -304,6 +304,11 @@ uint8_t             *i2c_read_block     (  i2c_bus *i2c,
 
 /////////////////////////////////////////////////////////////
 // I2C Write ////////////////////////////////////////////////
+// Writes a single byte to the given device and address
+// Just wraps arround the i2c_write_reg function
+uint32_t            i2c_write_byte      (  i2c_bus *i2c,
+                                           short addr,
+                                           uint8_t byte  );
 // Writes bytes to the i2c device at the given address,
 // on the supplied bus. Writes to the given register.
 uint32_t            i2c_write_reg       (  i2c_bus *i2c, 

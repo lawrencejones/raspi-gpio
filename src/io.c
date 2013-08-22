@@ -371,6 +371,19 @@ uint8_t *i2c_read_block(i2c_bus *i2c,                         // i2c_read_block
 // I2C Write
 /////////////////////////////////////////////////////////////
 
+// Write a single byte to the addr given, on the supplied
+// i2c bus
+uint32_t i2c_write_byte(i2c_bus *i2c,                         // i2c_write_byte
+    short addr,
+    uint8_t byte)
+{
+  // Write nothing to a register
+  // Counts as a single byte write
+  return i2c_write_reg(i2c, addr, byte, NULL, 0);
+}
+
+// Write to the register of the device specified the contents
+// of the `bytes` array
 uint32_t i2c_write_reg(i2c_bus *i2c,                           // i2c_write_reg
     short addr, 
     short reg, 
