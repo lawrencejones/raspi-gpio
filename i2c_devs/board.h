@@ -9,6 +9,7 @@
 #define IMU_BOARD_INC
 
 #include <stdint.h>
+#include "keyval.h"
 
 ///////////////////////////////////////////////////////////////////////////////
 // TYPEDEFS
@@ -29,26 +30,20 @@ typedef enum {MPU3300, ITG3050, L3G4200D} model_t;
 // Required for definitions
 typedef struct Sensor Sensor;
 typedef struct Axes Axes;
-typedef struct KeyVal KeyVal;
 // Function to return an axes struct pointer
-typedef Axes* (*ReadAxes)(Sensor *s, target_t t);
+typedef Axes*   (*ReadAxes)(Sensor *s, target_t t);
 // Typedef for a sensor enable function
-typedef int (*SensorEnable)(Sensor *s, KeyVal *settings);
+typedef int     (*SensorEnable)(Sensor *s, KeyVal *settings);
 // Typedef for a sensor disable function
-typedef int (*SensorDisable)(Sensor *s);
+typedef int     (*SensorDisable)(Sensor *s);
 // Function to configure board to access a sensor
-typedef int (*PrepBoard)(Sensor *s);
+typedef int     (*PrepBoard)(Sensor *s);
+// Function type for configuration helpers
+typedef uint8_t (*Configs)(Sensor *s, KeyVal *pairs);
 
 
 /////////////////////////////////////////////////////////////
 // Struct Typedefs   ////////////////////////////////////////
-
-// Define generic KeyVal pair for config
-struct KeyVal {                                    // KeyVal
-  char *key;
-  char *val;
-};
-
 // Define a struct to represent 3-axes data
 // Will form a linked list of axes readings
 struct Axes {                                         // Axes

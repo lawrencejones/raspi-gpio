@@ -94,31 +94,46 @@ Sensor *mpu_init(char*   name,
 //////////////////////////////////////////////////////////
 // Configures the sample rate of the sensor //////////////
 //    samplerate: Nhz
-static uint8_t mpu_config_samplerate(KeyVal *pairs);
+static char* conf_samplerate_keys[] = {
+  "samplerate"
+};
+static uint8_t mpu_config_samplerate(Sensor *s, KeyVal * pairs);
 
 //////////////////////////////////////////////////////////
 // Configures gyro settings //////////////////////////////
 //    selftest: (x|y|z|off)
 //    fs_range:(225:450)
-static uint8_t mpu_config_gyro(KeyVal *pairs);
+static char* conf_gyro_keys[] = {
+  "gyro"
+};
+static uint8_t mpu_config_gyro(Sensor *s, KeyVal * pairs);
 
 //////////////////////////////////////////////////////////
 // Configures the fifo settings //////////////////////////
 //    fifo_selection: (tmp|xg|yg|zg|xa|ya|za)
-static uint8_t mpu_config_fifo(KeyVal *pairs);
+static char* conf_fifo_keys[] = {
+  "fifo_selection"
+};
+static uint8_t mpu_config_fifo(Sensor *s, KeyVal * pairs);
 
 //////////////////////////////////////////////////////////
 // Configures the user settings //////////////////////////
 //    i2c_mst_en: (yes:no)
 //    fifo: (on:off)
-static uint8_t mpu_config_user_ctrl(KeyVal *pairs);
+static char* conf_user_ctrl_keys[] = {
+  "i2c_mst_en", "fifo"
+};
+static uint8_t mpu_config_user_ctrl(Sensor *s, KeyVal * pairs);
 
 //////////////////////////////////////////////////////////
 // Configures the mpu power management ///////////////////
 //    sleep: (on:off)
 //    temp_en: (yes:no)
 //    gyro_sleep: (x|y|z|none)
-static uint8_t mpu_config_power(KeyVal *pairs);
+static char* conf_power_keys[] = {
+  "sleep", "temp_en", "gyro_sleep"
+};
+static uint8_t mpu_config_power(Sensor *s, KeyVal * pairs);
 
 ///////////////////////////////////////////////////////////////////////////////
 // CONFIGURE AUX SENSOR SETTINGS
@@ -134,7 +149,10 @@ static uint8_t mpu_config_power(KeyVal *pairs);
 //    multi_mst_en: (yes:no)
 //    wait_for_aux: (yes:no)
 //    i2c_mst_clk: (0..15)
-static uint8_t mpu_config_i2c_mst(KeyVal *pairs);
+static char* conf_i2c_mst_keys[] = {
+  "multi_mst_en", "wait_for_aux", "i2c_mst_clk"
+};
+static uint8_t mpu_config_i2c_mst(Sensor *s, KeyVal * pairs);
 
 //////////////////////////////////////////////////////////
 // Configures the i2c slave (0) //////////////////////////
@@ -146,18 +164,37 @@ static uint8_t mpu_config_i2c_mst(KeyVal *pairs);
 //    i2c_slave_byte_swap: (yes:no)
 //    i2c_slave_reg_dis: (yes:no)
 //    i2c_slave_grp: (evenodd|oddeven) [e|o] optional
-static uint8_t mpu_config_i2c_slv(KeyVal *pairs);
+static char* conf_i2c_slv_keys[] = {
+  "i2c_slave_rw", "i2c_slave_addr", "i2c_slave_reg",
+  "i2c_slave_len", "i2c_slave_en", "i2c_slave_byte_swap",
+  "i2c_slave_reg_dis", "i2c_slave_grp"
+};
+static uint8_t mpu_config_i2c_slv(Sensor *s, KeyVal * pairs);
 
 //////////////////////////////////////////////////////////
-// Configures the interupts and i2c bus //////////////////
+// Configure the interupt pin and i2c bus ////////////////
 //    i2c_bypass: (on:off)
-static uint8_t mpu_config_int_pin(KeyVal *pairs);
+static char* conf_int_pin_keys[] = {
+  "i2c_bypass"
+};
+static uint8_t mpu_config_int_pin(Sensor *s, KeyVal * pairs);
+
 
 // Given an array of KeyVal structs, iterate through all pairs and
 // if this setting is implemented, then modify the mpu settings.
 // Sensor *s is a pointer to the mpu that should be configured.
+// Returns the number of valid config pairs
 int mpu_configure(Sensor *s, KeyVal *settings)
 {
+  // Create entry keyval pointer
+  KeyVal *k = &((KeyVal){NULL,NULL,settings});
+  // While there is another keyval
+  while ((k = k->next))
+  {
+    
+    
+  }
+  
   return 0;
 }
 
