@@ -40,14 +40,14 @@ static inline volatile unsigned* get_mmap(int base)                 // get_mmap
   }
   // Use mmap to map to direct memory locations
   void *map = mmap(
-    NULL,        // specific address not required
-    BLOCK_SIZE,  // the length of the mapping, to include
-                 // all the peripheral reserved space
-    PROT_READ|PROT_WRITE,  // enable RW to memory
-    MAP_SHARED,  // share this location with other processes
-    devmem,      // specific file to open
-    base         // move to the given base
-  );
+      NULL,        // specific address not required
+      BLOCK_SIZE,  // the length of the mapping, to include
+      // all the peripheral reserved space
+      PROT_READ|PROT_WRITE,  // enable RW to memory
+      MAP_SHARED,  // share this location with other processes
+      devmem,      // specific file to open
+      base         // move to the given base
+      );
   // Close the filestream
   close(devmem);
   // Verify the integrity of the memory mapping
@@ -138,13 +138,13 @@ void  clr_with_word(uint32_t w)                                // clr_with_word
 // value to v
 void set_pin_value(int p, int v)                               // set_pin_value
 {
-	int g = chip_index_to_mem(p);
+  int g = chip_index_to_mem(p);
   if (v == 0)
-	  // Clear the pin
-	  GPIO_CLR(g);
+    // Clear the pin
+    GPIO_CLR(g);
   else
-	  // Now set it
-	  GPIO_SET(g,v);
+    // Now set it
+    GPIO_SET(g,v);
 }
 
 void set_pin_state(int p, int v)                               // set_pin_state
@@ -185,7 +185,7 @@ volatile unsigned* i2c_init(int bus)                                // i2c_init
       data = 28;
       clk = 29; 
       break;
-    // For i2c_1, gpio pins 2 and 3
+      // For i2c_1, gpio pins 2 and 3
     case 1:
       data = 2;
       clk = 3;
@@ -283,6 +283,21 @@ void i2c_dev_append(i2c_dev *dev, short addr)                 // i2c_dev_append
   dev->next = i2c_dev_malloc(addr);
 }
 
+// Given a pointer to a i2c_dev and a 
+// Prints the devices with their addresses on the given bus
+void i2c_print_bus(i2c_dev *dev)                               // i2c_print_bus
+{
+  // Set count to 0
+  int count = 0;
+  PRINTC("Printing i2c bus devices...\n\n", GREEN);
+  // Print the device while one exists
+  do {
+    printf("  Dev %d  -  Addr 0x%02x\n", count++, dev->addr);
+  } while ((dev = dev->next));
+  // Clear a line
+  PRINTC("\n...done.\n\n", GREEN);
+}
+
 /////////////////////////////////////////////////////////////
 // I2C Read
 /////////////////////////////////////////////////////////////
@@ -293,7 +308,7 @@ uint8_t i2c_read_byte(i2c_bus *i2c, short addr, short reg)     // i2c_read_byte
 {
   // Read block of 1 byte
   uint8_t *result = i2c_read_block(i2c, addr, reg, 1),
-           byte = result[0];
+          byte = result[0];
   // Free the result pointer
   free(result);
   // Return the literal uint8_t byte
@@ -304,9 +319,9 @@ uint8_t i2c_read_byte(i2c_bus *i2c, short addr, short reg)     // i2c_read_byte
 // size to read. Returns an array of uint32_t in the heap
 // that contains all the information read out of the FIFO reg
 uint8_t *i2c_read_block(i2c_bus *i2c,                         // i2c_read_block
-                        short addr, 
-                        short reg,
-                        short block_size)
+    short addr, 
+    short reg,
+    short block_size)
 {
   // Declare result array
   uint8_t *result;
@@ -357,10 +372,10 @@ uint8_t *i2c_read_block(i2c_bus *i2c,                         // i2c_read_block
 /////////////////////////////////////////////////////////////
 
 uint32_t i2c_write_reg(i2c_bus *i2c,                           // i2c_write_reg
-                       short addr, 
-                       short reg, 
-                       uint8_t *bytes, 
-                       short size)
+    short addr, 
+    short reg, 
+    uint8_t *bytes, 
+    short size)
 {
   // Generate content package
   uint8_t content[++size];
@@ -378,9 +393,9 @@ uint32_t i2c_write_reg(i2c_bus *i2c,                           // i2c_write_reg
 }
 
 uint32_t i2c_write_block(i2c_bus *i2c,                       // i2c_write_block
-                         short addr, 
-                         short size, 
-                         uint8_t *content)
+    short addr, 
+    short size, 
+    uint8_t *content)
 {
   // Verify that the addressed device is currently active and registered
   // on the bus
@@ -410,22 +425,6 @@ uint32_t i2c_write_block(i2c_bus *i2c,                       // i2c_write_block
   // Return the value of the status register
   return BSC_S;
 }
-
-// Given a pointer to a i2c_dev and a 
-// Prints the devices with their addresses on the given bus
-void i2c_print_bus(i2c_dev *dev)                               // i2c_print_bus
-{
-  // Set count to 0
-  int count = 0;
-  PRINTC("Printing i2c bus devices...\n\n", GREEN);
-  // Print the device while one exists
-  do {
-    printf("  Dev %d  -  Addr 0x%02x\n", count++, dev->addr);
-  } while ((dev = dev->next));
-  // Clear a line
-  PRINTC("\n...done.\n\n", GREEN);
-}
-
 
 ///////////////////////////////////////////////////////////////////////////////
 // MALLOC / DEALLOC
@@ -510,6 +509,24 @@ int chip_index_to_mem(int p)                               // chip_index_to_mem
   if ((p <= NO_OF_PINS) && (p > 0)) return chipPinToMem(p);
   ERR("Not a valid physical pin number.\n");
   return NA;
+}
+
+// Deallocate all the heap memory required for the
+// bus, including all it's devices
+void i2c_dev_dealloc(i2c_dev **a)                            // i2c_dev_dealloc
+{
+  // Declare placeholder
+  i2c_dev *b = *a;
+  // While there is a i2c_dev
+  while ((*a = b))
+  {
+    // Advance
+    b = b->next;
+    // Free previous
+    free(*a);
+  }
+  // Null the callee's pointer up the stack
+  *a = NULL;
 }
 
 ///////////////////////////////////////////////////////////////////////////////

@@ -68,27 +68,30 @@ void print_usage()
   printf("[filename]:  the filename containing commands\n\n");
 }
 
-void process_command(char** tokens, int no_of_tokens)
+void process_command(i2c_bus *i2c, char** tokens, int no_of_tokens)
 {
-  // Create a dev from the given address
-  i2c_dev dev  = {DEX_TO_INT(tokens[1]), NULL}; 
+  // Extract i2c dev address
+  short addr  = DEX_TO_INT(tokens[1]); 
   // Pick off the number of bytes to transfer
   int reg = DEX_TO_INT(tokens[2]), bytes = DEX_TO_INT(tokens[3]);
   // Verify that address is within i2c bus range
-  if (dev.addr > 127)
+  if (addr > 127)
   {
-    ERR("Address not in range of bus.\n\n");
+    ERR("Address (0x%02x not in range of bus.\n\n", addr);
     exit(EXIT_FAILURE);
   }
   // Verify that the device is on the bus
-  if (!i2c_bus_addr_active(dev.addr))
+  if (!i2c_bus_addr_active(i2c, addr))
   {
-    ERR("Device not found on bus. Use `detect` to list devs.\n\n");
+    // If it's not, then exit with error
+    ERR("Device (0x%02x) not found on bus. \
+      Use `detect` to list devs.\n\n", addr);
     exit(EXIT_FAILURE);
   }
   // Verify register is within reasonable limit
   if (!(reg >= 0 && reg < 256))
   {
+    // Else exit with error
     ERR("Register 0x%02x is out of range.\n\n", reg);
     exit(EXIT_FAILURE);
   }
@@ -99,13 +102,17 @@ void process_command(char** tokens, int no_of_tokens)
   {
     // Verify correct number of args
     verify_arg_count(/* expected */ 4, /* got */ no_of_tokens);
+    // TODO - Update for new color variadic function
     printf(GREEN);
-    printf("Reading %d bytes from dev 0x%02x at register 0x%02x...\n\n", 
-     bytes, dev.addr, reg);
+    printf("Reading %d bytes from dev 0x%02x at \
+        register 0x%02x...\n\n", bytes, addr, reg);
     printf(CLRCOL);
-    uint8_t *read = i2c_read_block(&dev, reg, bytes);
+    // Initiate read from dev
+    uint8_t *read = i2c_read_block(i2c, addr, reg, bytes);
+    // For all bytes received
     for (int i = 0; i < bytes; i++)
     {
+      // Print to stdout the byte received
       printf("   Byte %03d - 0x%02x - ", i, read[i]);
       PRINT_BIN_BYTE(read[i]); 
       printf("\n");
@@ -125,11 +132,12 @@ void process_command(char** tokens, int no_of_tokens)
     // Select what args represent content
     char** content_args = (char**)(tokens + 4);
     // Interpret the content
-    uint8_t *content = interpret_content(content_args, (no_of_tokens - 4), no_of_bytes);
+    uint8_t *content = interpret_content(content_args, 
+        (no_of_tokens - 4), no_of_bytes);
     // Write to device
-    i2c_write_reg(&dev, reg, content, no_of_bytes);
+    i2c_write_reg(i2c, addr, reg, content, no_of_bytes);
     // Print success
-    PRINTC("Write successful.\n", GREEN);
+    PRINTC("Write successful.\n\n", GREEN);
   }
 }
 
@@ -143,19 +151,15 @@ int main(int argc, char** argv)
 {
   // Clear a line
   printf("\n");
-  // Initialise gpio access
-  init_gpio_access();
-  // Initialise the chip struct
-  init_chip();
-  // Initialise i2c protocol
-  init_i2c();
-  // Generate bus model by detecting devs
-  i2c_bus *bus = i2c_bus_detect();
+  // Initialise i2c access
+  i2c_bus *i2c = i2c_init(1);
+  // Generate list of devices
+  i2c_dev *dev = i2c_dev_detect(i2c);
   // If no arguments or detect argument
   if ((argc == 1) || !(strcmp(argv[1], "detect")))
   {
     // Print bus
-    print_i2c_bus(bus);
+    i2c_print_bus(dev);
     // Print the usage message
     if (argc == 1)
     {
@@ -172,7 +176,7 @@ int main(int argc, char** argv)
     for (int i = 0; i < src->noOfLines; i++)
     {
       // Run command
-      process_command(src->lines[i], src->sizes[i]);
+      process_command(i2c, src->lines[i], src->sizes[i]);
       // Echo line to stdout
       printf("\n");
     } 
@@ -180,7 +184,7 @@ int main(int argc, char** argv)
   // Else if single read or write
   else if (!(strcmp(argv[1], "read")) || !(strcmp(argv[1], "write")))
   {
-    process_command(argv + 1, argc - 1);
+    process_command(i2c, argv + 1, argc - 1);
   }
   else
   {
@@ -190,7 +194,7 @@ int main(int argc, char** argv)
     print_usage();
   }
   // Deallocate the bus
-  dealloc_i2c_bus(bus);
+  i2c_dev_dealloc(&dev);
   // Deallocate the chip
   dealloc_chip();
   return 0;

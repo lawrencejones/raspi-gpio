@@ -317,6 +317,10 @@ uint32_t            i2c_write_block     (  i2c_bus *i2c,
                                            short addr, 
                                            short size, 
                                            uint8_t *content  );
+/////////////////////////////////////////////////////////////
+// I2C Memory Management ////////////////////////////////////
+// Frees all of the chained devs
+void                i2c_dev_dealloc     (  i2c_dev **a  );
 
 ///////////////////////////////////////////////////////////////////////////////
 // FUNCTION STUBS
