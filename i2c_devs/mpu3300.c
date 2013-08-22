@@ -179,7 +179,7 @@ static uint8_t mpu_config_int_pin(Sensor *s, KeyVal * pairs)
 
 
 ///////////////////////////////////////////////////////////////////////////////
-// CONFIGURATION ENTRY FUNCTION
+// ENTRY FUNCTION FOR CONFIG
 ///////////////////////////////////////////////////////////////////////////////
 
 // `map` defines the link between keys and their config helper
@@ -253,7 +253,7 @@ int mpu_configure(Sensor *s, KeyVal *settings)
 }
 
 ///////////////////////////////////////////////////////////////////////////////
-// CONFIGURE AUX SENSOR SETTINGS
+// MPU ON/OFF TOGGLE
 ///////////////////////////////////////////////////////////////////////////////
 /*
    For ease of use, two functions are provided to enable and disable
@@ -285,14 +285,6 @@ int mpu_disable(Sensor *s)
    for the native gyro axes and aux sensor respectively.
 */
 
-// Entry point for all reads. Takes a Sensor pointer (the selected mpu)
-// and a target. This is currently either `HOST` or `AUX`, as explained
-// above.
-Axes *mpu_read(Sensor *s, target_t t)
-{
-  return NULL;
-}
-
 // Retrieves only the mpu's gyro axes data, then returns
 // the data as an Axes struct pointer.
 static Axes *read_gyro(Sensor *s)
@@ -303,6 +295,14 @@ static Axes *read_gyro(Sensor *s)
 // Retrieves only the aux sensor's axes data, then returns
 // the data as an Axes struct pointer.
 static Axes *read_aux(Sensor *s)
+{
+  return NULL;
+}
+
+// Entry point for all reads. Takes a Sensor pointer (the selected mpu)
+// and a target. This is currently either `HOST` or `AUX`, as explained
+// above.
+Axes *mpu_read(Sensor *s, target_t t)
 {
   return NULL;
 }
