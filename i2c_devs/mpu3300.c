@@ -229,8 +229,8 @@ static ConfigFunctionMap map[] = {
 // Returns the number of valid config pairs
 int mpu_configure(Sensor *s, KeyVal *settings)
 {
-  // Initialise loop counter
-  int i = 0;
+  // Initialise counters
+  int i = 0, applied;
   // Create entry keyval pointer
   KeyVal *k = &((KeyVal){NULL,NULL,settings});
   // While there is another keyval
@@ -244,12 +244,12 @@ int mpu_configure(Sensor *s, KeyVal *settings)
       {
         // Then invoke the helper function
         map[i].helper(s, k);
+        // And increment number of applied settings
+        applied++;
       } // Repeat this while there are valid keys
     } while (map[++i].keys);
-     
   }
-  
-  return 0;
+  return applied;
 }
 
 ///////////////////////////////////////////////////////////////////////////////
