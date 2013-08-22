@@ -90,8 +90,9 @@
 #define BSC1_BASE  (BCM2835_PERI_BASE + 0x00804000u)
 // Note that BSC2 is linked to HDMI, inadvisable to mess with
 #define BSC2_BASE  (BCM2835_PERI_BASE + 0x00805000u)
-// Repeat the BSC0 base for ease of access
-#define I2C_BASE   (BSC1_BASE)
+// Provide access to different bases
+#define I2C_BASE(bus) \  
+  bus?(BSC1_BASE):(BSC0_BASE)
 
 // Define the base independant offsets
 // Hex is actual offset (in byte addressable), but will
@@ -237,7 +238,8 @@ typedef struct {
 // Define the entry point for gpios
 extern volatile unsigned *gpio;
 // Define the entry point for I2C interface
-extern volatile unsigned *i2c;
+extern volatile unsigned *i2c_0;
+extern volatile unsigned *i2c_1;
 // Define the chip state
 Chip* chip;
 
@@ -246,37 +248,38 @@ Chip* chip;
 ///////////////////////////////////////////////////////////////////////////////
 
 // Initialisation    ////////////////////////////////////////
-volatile unsigned* init_gpio_access();
+volatile unsigned*  init_gpio_access();
 // Malloc / Dealloc   ///////////////////////////////////////
-Chip            *init_chip();
-Pin             *malloc_pin(int p);
-void            dealloc_chip();
-int             chip_index_to_mem(int p);
-i2c_dev         *malloc_i2c_dev(short addr);
-i2c_bus         *malloc_i2c_bus();
-void            dealloc_i2c_bus(i2c_bus *bus);
-i2c_transaction *malloc_transaction(short addr, int read);
+Chip                *init_chip();
+Pin                 *malloc_pin(int p);
+void                dealloc_chip();
+int                 chip_index_to_mem(int p);
+i2c_dev             *malloc_i2c_dev(short addr);
+i2c_bus             *malloc_i2c_bus();
+void                dealloc_i2c_bus(i2c_bus *bus);
+i2c_transaction     *malloc_transaction(short addr, int read);
 // Gpio Read    /////////////////////////////////////////////
-Pin             *get_pin_status(int p);
-Pin             *update_pin_status(Pin* pin);
-Pin             **update_all_pins();
+Pin                 *get_pin_status(int p);
+Pin                 *update_pin_status(Pin* pin);
+Pin                 **update_all_pins();
 // Gpio Write    ////////////////////////////////////////////
-void            set_with_word(uint32_t w);
-void            clr_with_word(uint32_t w);
-void            set_pin_value(int p, int v);
-void            set_pin_state(int p, int v);
+void                set_with_word(uint32_t w);
+void                clr_with_word(uint32_t w);
+void                set_pin_value(int p, int v);
+void                set_pin_state(int p, int v);
 // I2C Interface    /////////////////////////////////////////
-void            init_i2c();
-void            wait_i2c_done();
-i2c_bus         *i2c_bus_detect();
-void            add_i2c_dev(i2c_bus *bus, short addr);
-uint8_t         i2c_read_byte(i2c_dev *dev, short reg);
-uint8_t         *i2c_read_block(i2c_dev *dev, short reg, short block_size);
-void            print_i2c_bus(i2c_bus *bus);
-int             i2c_bus_addr_active(short addr);
-uint32_t        i2c_write_reg(i2c_dev *dev, short reg, uint8_t *bytes, short size);
-uint32_t        i2c_write_block(i2c_dev *dev, short size, uint8_t *content);
+volatile unsigned*  i2c_init(int bus)
+void                i2c_init();
+void                wait_i2c_done();
+i2c_bus             *i2c_bus_detect();
+void                add_i2c_dev(i2c_bus *bus, short addr);
+uint8_t             i2c_read_byte(i2c_dev *dev, short reg);
+uint8_t             *i2c_read_block(i2c_dev *dev, short reg, short block_size);
+void                print_i2c_bus(i2c_bus *bus);
+int                 i2c_bus_addr_active(short addr);
+uint32_t            i2c_write_reg(i2c_dev *dev, short reg, uint8_t *bytes, short size);
+uint32_t            i2c_write_block(i2c_dev *dev, short size, uint8_t *content);
 // Sinatra Add-ons   ////////////////////////////////////////
-Chip            *get_chip();
+Chip                *get_chip();
 
 #endif

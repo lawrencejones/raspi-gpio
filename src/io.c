@@ -73,8 +73,16 @@ volatile unsigned* init_gpio_access()
 
 // TODO - Set macros to auto fix pins for various board revisions
 // Initialises pins to prepare for the I2C protocol
-void init_i2c(int bus)
+volatile unsigned* i2c_init(int bus)
 {
+  // Verify that gpio access has already been achieved
+  if (gpio == NULL)
+  {
+    // If gpio isn't init'd, attempt an init
+    init_gpio_access();
+  }
+  // Open the devmem and fetch from the i2c base
+  volatile unsigned* i2c = get_mmap(I2C_BASE(bus));
   // Initialise clock and data ints
   int clk, data;
   // Dependent on which bus, select the correct pins
@@ -102,6 +110,8 @@ void init_i2c(int bus)
   INP_GPIO(clk);
   // Set gpio clk pin to alternate state, SCL0
   SET_GPIO_ALT(clk, 0);
+  // Return the i2c pointer
+  return i2c;
 }
 
 ///////////////////////////////////////////////////////////////////////////////
