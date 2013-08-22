@@ -75,19 +75,35 @@ volatile unsigned* init_gpio_access()
 
 // TODO - Set macros to auto fix pins for various board revisions
 // Initialises pins to prepare for the I2C protocol
-void init_i2c()
+void init_i2c(int bus)
 {
+  // Initialise clock and data ints
+  int clk, data;
+  // Dependent on which bus, select the correct pins
+  switch (bus)
+  {
+    // For i2c_0, gpio pins 28 and 29
+    case 0: 
+      data = 28;
+      clk = 29; 
+      break;
+    // For i2c_1, gpio pins 2 and 3
+    case 1:
+      data = 2;
+      clk = 3;
+      break;
+  }
   // Rememeber to set gpio's to INP initially to reset
   // the current alt setting
-  // Set gpio 2 to input
-  INP_GPIO(2);
-  // Set the gpio 2 to it's alternate state - in this case,
+  // Set gpio data to input
+  INP_GPIO(data);
+  // Set the gpio data pin to it's alternate state - in this case,
   // we want state 0, SDA0, the I2C data line
-  SET_GPIO_ALT(2, 0);
-  // Set gpio 3 to input
-  INP_GPIO(3);
-  // Set gpio 3 to alternate state, SCL0
-  SET_GPIO_ALT(3, 0);
+  SET_GPIO_ALT(data, 0);
+  // Set gpio clk pin to input
+  INP_GPIO(clk);
+  // Set gpio clk pin to alternate state, SCL0
+  SET_GPIO_ALT(clk, 0);
 }
 
 ///////////////////////////////////////////////////////////////////////////////
