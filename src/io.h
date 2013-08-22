@@ -188,9 +188,6 @@
 typedef uint16_t u16;
 // Define type to represent all four pin states
 typedef enum { INPUT, OUTPUT } state_t;
-static char* stateLabels[] = {
-  "INPUT", "OUTPUT"
-};
 
 // Define the Pin struct
 typedef struct {
