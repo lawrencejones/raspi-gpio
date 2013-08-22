@@ -9,6 +9,8 @@ PROG  = gpio i2c
 THIS = $(addprefix obj/, io pinmaps print)
 SUBS = $(addprefix tools/obj/, tokeniser)
 MODS = $(addsuffix .o, $(THIS) $(SUBS))
+# Driver binaries
+DRIV = $(addsuffix .o, $(addprefix i2c_devs/, pca9548a))
 
 all: $(addprefix bin/, $(PROG))
 
@@ -18,6 +20,9 @@ clean:
 bin/%: src/%.c $(MODS)
 	$(CC) $(CFLAGS) -o $@ $^
 
+bin/board: i2c_devs/board.c $(DRIV) $(MODS)
+	$(CC) $(CFLAGS) -o $@ $^
+
 tools/obj/%.o:
 	cd tools && make $@
 	cd ..
@@ -25,5 +30,5 @@ tools/obj/%.o:
 obj/%.o: src/%.c src/%.h
 	$(CC) $(CFLAGS) -c -o $@ $<
 
-$(PROG):
+%:
 	make bin/$@

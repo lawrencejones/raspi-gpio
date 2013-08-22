@@ -158,7 +158,8 @@ void pca_set_channel(Mux *m, uint8_t c)
    TODO - Requires a very neat print function.
 */
 
-static void mux_network_print(Mux *m)
+// Prints to stdout the mux network
+void mux_network_print(Mux *m)
 {
   // Generate mux network
   MuxNetwork *net = pca_get_devs(m);
@@ -231,4 +232,18 @@ MuxNetwork *pca_get_devs(Mux *m)
 
 void pca_dealloc(Mux **m)
 {
+  // If either the pointer to pointer of the pointer to the
+  // mux is null then...
+  if (!(m && *m))
+  {
+    // Output error message
+    ERR("Not a valid Mux pointer. Possibly already free?\n\n");
+    // Exit with error
+    exit(EXIT_FAILURE);
+  }
+  // m is now a valid pointer, so proceed to free fields
+  // Free the mux name string
+  free((*m)->name);
+  // Free the struct
+  free(*m);
 }

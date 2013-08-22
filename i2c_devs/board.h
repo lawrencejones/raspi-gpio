@@ -122,10 +122,6 @@ struct MuxNetwork {
   MuxNetwork* next;
 };
 
-// Define a board struct
-struct Board {
-};
-
 // Define a struct to map config keys to functions
 struct ConfigFunctionMap {
   // String of keys
