@@ -123,7 +123,7 @@ uint8_t pca_fetch_channel(Mux *m)
   verify_mux(m);
   // Once verified, read the channel code from the mux 
   // into the channel field
-  m->channel = i2c_read_byte(m->i2c, m->i2c_addr, 0);
+  m->channel = i2c_read_byte(m->i2c, m->i2c_addr);
   // Return the value read
   return m->channel;
 }

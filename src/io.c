@@ -302,9 +302,26 @@ void i2c_print_bus(i2c_dev *dev)                               // i2c_print_bus
 // I2C Read
 /////////////////////////////////////////////////////////////
 
+// Read a single byte from the given addr on the given bus
+uint8_t i2c_read_byte(i2c_bus *i2c, short addr)                // i2c_read_byte
+{
+  // Clear the fifo
+  BSC_C = BSC_C_CLEAR;
+  // Set new address
+  BSC_SLAVE_ADDR = addr;
+  // Clear the bus status
+  BSC_S = CLEAR_STATUS;
+  // Start the bus read
+  BSC_C = START_READ;
+  // Wait for the bus to clear
+  i2c_wait_done(i2c);
+  // Return the result in the fifo
+  return (uint8_t)BSC_FIFO;
+}
+
 // Read a single byte from the given register at the given
 // addresss, on i2c_bus*
-uint8_t i2c_read_byte(i2c_bus *i2c, short addr, short reg)     // i2c_read_byte
+uint8_t i2c_read_reg(i2c_bus *i2c, short addr, short reg)       // i2c_read_reg
 {
   // Read block of 1 byte
   uint8_t *result = i2c_read_block(i2c, addr, reg, 1),
@@ -314,6 +331,7 @@ uint8_t i2c_read_byte(i2c_bus *i2c, short addr, short reg)     // i2c_read_byte
   // Return the literal uint8_t byte
   return byte;
 }
+
 
 // Same as the read byte, just allows specification of block
 // size to read. Returns an array of uint32_t in the heap

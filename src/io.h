@@ -291,8 +291,11 @@ void                i2c_dev_append      (  i2c_dev *dev,
 
 /////////////////////////////////////////////////////////////
 // I2C Read /////////////////////////////////////////////////
-// Reads a byte from the register at the given address
+// Reads a byte from the given address
 uint8_t             i2c_read_byte       (  i2c_bus *i2c, 
+                                           short addr  );
+// Reads a byte from the register at the given address
+uint8_t             i2c_read_reg        (  i2c_bus *i2c, 
                                            short addr, 
                                            short reg  );
 // Reads bytes from an i2c device sequentially, starting
