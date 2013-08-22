@@ -91,7 +91,7 @@
 // Note that BSC2 is linked to HDMI, inadvisable to mess with
 #define BSC2_BASE  (BCM2835_PERI_BASE + 0x00805000u)
 // Provide access to different bases
-#define I2C_BASE(bus) \  
+#define I2C_BASE(bus) \
   bus?(BSC1_BASE):(BSC0_BASE)
 
 // Define the base independant offsets
@@ -189,6 +189,8 @@
 typedef uint16_t u16;
 // Define type to represent all four pin states
 typedef enum { INPUT, OUTPUT } state_t;
+// Alias for i2c buses
+typedef volatile unsigned i2c_bus;
 
 // Define the Pin struct
 typedef struct {
@@ -209,12 +211,6 @@ struct i2c_dev {
   uint8_t addr;
   i2c_dev *next;
 }; 
-
-// Define an i2c bus
-typedef struct {
-  short no_of_devs;
-  i2c_dev *first;
-} i2c_bus;
 
 // Define a `block` that will represent the chunks of data
 // to be transfered between i2c devices
@@ -237,49 +233,97 @@ typedef struct {
 
 // Define the entry point for gpios
 extern volatile unsigned *gpio;
-// Define the entry point for I2C interface
-extern volatile unsigned *i2c_0;
-extern volatile unsigned *i2c_1;
 // Define the chip state
 Chip* chip;
+
+///////////////////////////////////////////////////////////////////////////////
+// GPIO INTERFACE
+///////////////////////////////////////////////////////////////////////////////
+
+/////////////////////////////////////////////////////////////
+// GPIO Initialization //////////////////////////////////////
+volatile unsigned*  init_gpio_access();
+
+/////////////////////////////////////////////////////////////
+// GPIO Malloc / Dealloc ////////////////////////////////////
+Chip                *init_chip();
+Pin                 *malloc_pin(int p);
+void                dealloc_chip();
+int                 chip_index_to_mem(int p);
+
+/////////////////////////////////////////////////////////////
+// GPIO Read ////////////////////////////////////////////////
+Pin                 *get_pin_status(int p);
+Pin                 *update_pin_status(Pin* pin);
+Pin                 **update_all_pins();
+
+/////////////////////////////////////////////////////////////
+// GPIO Write ///////////////////////////////////////////////
+void                set_with_word(uint32_t w);
+void                clr_with_word(uint32_t w);
+void                set_pin_value(int p, int v);
+void                set_pin_state(int p, int v);
+
+///////////////////////////////////////////////////////////////////////////////
+// I2C INTERFACE
+///////////////////////////////////////////////////////////////////////////////
+
+/////////////////////////////////////////////////////////////
+// I2C Initialization   /////////////////////////////////////
+// Initialise the bus, returns an i2c_bus handle
+i2c_bus*            i2c_init            (  int bus  );
+
+/////////////////////////////////////////////////////////////
+// I2C System Functions /////////////////////////////////////
+// Blocking function to allow the bus to finish
+void                i2c_wait_done       (  i2c_bus *i2c  );
+// Verifies that the addr is active and responding
+int                 i2c_bus_addr_active (  i2c_bus *i2c, 
+                                           short   addr  );
+// Detects all the active devices on the given i2c_bus
+i2c_dev             *i2c_dev_detect     (  i2c_bus *i2c  );
+// Prints to stdout the given devices
+void                i2c_print_bus       (  i2c_dev *dev  );
+// Appends an i2c device struct with the given address onto
+// the end of the current dev linked list
+void                i2c_dev_append      (  i2c_dev *dev, 
+                                           short addr  );
+
+/////////////////////////////////////////////////////////////
+// I2C Read /////////////////////////////////////////////////
+// Reads a byte from the register at the given address
+uint8_t             i2c_read_byte       (  i2c_bus *i2c, 
+                                           short addr, 
+                                           short reg  );
+// Reads bytes from an i2c device sequentially, starting
+// at the register on the device at the given address
+uint8_t             *i2c_read_block     (  i2c_bus *i2c, 
+                                           short addr, 
+                                           short reg, 
+                                           short block_size  );
+
+/////////////////////////////////////////////////////////////
+// I2C Write ////////////////////////////////////////////////
+// Writes bytes to the i2c device at the given address,
+// on the supplied bus. Writes to the given register.
+uint32_t            i2c_write_reg       (  i2c_bus *i2c, 
+                                           short addr, 
+                                           short reg, 
+                                           uint8_t *bytes, 
+                                           short size  );
+// Writes bytes (with no register) to the given address on
+// the supplied i2c bus
+uint32_t            i2c_write_block     (  i2c_bus *i2c, 
+                                           short addr, 
+                                           short size, 
+                                           uint8_t *content  );
 
 ///////////////////////////////////////////////////////////////////////////////
 // FUNCTION STUBS
 ///////////////////////////////////////////////////////////////////////////////
 
-// Initialisation    ////////////////////////////////////////
-volatile unsigned*  init_gpio_access();
-// Malloc / Dealloc   ///////////////////////////////////////
-Chip                *init_chip();
-Pin                 *malloc_pin(int p);
-void                dealloc_chip();
-int                 chip_index_to_mem(int p);
-i2c_dev             *malloc_i2c_dev(short addr);
-i2c_bus             *malloc_i2c_bus();
-void                dealloc_i2c_bus(i2c_bus *bus);
-i2c_transaction     *malloc_transaction(short addr, int read);
-// Gpio Read    /////////////////////////////////////////////
-Pin                 *get_pin_status(int p);
-Pin                 *update_pin_status(Pin* pin);
-Pin                 **update_all_pins();
-// Gpio Write    ////////////////////////////////////////////
-void                set_with_word(uint32_t w);
-void                clr_with_word(uint32_t w);
-void                set_pin_value(int p, int v);
-void                set_pin_state(int p, int v);
-// I2C Interface    /////////////////////////////////////////
-volatile unsigned*  i2c_init(int bus)
-void                i2c_init();
-void                wait_i2c_done();
-i2c_bus             *i2c_bus_detect();
-void                add_i2c_dev(i2c_bus *bus, short addr);
-uint8_t             i2c_read_byte(i2c_dev *dev, short reg);
-uint8_t             *i2c_read_block(i2c_dev *dev, short reg, short block_size);
-void                print_i2c_bus(i2c_bus *bus);
-int                 i2c_bus_addr_active(short addr);
-uint32_t            i2c_write_reg(i2c_dev *dev, short reg, uint8_t *bytes, short size);
-uint32_t            i2c_write_block(i2c_dev *dev, short size, uint8_t *content);
-// Sinatra Add-ons   ////////////////////////////////////////
+/////////////////////////////////////////////////////////////
+// Sinatra Add-ons //////////////////////////////////////////
 Chip                *get_chip();
 
 #endif

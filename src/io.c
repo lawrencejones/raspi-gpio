@@ -16,6 +16,8 @@
 volatile unsigned *gpio;
 // Define the entry point for I2C interface
 volatile unsigned *i2c;
+// Function stub
+static i2c_dev* i2c_dev_malloc(short addr);
 
 ///////////////////////////////////////////////////////////////////////////////
 // INITIALISATION
@@ -25,7 +27,7 @@ volatile unsigned *i2c;
 // the GPIO pins. Will request memory access from the system,
 // note that this requires sudo privileges!
 // Based on example at http://elinux.org/RPi_Low-level_peripherals
-static inline volatile unsigned* get_mmap(int base)
+static inline volatile unsigned* get_mmap(int base)                 // get_mmap
 {
   // Open system /dev/mem location for direct mem access
   int devmem = open("/dev/mem", O_RDWR|O_SYNC);
@@ -60,7 +62,7 @@ static inline volatile unsigned* get_mmap(int base)
 }
 
 // Initialises gpio access specifically
-volatile unsigned* init_gpio_access()
+volatile unsigned* init_gpio_access()                       // init_gpio_access
 {
   // Use the get_mmap function to pull from the devmem page
   // Initialise with the GPIO_BASE
@@ -71,9 +73,99 @@ volatile unsigned* init_gpio_access()
 }
 
 
+
+///////////////////////////////////////////////////////////////////////////////
+// GPIO READ
+///////////////////////////////////////////////////////////////////////////////
+
+// Given a --PHYSICAL-- chip pin index, return a
+// pin struct containing the current information
+Pin* get_pin_status(int p)                                    // get_pin_status
+{
+  // Convert the physical chip pin index to it's memory index
+  int g = chip_index_to_mem(p);
+  Pin *pin = malloc_pin(p);
+  // Update the pin with it's current values
+  update_pin_status(pin);
+  // Note mem dealloc responsibility
+  return pin;
+}
+
+// Helper function to prevent reallocation of memory
+// Given the pin struct pointer, will update it's value
+Pin* update_pin_status(Pin* pin)                           // update_pin_status
+{
+  int g = pin->memIndex;
+  // Extract pin control code (3 bits signifying current state)
+  // by retrieving the control word, shifting it the appropriate
+  // distance to the right, then masking for the first 3 bits.
+  int ctrlCode  = ((PIN_CONTROL_WORD(g) >> PIN_SHIFT(g)) & 7),
+      isHigh    = ((VAL_WORD & (1u << g)) != 0);
+  // Using the ctrlCode (setting in or out) and the current state,
+  // return the state_t type that represents the pins current status
+  pin->state = 1u & ctrlCode;
+  pin->value = isHigh;
+  return pin;
+}
+
+// Updates all the pin values in the chip struct
+Pin** update_all_pins()                                      // update_all_pins
+{
+  for (int i = 0; i < NO_OF_PINS; i++)
+    update_pin_status(chip->pins[i]);
+  return chip->pins;
+}
+
+///////////////////////////////////////////////////////////////////////////////
+// GPIO WRITE
+///////////////////////////////////////////////////////////////////////////////
+
+// Given a word, apply it to the set mem address to
+// set multiple pins in one go
+void  set_with_word(uint32_t w)                                // set_with_word
+{
+  SET_WORD = w;
+}
+
+// As above, given a word, apply to the clearing
+// memory address to turn multiple pins off at once
+void  clr_with_word(uint32_t w)                                // clr_with_word
+{
+  CLR_WORD = w;
+}
+
+// Given a --PHYSICAL-- chip pin index, set it's output
+// value to v
+void set_pin_value(int p, int v)                               // set_pin_value
+{
+	int g = chip_index_to_mem(p);
+  if (v == 0)
+	  // Clear the pin
+	  GPIO_CLR(g);
+  else
+	  // Now set it
+	  GPIO_SET(g,v);
+}
+
+void set_pin_state(int p, int v)                               // set_pin_state
+{
+  int g = chip_index_to_mem(p);
+  INP_GPIO(g);
+  // If output
+  if (v) OUT_GPIO(g);
+}
+
+///////////////////////////////////////////////////////////////////////////////
+// I2C PROTOCOL
+///////////////////////////////////////////////////////////////////////////////
+
+/////////////////////////////////////////////////////////////
+// I2C Initialization
+/////////////////////////////////////////////////////////////
+
 // TODO - Set macros to auto fix pins for various board revisions
 // Initialises pins to prepare for the I2C protocol
-volatile unsigned* i2c_init(int bus)
+volatile unsigned* i2c_init(int bus)                                // i2c_init
 {
   // Verify that gpio access has already been achieved
   if (gpio == NULL)
@@ -114,94 +206,14 @@ volatile unsigned* i2c_init(int bus)
   return i2c;
 }
 
-///////////////////////////////////////////////////////////////////////////////
-// GPIO READ
-///////////////////////////////////////////////////////////////////////////////
 
-// Given a --PHYSICAL-- chip pin index, return a
-// pin struct containing the current information
-Pin* get_pin_status(int p)
-{
-  // Convert the physical chip pin index to it's memory index
-  int g = chip_index_to_mem(p);
-  Pin *pin = malloc_pin(p);
-  // Update the pin with it's current values
-  update_pin_status(pin);
-  // Note mem dealloc responsibility
-  return pin;
-}
-
-// Helper function to prevent reallocation of memory
-// Given the pin struct pointer, will update it's value
-Pin* update_pin_status(Pin* pin)
-{
-  int g = pin->memIndex;
-  // Extract pin control code (3 bits signifying current state)
-  // by retrieving the control word, shifting it the appropriate
-  // distance to the right, then masking for the first 3 bits.
-  int ctrlCode  = ((PIN_CONTROL_WORD(g) >> PIN_SHIFT(g)) & 7),
-      isHigh    = ((VAL_WORD & (1u << g)) != 0);
-  // Using the ctrlCode (setting in or out) and the current state,
-  // return the state_t type that represents the pins current status
-  pin->state = 1u & ctrlCode;
-  pin->value = isHigh;
-  return pin;
-}
-
-// Updates all the pin values in the chip struct
-Pin** update_all_pins()
-{
-  for (int i = 0; i < NO_OF_PINS; i++)
-    update_pin_status(chip->pins[i]);
-  return chip->pins;
-}
-
-///////////////////////////////////////////////////////////////////////////////
-// GPIO WRITE
-///////////////////////////////////////////////////////////////////////////////
-
-// Given a word, apply it to the set mem address to
-// set multiple pins in one go
-void  set_with_word(uint32_t w)
-{
-  SET_WORD = w;
-}
-
-// As above, given a word, apply to the clearing
-// memory address to turn multiple pins off at once
-void  clr_with_word(uint32_t w)
-{
-  CLR_WORD = w;
-}
-
-// Given a --PHYSICAL-- chip pin index, set it's output
-// value to v
-void set_pin_value(int p, int v)
-{
-	int g = chip_index_to_mem(p);
-  if (v == 0)
-	  // Clear the pin
-	  GPIO_CLR(g);
-  else
-	  // Now set it
-	  GPIO_SET(g,v);
-}
-
-void set_pin_state(int p, int v)
-{
-  int g = chip_index_to_mem(p);
-  INP_GPIO(g);
-  // If output
-  if (v) OUT_GPIO(g);
-}
-
-///////////////////////////////////////////////////////////////////////////////
-// I2C PROTOCOL
-///////////////////////////////////////////////////////////////////////////////
+/////////////////////////////////////////////////////////////
+// I2C System Functions
+/////////////////////////////////////////////////////////////
 
 // Wait for the i2c bus to register DONE status
 // Pauses execution of the thread using nanosleep
-void wait_i2c_done()
+void i2c_wait_done(i2c_bus *i2c)                               // i2c_wait_done
 {
   // Pause should be 5x10^4 nanoseconds, timeout should
   // be 1x10^9/pause
@@ -221,44 +233,9 @@ void wait_i2c_done()
   }
 }
 
-// Deallocate all the heap memory required for the
-// bus, including all it's devices
-void dealloc_i2c_bus(i2c_bus *bus)
-{
-  // Assign first bus dev to d1
-  // Make d2 pointer available for use
-  i2c_dev *d1 = bus->first, *d2;
-  do {
-    // Assign the next dev to d2
-    d2 = d1->next;
-    // Free the current dev
-    free(d1); 
-  } while ((d1 = d2));
-  free(bus);
-}
-
-// Detect all devices on the current bus and return a
-// pointer to an i2c_bus struct containing all discovered
-// i2c devices
-i2c_bus* i2c_bus_detect()
-{
-  // malloc new bus struct
-  i2c_bus *bus = malloc_i2c_bus();
-  // For all of the available addresses
-  for (short addr = 1; addr < 128; addr++)
-  {
-    // If the i2c addr is active
-    if (i2c_bus_addr_active(addr))
-    {
-      // Add the current address to the bus
-      add_i2c_dev(bus, addr);
-    }
-  }
-  // Return the i2c bus pointer
-  return bus;
-}
-
-int i2c_bus_addr_active(short addr)
+// Given an i2c_bus and an address, ping the dev at
+// the addr and verify that there is a response
+int i2c_bus_addr_active(i2c_bus *i2c, short addr)        // i2c_bus_addr_active
 {
   // Set new slave address
   BSC_SLAVE_ADDR = addr;
@@ -268,33 +245,34 @@ int i2c_bus_addr_active(short addr)
   BSC_DATA_LEN = 1;
   // Initiate read using bus control
   BSC_C = START_READ;
-  wait_i2c_done();
+  // Wait for bus to clear
+  i2c_wait_done(i2c);
   return !(BSC_S & BSC_S_ERR);
 }
 
-// Allocate memory in the heap for an i2c_bus struct
-i2c_bus *malloc_i2c_bus()
+// Detect all devices on the current bus and return a
+// pointer to an i2c_dev struct linked to all discovered devices
+i2c_dev *i2c_dev_detect(i2c_bus *i2c)                         // i2c_dev_detect
 {
-  // Allocate memory space for the bus
-  i2c_bus *bus = malloc(sizeof(i2c_bus));
-  if (!bus)
+  // Create new dummy dev at addr 0
+  i2c_dev *dev = i2c_dev_malloc(0);
+  // For all of the available addresses
+  for (short addr = 1; addr < 128; addr++)
   {
-    ERR("Memory allocation failed (malloc) of bus.\n\n");
-    exit(EXIT_FAILURE);
+    // If the i2c addr is active
+    if (i2c_bus_addr_active(i2c, addr))
+    {
+      // Add the current address to the chain of devs
+      i2c_dev_append(dev, addr);
+    }
   }
-  // Assign the first i2c dev, the dummy ctrl
-  bus->first = malloc_i2c_dev(0);
-  // Return the allocated bus
-  return bus;
+  // Return the initial i2c_dev pointer
+  return dev;
 }
 
-// Add an i2c device to an existing i2c_bus
-void add_i2c_dev(i2c_bus *bus, short addr)
+// Add an i2c device to an existing i2c_dev list
+void i2c_dev_append(i2c_dev *dev, short addr)                 // i2c_dev_append
 {
-  // Increment the no of devices
-  bus->no_of_devs++;
-  // Pick up bus first device
-  i2c_dev *dev = bus->first;
   // bus->first will never be NULL due to ctrl dummy
   // so iterate till we get to a dev that has no next
   while (dev->next)
@@ -302,34 +280,19 @@ void add_i2c_dev(i2c_bus *bus, short addr)
     dev = dev->next;
   }
   // Once final device has been found, malloc new
-  dev->next = malloc_i2c_dev(addr);
+  dev->next = i2c_dev_malloc(addr);
 }
 
-// Allocate memory for an i2c_dev struct in the heap
-i2c_dev* malloc_i2c_dev(short addr)
-{
-  // malloc the dev struct
-  i2c_dev *dev = malloc(sizeof(i2c_dev));
-  // Verify successful malloc
-  if (!dev)
-  {
-    ERR("Memory allocation failed (malloc) of dev.\n\n");
-    exit(EXIT_FAILURE);
-  }
-  // Set address value
-  dev->addr = addr;
-  // Set the next dev to NULL
-  dev->next = NULL;
-  // Return dev pointer
-  return dev;
-}
+/////////////////////////////////////////////////////////////
+// I2C Read
+/////////////////////////////////////////////////////////////
 
-// Read a single byte from an i2c device at the given register. 
-// Once read, return the literal byte read from the dev
-uint8_t i2c_read_byte(i2c_dev *dev, short reg)
+// Read a single byte from the given register at the given
+// addresss, on i2c_bus*
+uint8_t i2c_read_byte(i2c_bus *i2c, short addr, short reg)     // i2c_read_byte
 {
   // Read block of 1 byte
-  uint8_t *result = i2c_read_block(dev, reg, 1),
+  uint8_t *result = i2c_read_block(i2c, addr, reg, 1),
            byte = result[0];
   // Free the result pointer
   free(result);
@@ -340,14 +303,17 @@ uint8_t i2c_read_byte(i2c_dev *dev, short reg)
 // Same as the read byte, just allows specification of block
 // size to read. Returns an array of uint32_t in the heap
 // that contains all the information read out of the FIFO reg
-uint8_t *i2c_read_block(i2c_dev *dev, short reg, short block_size)
+uint8_t *i2c_read_block(i2c_bus *i2c,                         // i2c_read_block
+                        short addr, 
+                        short reg,
+                        short block_size)
 {
   // Declare result array
   uint8_t *result;
   // Clear the fifo
   BSC_C = BSC_C_CLEAR;
   // Set new address
-  BSC_SLAVE_ADDR = dev->addr;
+  BSC_SLAVE_ADDR = addr;
   // Set size of transfer
   BSC_DATA_LEN = 1;
   // Write the register to the fifo
@@ -357,7 +323,7 @@ uint8_t *i2c_read_block(i2c_dev *dev, short reg, short block_size)
   // Initiate the transfer
   BSC_C = START_WRITE;
   // Wait for acknowledgement
-  wait_i2c_done();
+  i2c_wait_done(i2c);
   // Set length to block size
   BSC_DATA_LEN = block_size;
   // Clear the bus status
@@ -366,7 +332,7 @@ uint8_t *i2c_read_block(i2c_dev *dev, short reg, short block_size)
   // Start the bus read
   BSC_C = START_READ;
   // Wait for the bus to clear
-  wait_i2c_done();
+  i2c_wait_done(i2c);
   // Allocate the uint8_t array
   result = malloc(sizeof(uint8_t) * block_size);
   // Verify successful malloc
@@ -386,20 +352,48 @@ uint8_t *i2c_read_block(i2c_dev *dev, short reg, short block_size)
   return result;
 }
 
-uint32_t i2c_write_block(i2c_dev *dev, short size, uint8_t *content)
+/////////////////////////////////////////////////////////////
+// I2C Write
+/////////////////////////////////////////////////////////////
+
+uint32_t i2c_write_reg(i2c_bus *i2c,                           // i2c_write_reg
+                       short addr, 
+                       short reg, 
+                       uint8_t *bytes, 
+                       short size)
+{
+  // Generate content package
+  uint8_t content[++size];
+  // First byte is reg number
+  content[0] = reg;
+  // Copy in the content
+  for (int i = 1; i <= size; i++)
+  {
+    content[i] = bytes[i - 1];
+  }
+  // Write the block with the included reg
+  uint32_t status = i2c_write_block(i2c, addr, size, content);
+  // Return the i2c bus status
+  return status;
+}
+
+uint32_t i2c_write_block(i2c_bus *i2c,                       // i2c_write_block
+                         short addr, 
+                         short size, 
+                         uint8_t *content)
 {
   // Verify that the addressed device is currently active and registered
   // on the bus
-  if (!i2c_bus_addr_active(dev->addr))
+  if (!i2c_bus_addr_active(i2c, addr))
   {
-    ERR("No device found at current address (0x%02x)\n\n", dev->addr);
+    ERR("No device found at current address (0x%02x)\n\n", addr);
     exit(EXIT_FAILURE);
   }
   // Clear the current fifo
   // TODO - Investigate if this is actually the best method
   BSC_C = BSC_C_CLEAR;
   // Set dev address
-  BSC_SLAVE_ADDR = dev->addr;
+  BSC_SLAVE_ADDR = addr;
   // Clear the current status
   BSC_S = CLEAR_STATUS;
   // Set the length of the transfer + addr byte
@@ -412,36 +406,17 @@ uint32_t i2c_write_block(i2c_dev *dev, short size, uint8_t *content)
   // Start the write
   BSC_C = START_WRITE;
   // Wait for the i2c transfer to finish
-  wait_i2c_done();
+  i2c_wait_done(i2c);
   // Return the value of the status register
   return BSC_S;
 }
 
-uint32_t i2c_write_reg(i2c_dev *dev, short reg, uint8_t *bytes, short size)
-{
-  // Generate content package
-  uint8_t content[size + 1];
-  // First byte is reg number
-  content[0] = reg;
-  // Copy in the content
-  for (int i = 1; i <= size; i++)
-  {
-    content[i] = bytes[i - 1];
-  }
-  // Write the block with the included reg
-  uint32_t status = i2c_write_block(dev, size + 1, content);
-  // Return the i2c bus status
-  return status;
-}
-
 // Given a pointer to a i2c_dev and a 
 // Prints the devices with their addresses on the given bus
-void print_i2c_bus(i2c_bus *bus)
+void i2c_print_bus(i2c_dev *dev)                               // i2c_print_bus
 {
   // Set count to 0
   int count = 0;
-  // Initialise first device in chain
-  i2c_dev *dev = bus->first;
   PRINTC("Printing i2c bus devices...\n\n", GREEN);
   // Print the device while one exists
   do {
@@ -458,7 +433,7 @@ void print_i2c_bus(i2c_bus *bus)
 
 // Allocate memory to a chip struct that will represent the
 // current state of the raspberry pi pins
-Chip *init_chip()
+Chip *init_chip()                                                  // init_chip
 {
   // Allocate heap memory for the chip
   chip = malloc(sizeof(Chip));
@@ -480,7 +455,7 @@ Chip *init_chip()
 
 // Given the --PHYSICAL-- chip pin index, create a
 // pin struct and return the pointer
-Pin* malloc_pin(int p)
+Pin* malloc_pin(int p)                                            // malloc_pin
 {
   // Allocate space in heap for the Pin struct
   Pin *pin = malloc(sizeof(Pin));
@@ -500,9 +475,28 @@ Pin* malloc_pin(int p)
   return pin;
 }
 
+// Allocate memory for an i2c_dev struct in the heap
+static i2c_dev* i2c_dev_malloc(short addr)                    // i2c_dev_malloc
+{
+  // malloc the dev struct
+  i2c_dev *dev = malloc(sizeof(i2c_dev));
+  // Verify successful malloc
+  if (!dev)
+  {
+    ERR("Memory allocation failed (malloc) of dev.\n\n");
+    exit(EXIT_FAILURE);
+  }
+  // Set address value
+  dev->addr = addr;
+  // Set the next dev to NULL
+  dev->next = NULL;
+  // Return dev pointer
+  return dev;
+}
+
 // Doesn't take a chip parameter as it is already
 // globally accessable
-void dealloc_chip()
+void dealloc_chip()                                             // dealloc_chip
 {
   for (int i = 0; i < NO_OF_PINS; i++)
     free(chip->pins[i]);
@@ -511,7 +505,7 @@ void dealloc_chip()
 
 // Takes p, the physical pin number and translates to the
 // memory address pin location
-int chip_index_to_mem(int p)
+int chip_index_to_mem(int p)                               // chip_index_to_mem
 {
   if ((p <= NO_OF_PINS) && (p > 0)) return chipPinToMem(p);
   ERR("Not a valid physical pin number.\n");
