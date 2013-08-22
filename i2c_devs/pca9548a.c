@@ -67,6 +67,8 @@ Mux *pca_init(char* name,
   strcpy(m->name, name);
   // Assign the i2c addr
   m->i2c_addr = i2c_addr;
+  // Assign the i2c handle
+  m->i2c = i2c;
   // Assign the enum for model
   m->model = PCA9548A;
   // Set the channel fetch function

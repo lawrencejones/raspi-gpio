@@ -17,6 +17,7 @@
 
 int main(int argc, char** argv)
 {
+  printf("\n");
   // Initialise i2c protocol for bus 1
   // Assign i2c handle
   i2c_bus *i2c = i2c_init(1);
