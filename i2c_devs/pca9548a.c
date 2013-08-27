@@ -236,11 +236,12 @@ static void i2c_dev_filter(i2c_dev **as, i2c_dev *bs)
       a1->next = a2->next;
       // Free the a2 pointer
       free(a2);
-      // Then make a2 point to the next node
-      a2 = a1->next;
     }
-    // Increment a1
-    a1 = a2;
+    else
+    {
+      // Increment a1
+      a1 = a2;
+    }
   }
   // Move the as pointer to the next node
   *as = (*as)->next;
