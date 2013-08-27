@@ -184,6 +184,61 @@ void mux_network_print(Mux *m)
   };
 }
 
+static int i2c_devs_contains(i2c_dev *list, i2c_dev *node)
+{
+  // If the node is null
+  if (!node)
+  {
+    // Then return false
+    return 0;
+  }
+  // Create a previous start node
+  list = &((i2c_dev){-1, list});
+  // While there is a valid next node
+  while ((list = list->next))
+  {
+    // If the addresses are equal
+    if (node->addr == list->addr)
+    {
+      // Then return true
+      return 1;
+    }
+  }
+  // If not found a match then return false
+  return 0;
+}
+
+static void i2c_dev_filter(i2c_dev **as, i2c_dev *bs)
+{
+  // If as or bs are null
+  if (!as || !bs)
+  {
+    // Return as nothing need be done
+    return;
+  }
+  // Make an i2c_dev for the start of the chain
+  // and create a pointer for the next node
+  *as = &((i2c_dev){-1,*as});
+  i2c_dev *a1 = *as,
+          *a2 = *as;
+  // While a2 is not null
+  while ((a2 = a1->next))
+  {
+    // If the node a2 is included in bs
+    if (i2c_devs_contains(bs, a2))
+    {
+      // Then remove a2 from the chain
+      a1->next = a2->next;
+      // Free the a2 pointer
+      free(a2);
+    }
+    // Increment a1
+    a1 = a2;
+  }
+  // Move the as pointer to the next node
+  *as = (*as)->next;
+}
+
 
 // Scans all the available buses and generates a MuxNetwork
 // Does not include other devices present on the network
@@ -210,7 +265,7 @@ MuxNetwork *pca_get_devs(Mux *m)
     muxdevs = i2c_dev_detect(m->i2c);
     // TODO - Implement filter
     // Remove any non-muxed devs from the scan
-    // i2c_dev_filter(muxdevs, extdevs);
+    i2c_dev_filter(&muxdevs, extdevs);
     // Add to current network by malloc...
     crrt->next = malloc(sizeof(MuxNetwork));
     // Increment crrt
