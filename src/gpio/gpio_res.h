@@ -8,12 +8,11 @@
 #ifndef GPIO_RES_HEADER_INC
 #define GPIO_RES_HEADER_INC
 
-#include "io.h"
+#include "shared/io.h"
+
+#define GPIO_BASE ( BCM2835_PERI_BASE + 0x00200000u )
 
 #define NA 0
-
-static const char* yn[] = {"\x1b[32mINP\x1b[0m", "OUT"};
-static const char* vals[] = {"0", "\x1b[91m1\x1b[0m"};
 
 // Maps the Gpio label number to the meory address
 // indexes.

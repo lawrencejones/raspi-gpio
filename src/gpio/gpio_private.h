@@ -1,0 +1,46 @@
+///////////////////////////////////////////////////////////////////////////////
+// Raspberry Pi GPIO Interface
+// ¯¯¯¯¯¯¯¯¯¯¯¯¯¯¯¯¯¯¯¯¯¯¯¯¯¯¯
+// File: gpio_private.h
+// PA Consulting - Lawrence Jones
+///////////////////////////////////////////////////////////////////////////////
+
+#ifndef GPIO_PRIVATE_HEADER_INC
+#define GPIO_PRIVATE_HEADER_INC
+
+// Include the gpio public header
+#include "gpio.h"
+#include "gpio_res.h"
+
+///////////////////////////////////////////////////////////////////////////////
+// TYPEDEFS / STRUCTS
+///////////////////////////////////////////////////////////////////////////////
+
+// Define type to represent all four pin states
+typedef enum { INPUT, OUTPUT } state_t;
+
+// Define the Pin struct
+struct Pin {
+  int chipIndex;
+  int memIndex;
+  state_t state;
+  int value;
+};
+
+// Define the Chip struct
+struct Chip {
+  Pin* pins[NO_OF_PINS];
+};
+
+// Define the entry point for gpios
+extern volatile unsigned *gpio;
+// Define the chip state
+Chip* chip;
+
+///////////////////////////////////////////////////////////////////////////////
+// PRIVATE MODULE METHOD STUBS
+///////////////////////////////////////////////////////////////////////////////
+
+int chipPinToMem(int p);
+
+#endif

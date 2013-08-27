@@ -6,11 +6,10 @@
 ///////////////////////////////////////////////////////////////////////////////
 
 #include <stdio.h>
-#include "io.h"
-#include "print.h"
+#include "gpio.h"
 
 // Main function for testing purposes
-int main(int argc, char** argv)
+int main(void)
 {
 	printf("Not yet implemented C interface.\n");
   init_gpio_access();

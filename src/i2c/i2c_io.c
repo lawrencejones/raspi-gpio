@@ -9,7 +9,6 @@
 #include <stdio.h>
 #include "i2c_io.h"
 #include "i2c_res.h"
-#include "../shared/io.h"
 
 ///////////////////////////////////////////////////////////////////////////////
 // INITIALISATION

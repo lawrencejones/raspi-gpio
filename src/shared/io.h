@@ -63,7 +63,6 @@
 
 // Configure the memory access required to alter
 // the GPIO pins. Will request memory access from the system
-static inline volatile unsigned* get_mmap(int base);                // get_mmap
-
+volatile unsigned* get_mmap(int base);                             // get_mmap
 
 #endif

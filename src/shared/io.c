@@ -5,8 +5,11 @@
 // PA Consulting - Lawrence Jones
 ///////////////////////////////////////////////////////////////////////////////
 
-// #include <stdlib.h>
+#include <fcntl.h>
+#include <unistd.h>
+#include <sys/mman.h>
 #include "io.h"
+#include "../../tools/src/macros.h"
 
 // Configure the memory access required to alter
 // the GPIO pins. Will request memory access from the system,
