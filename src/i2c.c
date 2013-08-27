@@ -120,9 +120,6 @@ void print_usage(int extended)                                   // print_usage
 // INTERPRETER
 ///////////////////////////////////////////////////////////////////////////////
 
-#define IF_FLAG(n,str) \
-  if (!strcmp(tokens[n], str))
-
 // Given an i2c handle and an array of strings, process the tokens
 // to interpret the lines into i2c commands, all to be run on the
 // same bus (for now)
@@ -149,7 +146,7 @@ void process_command(i2c_bus *i2c,                           // process_command
   verify_i2c_details(i2c, addr, reg);
   // General verification now finished, split on command
   // If `read` command
-  IF_FLAG(0, "read")              // **READ**
+  if (!strcmp(tokens[0], "read")) // **READ**
   // read [addr] [reg] [bytes]
   {
     // Verify correct number of args - at least 2
@@ -169,7 +166,7 @@ register 0x%02x...\n\n", bytes, addr, reg);
     PRINTC(GREEN, "\nFinished read. I2C bus status is 0x%03x / ", BSC_S);
     PRINT_BIN_BYTE(BSC_S, "\n\n");
   } 
-  else IF_FLAG(0, "write")        // **WRITE**
+  if (!strcmp(tokens[0], "write")) // **WRITE**
   // write [addr] [reg] [bytes] [content]
   {
     // Verify the correct number of args
