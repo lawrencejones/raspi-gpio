@@ -4,31 +4,19 @@ GFLAGS  = -pie
 CFLAGS  = $(COMMON) $(GFLAGS) $(MAC)
 
 # Final binaries
-PROG  = gpio i2c board
-# Module categories
-THIS = $(addprefix obj/, io pinmaps print)
-SUBS = $(addprefix tools/obj/, tokeniser)
-MODS = $(addsuffix .o, $(THIS) $(SUBS))
-# Driver binaries
-DRIV = $(addsuffix .o, $(addprefix i2c_devs/, pca9548a))
+PROG = gpio i2c board
+ISRC = src/i2c.c $(addprefix src/i2c/i2c_, io.h io.c res.h)
+GSRC = src/gpio.c $(addprefix src/gpio/gpio_, io.h io.c res.h)
 
-all: $(addprefix bin/, $(PROG))
+all: $(PROG)
 
 clean:
-	rm -rf $(MODS) $(addprefix bin/, $(addsuffix *, $(PROG))) bin/*
+	find . -name "*.o" -exec rm -f {} \;
+	rm -rf bin/*
 
-bin/%: src/%.c $(MODS)
-	$(CC) $(CFLAGS) -o $@ $^
+i2c: $(ISRC)
+  $(CC) $(CFLAGS) -o bin/i2c $<
 
-bin/board: i2c_devs/board.c $(DRIV) $(MODS)
-	$(CC) $(CFLAGS) -o $@ $^
+gpio: $(GSRC)
+	$(CC) $(CFLAGS) -o bin/gpio $<
 
-tools/obj/%.o:
-	cd tools && make $@
-	cd ..
-
-obj/%.o: src/%.c src/%.h
-	$(CC) $(CFLAGS) -c -o $@ $<
-
-$(PROG):
-	make bin/$@
