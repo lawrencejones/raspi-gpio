@@ -42,14 +42,21 @@ int main(int argc, char** argv)
 {
   // Clear a line
   printf("\n");
-  // For the multiplexer tests
-  IS_FLAG("mux")
+  if (argc > 1)
   {
-    mux_test(argc, argv);
+    // For the multiplexer tests
+    IS_FLAG("mux")
+    {
+      mux_test(argc, argv);
+    }
+    else
+    {
+      ERR("Test `%s` is not yet supported.\n\n", argv[1]);
+    }
   }
   else
   {
-    printf("No supported test yet.\n\n");
+  ERR("Test flag is required.\n\n");
   }
   return 0;
 }
