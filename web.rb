@@ -15,7 +15,7 @@ require 'json'
 # system "make"
 
 module Gpio extend FFI::Library
-  ffi_lib File.join(File.expand_path('bin'), 'gpio')
+  ffi_lib File.join(File.expand_path('build/gpio'), 'gpio')
   attach_function :init_gpio_access, [], :pointer
   attach_function :init_chip, [], :pointer
   attach_function :chip_index_to_mem, [:int], :int
@@ -26,14 +26,6 @@ module Gpio extend FFI::Library
   attach_function :get_chip, [], :pointer
   attach_function :update_all_pins, [], :pointer
 end
-
-module Display extend FFI::Library
-  ffi_lib File.join(File.expand_path('bin'), 'display')
-  attach_function :setValue, [:int], :void
-  attach_function :runme, [:int], :pointer
-  attach_function :stopClock, [], :void
-end
-
 
 class PinStruct < FFI::Struct
   layout :chipIndex, :int, 
@@ -87,18 +79,6 @@ EM.run do
 
     post '/set/:pin/:value' do
       Gpio.set_pin_state (params[:pin].to_i), (params[:value].to_i)
-    end
-
-    get '/startclock/:value' do
-      Display.runme params[:value].to_i
-    end 
-
-    get '/setvalue/:value' do
-      Display.setValue params[:value].to_i
-    end
-
-    get '/stopclock' do
-      Display.stopClock()
     end
 
     get '/status' do
