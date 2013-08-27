@@ -172,7 +172,7 @@ void mux_network_print(Mux *m)
     return;
   }
   printf("MuxNetwork map for `%s`\n\n", m->name);
-  do {
+  while ((net = net->next)) {
     int count = 0;
     PRINTC(GREEN, "Devices on channel %d...\n\n", net->channel);
     // Print the device while one exists
@@ -181,7 +181,7 @@ void mux_network_print(Mux *m)
     } while ((net->dev = net->dev->next));
     // Clear a line
     PRINTC(GREEN, "\n...done.\n\n");
-  } while ((net = net->next));
+  };
 }
 
 
@@ -189,14 +189,14 @@ void mux_network_print(Mux *m)
 // Does not include other devices present on the network
 MuxNetwork *pca_get_devs(Mux *m)
 {
+  // Initially disable all channels
+  pca_set_channel(m, PCA_CD);
+  // Gather all devices on network not on mux
+  i2c_dev *extdevs = i2c_dev_detect(m->i2c),
+          *muxdevs = NULL;
   // Declare and init a MuxNetwork
   MuxNetwork *net = malloc(sizeof(MuxNetwork)),
              *crrt = net;
-  // Initially disable all buses
-  pca_set_channel(m, PCA_CD);
-  // Gather all devices on network not on mux
-  i2c_dev *extdevs = i2c_dev_detect(m->i2c), 
-          *muxdevs = NULL;
   // Set the net channel to -1 (external devices) initially
   net->channel = -1;
   // Assign the first devs as externals
@@ -213,10 +213,12 @@ MuxNetwork *pca_get_devs(Mux *m)
     // i2c_dev_filter(muxdevs, extdevs);
     // Add to current network by malloc...
     crrt->next = malloc(sizeof(MuxNetwork));
+    // Increment crrt
+    crrt = crrt->next;
     // ...assign the channel value...
-    crrt->next->channel = i;
+    crrt->channel = i;
     // ...assign the muxdevs with externals removed
-    crrt->next->dev = muxdevs;
+    crrt->dev = muxdevs;
   }
   // Return the origin of the MuxNet
   return net;
