@@ -172,15 +172,20 @@ void mux_network_print(Mux *m)
     return;
   }
   printf("MuxNetwork map for `%s`\n\n", m->name);
+  // While there is a next net and that net has devices
   while ((net = net->next)) {
     int count = 0;
-    PRINTC(GREEN, "Devices on channel %d...\n\n", net->channel);
-    // Print the device while one exists
-    do {
-      printf("  Dev %d  -  Addr 0x%02x\n", count++, net->dev->addr);
-    } while ((net->dev = net->dev->next));
-    // Clear a line
-    PRINTC(GREEN, "\n...done.\n\n");
+    // If there are devices
+    if (net->dev)
+    {
+      PRINTC(GREEN, "Devices on channel %d...\n\n", net->channel);
+      // Print the device while one exists
+      do {
+        printf("  Dev %d  -  Addr 0x%02x\n", count++, net->dev->addr);
+      } while ((net->dev = net->dev->next));
+      // Clear a line
+      PRINTC(GREEN, "\n...done.\n\n");
+    }
   };
 }
 
