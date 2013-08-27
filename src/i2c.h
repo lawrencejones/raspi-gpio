@@ -1,12 +1,12 @@
 ///////////////////////////////////////////////////////////////////////////////
 // Raspberry Pi GPIO Interface
 // ¯¯¯¯¯¯¯¯¯¯¯¯¯¯¯¯¯¯¯¯¯¯¯¯¯¯¯
-// File: i2c_io.h
+// File: i2c.h
 // PA Consulting - Lawrence Jones
 ///////////////////////////////////////////////////////////////////////////////
 
-#ifndef I2C_IO_HEADER_INC
-#define I2C_IO_HEADER_INC
+#ifndef I2C_HEADER_INC
+#define I2C_HEADER_INC
 
 #include <stdint.h>
 
@@ -19,10 +19,6 @@ typedef volatile unsigned i2c_bus;
 
 // Define an i2c device type
 typedef struct i2c_dev i2c_dev;
-struct i2c_dev {
-  uint8_t addr;
-  i2c_dev *next;
-}; 
 
 ///////////////////////////////////////////////////////////////////////////////
 // I2C INTERFACE

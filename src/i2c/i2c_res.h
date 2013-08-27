@@ -8,7 +8,7 @@
 #ifndef I2C_RES_HEADER_INC
 #define I2C_RES_HEADER_INC
 
-#include "../shared/io.h"
+#include "shared/io.h"
 
 ///////////////////////////////////////////////////////////////////////////////
 // Macros defining I2C Data Protocol
