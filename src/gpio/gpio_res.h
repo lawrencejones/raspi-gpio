@@ -1,14 +1,19 @@
 ///////////////////////////////////////////////////////////////////////////////
 // Raspberry Pi GPIO Interface
 // ¯¯¯¯¯¯¯¯¯¯¯¯¯¯¯¯¯¯¯¯¯¯¯¯¯¯¯
-// File: pinmaps.h
+// File: gpio_res.h
 // PA Consulting - Lawrence Jones
 ///////////////////////////////////////////////////////////////////////////////
 
-#ifndef PIN_MAPS
-#define PIN_MAPS
+#ifndef GPIO_RES_HEADER_INC
+#define GPIO_RES_HEADER_INC
+
+#include "io.h"
 
 #define NA 0
+
+static const char* yn[] = {"\x1b[32mINP\x1b[0m", "OUT"};
+static const char* vals[] = {"0", "\x1b[91m1\x1b[0m"};
 
 // Maps the Gpio label number to the meory address
 // indexes.
@@ -63,8 +68,5 @@ static const int memIndexes[] = {
   /* Pin 25 - 0v Ground         */    NA,
   /* Pin 26 - CE1 - Gpio 11     */    7,
 };
-
-int chipPinToMem(int p);
-int memToGpioLabel(int p);
 
 #endif
