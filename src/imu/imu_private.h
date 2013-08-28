@@ -1,22 +1,15 @@
 ///////////////////////////////////////////////////////////////////////////////
 // Raspberry Pi GPIO Interface
 // ¯¯¯¯¯¯¯¯¯¯¯¯¯¯¯¯¯¯¯¯¯¯¯¯¯¯¯
-// File: i2c_cli.h
+// File: imu_private.h
 // PA Consulting - Lawrence Jones
 ///////////////////////////////////////////////////////////////////////////////
 
-#ifndef I2C_CLI_HEADER_INC
-#define I2C_CLI_HEADER_INC
+#ifndef IMU_PRIVATE_HEADER_INC
+#define IMU_PRIVATE_HEADER_INC
 
 ///////////////////////////////////////////////////////////////////////////////
-// I2C CLI FUNCTION INTERFACE
+// PRIVATE IMU METHOD STUBS
 ///////////////////////////////////////////////////////////////////////////////
-
-// Process the current line as an i2c cli command
-void process_command  (  i2c_bus  *i2c,
-                         char     **tokens,
-                         int      no_of_tokens  );
-// Print the command line tool usage
-void print_usage      (  int extended  );
 
 #endif

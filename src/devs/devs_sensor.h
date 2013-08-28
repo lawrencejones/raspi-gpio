@@ -1,39 +1,22 @@
 ///////////////////////////////////////////////////////////////////////////////
 // Raspberry Pi GPIO Interface
 // ¯¯¯¯¯¯¯¯¯¯¯¯¯¯¯¯¯¯¯¯¯¯¯¯¯¯¯
-// File: board.h
+// File: i2c_dev_sensor.h
 // PA Consulting - Lawrence Jones
 ///////////////////////////////////////////////////////////////////////////////
 
-#ifndef IMU_BOARD_INC
-#define IMU_BOARD_INC
+#ifndef DEVS_SENSOR_HEADER_INC
+#define DEVS_SENSOR_HEADER_INC
 
 #include <stdint.h>
-#include "keyval.h"
-#include "../src/io.h"
+#include "devs_private.h"
 
 ///////////////////////////////////////////////////////////////////////////////
 // TYPEDEFS
 ///////////////////////////////////////////////////////////////////////////////
 
 /////////////////////////////////////////////////////////////
-// Enums   //////////////////////////////////////////////////
-// Define enum for accel and gyro
-typedef enum {GYRO, ACCEL} type_t;
-// Define enum for sensor read target
-typedef enum {HOST, AUX} target_t;
-// Enum for all model numbers
-typedef enum {MPU3300, ITG3050, L3G4200D, PCA9548A} model_t;
-
-
-/////////////////////////////////////////////////////////////
 // Function Typedefs   //////////////////////////////////////
-// Required for definitions
-typedef struct Sensor Sensor;
-typedef struct Axes Axes;
-typedef struct ConfigFunctionMap ConfigFunctionMap;
-typedef struct Mux Mux;
-typedef struct MuxNetwork MuxNetwork;
 // Function to return an axes struct pointer
 typedef Axes*         (*ReadAxes)(Sensor *s, target_t t);
 // Typedef for a sensor enable function
@@ -44,12 +27,6 @@ typedef int           (*SensorDisable)(Sensor *s);
 typedef int           (*PrepBoard)(Sensor *s);
 // Function type for configuration helpers
 typedef uint8_t       (*Configs)(Sensor *s, KeyVal *pairs);
-// Function type for fetching/updating an i2c mux channel
-typedef uint8_t       (*ChannelFetch)(Mux *m);
-// Function type for setting an i2c mux channel
-typedef void          (*ChannelSet)(Mux *m, uint8_t c);
-// Function for retrieving an i2c mux registry
-typedef MuxNetwork*   (*MuxDeviceDetect)(Mux *m);
 
 /////////////////////////////////////////////////////////////
 // Struct Typedefs   ////////////////////////////////////////
@@ -87,41 +64,6 @@ struct Sensor {                                     // Sensor
   PrepBoard prep;
 };
 
-// Define a struct to represent an i2c multiplexer
-struct Mux {
-  // Name for this i2c multiplexer
-  char *name;
-  // Model of the mux
-  model_t model;
-  // i2c slave address
-  short i2c_addr;
-  // An i2c bus handle for read and writing
-  i2c_bus *i2c;
-  // A field to store latest value of the selected
-  // channel. This field can be updated by calling
-  // the `fetch_channel` function, and is included
-  // to avoid too frequent reads of the i2c muxes
-  uint8_t channel;
-  ///////////////////////////////////////////////
-  // Function to fetch and update current channel
-  ChannelFetch fetch_channel;
-  // Function to set the channel to 0..3
-  ChannelSet set_channel;
-  // Function to retrieve a list of all devices
-  MuxDeviceDetect get_devs;
-};
-
-// Define a struct to represent an i2c mux network of devices
-struct MuxNetwork {
-  // Field for the channel
-  // -1 represents external devices
-  int channel;
-  // Field for a linked list of devices on this channel
-  i2c_dev* dev;
-  // Pointer to the next channel
-  MuxNetwork* next;
-};
-
 // Define a struct to map config keys to functions
 struct ConfigFunctionMap {
   // String of keys
@@ -129,11 +71,5 @@ struct ConfigFunctionMap {
   // Function pointer to a helper
   Configs helper;
 };
-
-///////////////////////////////////////////////////////////////////////////////
-// FUNCTION STUBS
-///////////////////////////////////////////////////////////////////////////////
-
-int prep_board(Sensor *S);
 
 #endif

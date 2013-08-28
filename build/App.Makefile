@@ -95,7 +95,7 @@ endif
 # General build options:
 CFLAGS += -I$(BUILDROOT)/src \
           -DTARGET_$(TARGET) \
-          -Wall -pedantic -Wextra \
+          -Wall -pedantic \
           -std=c99 \
           -fPIC \
           -D_POSIX_C_SOURCE=200803L
@@ -120,16 +120,16 @@ $(foreach m,$(MODULES),$(eval $(call MODULE_TEMPLATE,$(m))))
 
 # Pattern rule for build object files
 %.o : %.c
-	@echo Compiling $(<F)
+	@echo "  Compiling $(<F)"
 	@-rm -f $@
 	@$(CC) -c $(CFLAGS) $< -o $@
 
 # Rule for linking
 $(APPNAME) : $(OBJECTS)
-	@echo Linking '$@'
+	@echo "  Linking $@"
 	@-rm -f $@
 	@$(CC) -o $(APPNAME) $(OBJECTS) $(APPLIBS) $(CFLAGS) $(CPPFLAGS) $(LDFLAGS)
-	@echo 'Finished building target: $@'
+	@echo "\x1b[32mFinished building target: $@\x1b[0m\n\n"
 
 clean :
 	-rm -f $(OBJECTS)

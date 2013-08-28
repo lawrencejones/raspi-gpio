@@ -1,4 +1,4 @@
-PROG = i2c gpio board
+PROG = i2c gpio imu
 
 all: $(PROG)
 
@@ -9,7 +9,7 @@ rebuild:
 clean:
 	$(MAKE) -C ./build/i2c clean
 	$(MAKE) -C ./build/gpio clean
-	$(MAKE) -C ./build/board clean
+	$(MAKE) -C ./build/imu clean
 
-%:
+$(PROG):
 	$(MAKE) -C ./build/$@

@@ -8,7 +8,7 @@
 #include <stdlib.h>
 #include <stdio.h>
 #include "pca9548a.h"
-#include "../src/io.h"
+#include "devs_mux.h"
 
 ///////////////////////////////////////////////////////////////////////////////
 // INITIALISATION

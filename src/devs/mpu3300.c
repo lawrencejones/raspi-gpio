@@ -8,7 +8,7 @@
 #include <stdlib.h>
 #include <stdio.h>
 #include "mpu3300.h"
-#include "../tools/src/macros.h"
+#include "../../tools/src/macros.h"
 
 ///////////////////////////////////////////////////////////////////////////////
 // INITIALISATION
@@ -74,7 +74,7 @@ Sensor *mpu_init(char*   name,
   // Assign the read function
   s->read = &mpu_read;
   // Assign the prep function
-  s->prep = &prep_board;
+  // s->prep = &prep_board;
   return NULL;
 }
 
@@ -230,7 +230,7 @@ static ConfigFunctionMap map[] = {
 int mpu_configure(Sensor *s, KeyVal *settings)
 {
   // Initialise counters
-  int i = 0, applied;
+  int i = 0, applied = 0;
   // Create entry keyval pointer
   KeyVal *k = &((KeyVal){NULL,NULL,settings});
   // While there is another keyval
@@ -287,14 +287,14 @@ int mpu_disable(Sensor *s)
 
 // Retrieves only the mpu's gyro axes data, then returns
 // the data as an Axes struct pointer.
-static Axes *read_gyro(Sensor *s)
+Axes *read_gyro(Sensor *s)
 {
   return NULL;
 }
 
 // Retrieves only the aux sensor's axes data, then returns
 // the data as an Axes struct pointer.
-static Axes *read_aux(Sensor *s)
+Axes *read_aux(Sensor *s)
 {
   return NULL;
 }

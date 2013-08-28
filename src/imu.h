@@ -1,21 +1,18 @@
 ///////////////////////////////////////////////////////////////////////////////
 // Raspberry Pi GPIO Interface
 // ¯¯¯¯¯¯¯¯¯¯¯¯¯¯¯¯¯¯¯¯¯¯¯¯¯¯¯
-// File: i2c_private.h
+// File: imu.h
 // PA Consulting - Lawrence Jones
 ///////////////////////////////////////////////////////////////////////////////
 
-#ifndef I2C_PRIVATE_HEADER_INC
-#define I2C_PRIVATE_HEADER_INC
-
-#include "i2c.h"
-#include "../../tools/src/macros.h"
+#ifndef IMU_HEADER_INC
+#define IMU_HEADER_INC
 
 ///////////////////////////////////////////////////////////////////////////////
-// PRIVATE FUNCTION STUBS
+// IMU MODULE METHOD STUBS
 ///////////////////////////////////////////////////////////////////////////////
 
-// mallocs an i2c_dev struct and returns the pointer
-i2c_dev* i2c_dev_malloc(short addr);
+// Run tests for the i2c multiplexer (pca)
+int mux_test(int argc, char** argv);
 
 #endif

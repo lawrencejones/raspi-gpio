@@ -9,7 +9,6 @@
 #define I2C_CLI_PRIVATE_HEADER_INC
 
 #include "i2c.h"
-#include "i2c_cli.h"
 #include "../../tools/src/macros.h"
 
 ///////////////////////////////////////////////////////////////////////////////
@@ -29,5 +28,11 @@ void verify_i2c_details    (  i2c_bus  *i2c,
                               int      reg  );
 // Print the given binary byte to stdout
 void print_binary_byte     (  uint8_t  byte  );
+// Process the current line as an i2c cli command
+void process_command       (  i2c_bus  *i2c,
+                              char     **tokens,
+                              int      no_of_tokens  );
+// Print the command line tool usage
+void print_usage           (  int extended  );
 
 #endif

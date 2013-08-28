@@ -14,8 +14,7 @@
 
 #include <stdio.h>
 #include <string.h>
-#include "i2c.h"
-#include "i2c_cli.h"
+#include "i2c_cli/i2c_cli_private.h"
 #include "../tools/src/macros.h"
 #include "../tools/src/tokeniser.h"
 

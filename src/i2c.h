@@ -17,8 +17,12 @@
 // Alias for i2c buses
 typedef volatile unsigned i2c_bus;
 
-// Define an i2c device type
+// Define an i2c device type and struct
 typedef struct i2c_dev i2c_dev;
+struct i2c_dev {
+  uint8_t addr;
+  i2c_dev *next;
+}; 
 
 ///////////////////////////////////////////////////////////////////////////////
 // I2C INTERFACE
