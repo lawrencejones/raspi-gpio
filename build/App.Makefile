@@ -129,7 +129,7 @@ $(APPNAME) : $(OBJECTS)
 	@echo "  Linking $@"
 	@-rm -f $@
 	@$(CC) -o $(APPNAME) $(OBJECTS) $(APPLIBS) $(CFLAGS) $(CPPFLAGS) $(LDFLAGS)
-	@echo "\x1b[32mFinished building target: $@\x1b[0m\n\n"
+	@echo Finished building target: $@
 
 clean :
 	-rm -f $(OBJECTS)

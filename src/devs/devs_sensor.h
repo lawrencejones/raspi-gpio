@@ -9,6 +9,7 @@
 #define DEVS_SENSOR_HEADER_INC
 
 #include <stdint.h>
+#include "i2c.h"
 #include "devs_private.h"
 
 ///////////////////////////////////////////////////////////////////////////////
@@ -49,6 +50,8 @@ struct Sensor {                                     // Sensor
   model_t model;
   // Specifies gyro or accel
   type_t type;
+  // Pointer to the sensors i2c_bus
+  i2c_bus *i2c;
   // Specifies an i2c address
   short i2c_addr;
   // Pointer to the controlling i2c mux

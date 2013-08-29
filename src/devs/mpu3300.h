@@ -89,7 +89,8 @@
 ///////////////////////////////////////////////////////////////////////////////
 
 // Malloc and initialise an mpu struct, return the pointer
-Sensor  *mpu_init     (  char*       name, 
+Sensor *mpu_init      (  char*       name, 
+                         i2c_bus*    i2c,
                          int         i2c_addr,
                          KeyVal*     config  );
 // Enables the given sensor with sensible defaults/given config
