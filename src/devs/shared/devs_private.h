@@ -9,8 +9,8 @@
 #define I2C_DEV_HEADER_INC
 
 #include "devs.h"
-#include "../../tools/src/keyval.h"
-#include "../../tools/src/macros.h"
+#include "../../../tools/src/keyval.h"
+#include "../../../tools/src/macros.h"
 
 ///////////////////////////////////////////////////////////////////////////////
 // TYPEDEFS
