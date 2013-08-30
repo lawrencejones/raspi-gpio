@@ -102,8 +102,10 @@ int imu_route(char **tokens, int argc)
       else
       {
         // Configure the mpu
-        mpu_configure(mpu, tokens[6]);
+        mpu_configure(mpu, tokens[5]);
       }
+      // dealloc the mpu
+      mpu_dealloc(&mpu);
     }
   }
   // Else unsupported option

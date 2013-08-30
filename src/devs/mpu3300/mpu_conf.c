@@ -72,7 +72,8 @@ static ConfigFunctionMap map[] = {
 int mpu_configure(Sensor *s, char *conf_str)
 {
   // Generate the keyval
-  KeyVal *k = str_to_keyval(conf_str);
+  KeyVal *k = str_to_keyval(conf_str),
+         *_k = k;
   // If k is null
   if (k == NULL)
   {
@@ -106,6 +107,6 @@ int mpu_configure(Sensor *s, char *conf_str)
     }
   } while ((k = k->next));
   // Dealloc the keyval
-  keyval_dealloc(&k);
+  keyval_dealloc(&_k);
   return applied;
 }
