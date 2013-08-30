@@ -5,6 +5,8 @@
 // PA Consulting - Lawrence Jones
 ///////////////////////////////////////////////////////////////////////////////
 
+#include <stdlib.h>
+#include <string.h>
 #include "mpu_private.h"
 #include "mpu_registers.h"
 

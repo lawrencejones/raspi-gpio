@@ -25,7 +25,7 @@ I2C := $(addprefix i2c/, $(I2C))
 
 # Required shared devs modules
 DEV := \
-  devs_config.c
+  dev_config.c
 
 DEV := $(addprefix devs/shared/, $(DEV))
 
@@ -58,10 +58,9 @@ PCA := $(addprefix devs/pca9548a/, $(PCA))
 
 # Required modules from the imu folder
 IMU := \
-	imu_mpu_test.c \
-	imu_pca_test.c \
+	imu_mpu.c \
+	imu_pca.c \
 	imu_routing.c
-#	imu_board.c
 
 IMU := $(addprefix imu/, $(IMU))
 

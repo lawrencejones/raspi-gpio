@@ -8,7 +8,8 @@
 #ifndef MPU3300_HEADER_INC
 #define MPU3300_HEADER_INC
 
-#include "shared/devs_sensor.h"
+#include "devs/shared.h"
+#include "devs/shared/dev_sensor.h"
 
 ///////////////////////////////////////////////////////////////////////////////
 // INTERFACE - FUNCTION STUBS

@@ -5,6 +5,7 @@
 // PA Consulting - Lawrence Jones
 ///////////////////////////////////////////////////////////////////////////////
 
+#include <stdlib.h>
 #include "mpu_private.h"
 
 ///////////////////////////////////////////////////////////////////////////////
@@ -61,48 +62,11 @@ static ConfigFunctionMap map[] = {
   }
 };
 
-///////////////////////////////////////////////////////////////////////////////
-// ENTRY FUNCTION FOR CONFIG
-///////////////////////////////////////////////////////////////////////////////
-
-// Given an array of KeyVal structs, iterate through all pairs and
-// if this setting is implemented, then modify the mpu settings.
-// Sensor *s is a pointer to the mpu that should be configured.
-// Returns number of detected register changes made
+// Specific mpu config function to be attached as the config
+// field of an mpu array. Hands majority of work to the dev_config
+// function (dev/shared/dev_config.c).
 int mpu_configure(Sensor *s, char *conf_str)
 {
-  // Generate the keyval
-  KeyVal *k = str_to_keyval(conf_str),
-         *_k = k;
-  // Initialise counters
-  int applied = 0;
-  // While there is another keyval
-  while (k) 
-  {
-    // If the current keyval has not already been applied
-    if (!k->applied)
-    {
-      // Declare a config helper function pointer
-      Configs handle = NULL;
-      // Counter for the config map
-      int j = 0;
-      // Iterate through the map while there are valid keys
-      // and a config helper has not been found/called
-      do {
-        // If the current key is present in the keys
-        if (strstr(map[j].keys, k->key) != NULL)
-        {
-          // Assign the handle value
-          handle = map[j].helper;
-          // Call the handle function and add to applied
-          applied += handle(s, k);
-        }
-      } while (!handle && map[++j].keys);
-    }
-    // Move to next k
-    k = k->next;
-  }
-  // Dealloc the keyval
-  keyval_dealloc(&_k);
-  return applied;
+  // Call dev_config with the function map
+  return dev_config(s, conf_str, map);
 }

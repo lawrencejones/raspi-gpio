@@ -94,6 +94,7 @@ endif
 
 # General build options:
 CFLAGS += -I$(BUILDROOT)/src \
+          -I$(BUILDROOT)/tools/src \
           -DTARGET_$(TARGET) \
           -Wall -pedantic \
           -std=c99 \

@@ -5,12 +5,11 @@
 // PA Consulting - Lawrence Jones
 ///////////////////////////////////////////////////////////////////////////////
 
-#include "../i2c.h"
-#include "../devs.h"
-#include "../devs/mpu3300.h"
-#include "../devs/pca9548a.h"
+#include "i2c.h"
 #include "imu_private.h"
-#include "../../tools/src/macros.h"
+#include "devs/mpu3300.h"
+#include "devs/pca9548a.h"
+#include "macros.h"
 
 static int verify_tokens(int *bus, short *addr, char **tokens, int argc)
 {
