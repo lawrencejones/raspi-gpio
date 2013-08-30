@@ -13,8 +13,10 @@
 ///////////////////////////////////////////////////////////////////////////////
 
 // Run tests for the i2c multiplexer (pca)
-int mux_test(void);
-// Run tests for the mpu at address 0x69
-int mpu_test(char* config_str);
+int imu_pca_test(int bus, short addr);
+// Run tests for the mpu
+int imu_mpu_test(int bus, short addr, char* config_str);
+// Routing for cli
+int imu_route(char **tokens, int argc);
 
 #endif

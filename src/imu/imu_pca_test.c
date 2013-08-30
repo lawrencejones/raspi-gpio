@@ -1,7 +1,7 @@
 ///////////////////////////////////////////////////////////////////////////////
 // Raspberry Pi GPIO Interface
 // ¯¯¯¯¯¯¯¯¯¯¯¯¯¯¯¯¯¯¯¯¯¯¯¯¯¯¯
-// File: imu_mux_test.c
+// File: imu_pca_test.c
 // PA Consulting - Lawrence Jones
 ///////////////////////////////////////////////////////////////////////////////
 
@@ -12,18 +12,19 @@
 // MUX TESTING
 ///////////////////////////////////////////////////////////////////////////////
 
-int mux_test(void)
+// PRE - Sanitised params
+int imu_pca_test(int bus, short addr)
 {
   // Initialise i2c protocol for bus 1
   // Assign i2c handle
-  i2c_bus *i2c = i2c_init(1);
+  i2c_bus *i2c = i2c_init(bus);
   // Init the i2c multiplexer
-  Mux *m = pca_init("MUX1", 116, i2c);
+  Mux *pca = pca_init("PCA", addr, i2c);
   // Select channel 0
-  m->set_channel(m, PCA_C0);
+  pca->set_channel(pca, PCA_C0);
   // Print mux network
-  mux_network_print(m);
+  mux_network_print(pca);
   // Dealloc the mux struct
-  pca_dealloc(&m);
+  pca_dealloc(&pca);
   return 0;
 }

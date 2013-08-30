@@ -45,6 +45,17 @@ char mpu_default_config[] = \
 , fs_range:225\
 , i2c_bypass:off";
 
+// Set the default values of mpu3300
+void mpu_set_defaults(Sensor *s)
+{
+  // If default is not null
+  if (mpu_default_config != NULL)
+  {
+    // Apply default config
+    mpu_configure(s, mpu_default_config);
+  }
+}
+
 // Given name and i2c address, allocates and initialises a mpu
 // struct with the given config options. `config` represents
 // an array of KeyVal pairs which correspond to mpu configuration
@@ -82,19 +93,11 @@ Sensor *mpu_init(char*     name,
   // Assign null as the mux for now
   // TODO - Implement auto board prep
   s->mux = NULL;
-  // Generate default config
-  KeyVal *default_conf = str_to_keyval(mpu_default_config),
-         *user_conf = str_to_keyval(config);
-  // Apply default config
-  mpu_configure(s, default_conf);
   // If config is not null
-  if (user_conf != NULL)
+  if (config != NULL)
   {
     // Apply custom configuration
-    mpu_configure(s, user_conf);
+    mpu_configure(s, config);
   }
-  // Dealloc the keyval pair
-  keyval_dealloc(&user_conf);
-  keyval_dealloc(&default_conf);
   return s;
 }

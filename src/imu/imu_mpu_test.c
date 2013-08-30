@@ -14,7 +14,7 @@
 // MPU TESTING
 ///////////////////////////////////////////////////////////////////////////////
 
-int mpu_test(char *config_str)
+int imu_mpu_test(int bus, short addr, char *config_str)
 {
   // Prime i2c access /////////////////////////////////////////////////////////
   // Initialise i2c protocol for bus 1
@@ -34,7 +34,8 @@ int mpu_test(char *config_str)
   // Attempt a read and print results /////////////////////////////////////////
   Axes *ax = mpu_read(mpu, HOST);
   printf("The axes readings are...\n\n");
-  printf("  X : %d\n  Y : %d\n  Z : %d\n\n", ax->x, ax->y, ax->z);
+  printf("  X : %d\n  Y : %d\n  Z : %d\n\n", 
+    (short)ax->x, (short)ax->y, (int)ax->z);
   free(ax);
 
   // Free all used memory /////////////////////////////////////////////////////

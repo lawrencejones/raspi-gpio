@@ -42,7 +42,7 @@ void yn_toggle(uint8_t *reg, int bit, char *yn)
   if (strstr("yes,on", yn) != NULL)
   {
     // Set the value of the byte to a 1 on the given bit
-    *reg &= (1 << bit);
+    *reg |= (1 << bit);
   }
   // Else if a no|off
   else if (strstr("no,off", yn) != NULL)

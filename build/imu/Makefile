@@ -59,7 +59,8 @@ PCA := $(addprefix devs/pca9548a/, $(PCA))
 # Required modules from the imu folder
 IMU := \
 	imu_mpu_test.c \
-	imu_mux_test.c \
+	imu_pca_test.c \
+	imu_routing.c
 #	imu_board.c
 
 IMU := $(addprefix imu/, $(IMU))

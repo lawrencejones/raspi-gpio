@@ -69,8 +69,10 @@ static ConfigFunctionMap map[] = {
 // if this setting is implemented, then modify the mpu settings.
 // Sensor *s is a pointer to the mpu that should be configured.
 // Returns number of detected register changes made
-int mpu_configure(Sensor *s, KeyVal *k)
+int mpu_configure(Sensor *s, char *conf_str)
 {
+  // Generate the keyval
+  KeyVal *k = str_to_keyval(conf_str);
   // If k is null
   if (k == NULL)
   {
@@ -103,5 +105,7 @@ int mpu_configure(Sensor *s, KeyVal *k)
       } while (!handle && map[++j].keys);
     }
   } while ((k = k->next));
+  // Dealloc the keyval
+  keyval_dealloc(&k);
   return applied;
 }
