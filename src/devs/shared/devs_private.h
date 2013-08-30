@@ -22,5 +22,7 @@
 
 // Print to stdout a muxnetwork
 void mux_network_print(Mux *m);
+// Generate keyvals from a string
+KeyVal *str_to_keyval(char *str);
 
 #endif

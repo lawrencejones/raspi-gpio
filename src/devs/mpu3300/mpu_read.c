@@ -58,6 +58,12 @@ static Axes *read_aux(Sensor *s)
 // above.
 Axes *mpu_read(Sensor *s, target_t t)
 {
+  // Check for valid sensor pointer
+  if (s == NULL)
+  { 
+    ERR("Sensor pointer is not valid.\n\n");
+    exit(EXIT_FAILURE);
+  }
   // If targetting the mpu
   if (t == HOST)
   {

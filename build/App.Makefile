@@ -98,7 +98,8 @@ CFLAGS += -I$(BUILDROOT)/src \
           -Wall -pedantic \
           -std=c99 \
           -fPIC \
-          -D_POSIX_C_SOURCE=200803L
+          -D_POSIX_C_SOURCE=200803L \
+          -g
           
 # Initialise LDFLAGS
 LDFLAGS +=

@@ -78,7 +78,7 @@ int mpu_configure(Sensor *s, KeyVal *k)
     return 0;
   }
   // Initialise counters
-  int i = 0, applied = 0;
+  int applied = 0;
   // While there is another keyval
   do 
   {
@@ -100,7 +100,7 @@ int mpu_configure(Sensor *s, KeyVal *k)
           // Call the handle function and add to applied
           applied += handle(s, k);
         }
-      } while (!handle && map[++i].keys);
+      } while (!handle && map[++j].keys);
     }
   } while ((k = k->next));
   return applied;

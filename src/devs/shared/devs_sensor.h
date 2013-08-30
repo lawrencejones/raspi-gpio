@@ -1,7 +1,7 @@
 ///////////////////////////////////////////////////////////////////////////////
 // Raspberry Pi GPIO Interface
 // ¯¯¯¯¯¯¯¯¯¯¯¯¯¯¯¯¯¯¯¯¯¯¯¯¯¯¯
-// File: i2c_dev_sensor.h
+// File: devs_sensor.h
 // PA Consulting - Lawrence Jones
 ///////////////////////////////////////////////////////////////////////////////
 
@@ -70,7 +70,7 @@ struct Sensor {                                     // Sensor
 // Define a struct to map config keys to functions
 struct ConfigFunctionMap {
   // String of keys
-  char *keys;
+  char* keys;
   // Function pointer to a helper
   Configs helper;
 };

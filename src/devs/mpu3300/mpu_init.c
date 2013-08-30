@@ -39,14 +39,20 @@
    and data reading.
  */
 
+char mpu_default_config[] = \
+" fifo_selection:xg|yg|zg\
+, selftest:off\
+, fs_range:225\
+, i2c_bypass:off";
+
 // Given name and i2c address, allocates and initialises a mpu
 // struct with the given config options. `config` represents
 // an array of KeyVal pairs which correspond to mpu configuration
 // options. Supported config options are listed in config array.
-Sensor *mpu_init(char*   name, 
-                 i2c_bus* i2c,
-                 int     i2c_addr,
-                 KeyVal* config)
+Sensor *mpu_init(char*     name, 
+                 i2c_bus*  i2c,
+                 int       i2c_addr,
+                 char*     config)
 {
   // malloc the sensor struct
   Sensor *s = malloc(sizeof(Sensor));
@@ -73,7 +79,22 @@ Sensor *mpu_init(char*   name,
   s->enable = &mpu_enable;
   // Assign the read function
   s->read = &mpu_read;
-  // Assign the prep function
-  // s->prep = &prep_board;
-  return NULL;
+  // Assign null as the mux for now
+  // TODO - Implement auto board prep
+  s->mux = NULL;
+  // Generate default config
+  KeyVal *default_conf = str_to_keyval(mpu_default_config),
+         *user_conf = str_to_keyval(config);
+  // Apply default config
+  mpu_configure(s, default_conf);
+  // If config is not null
+  if (user_conf != NULL)
+  {
+    // Apply custom configuration
+    mpu_configure(s, user_conf);
+  }
+  // Dealloc the keyval pair
+  keyval_dealloc(&user_conf);
+  keyval_dealloc(&default_conf);
+  return s;
 }

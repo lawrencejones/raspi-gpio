@@ -16,6 +16,7 @@ static void process_i2c_bypass_key(uint8_t *reg_val, char *val)
 {
   // Toggle for on off
   yn_toggle(reg_val, 1, val);
+  printf(" - 0x%02x\n", *reg_val);
 }
 
 ///////////////////////////////////////////////////////////////////////////////
@@ -51,8 +52,10 @@ uint8_t mpu_config_int_pin(Sensor *s, KeyVal * pairs)
 
   } while ((pairs = pairs->next));
   // If the register value differs
+  printf("0x%02x | 0x%02x\n", byte, reg_val);
   if (reg_val != byte)
   {
+    printf("Setting new value\n");
     // The set the new value
     SET_REG(MPU_INT_PIN_CFG, reg_val);
     // Return 1 to signify reg write

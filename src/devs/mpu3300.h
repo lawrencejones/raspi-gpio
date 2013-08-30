@@ -18,7 +18,7 @@
 Sensor *mpu_init      (  char*       name, 
                          i2c_bus*    i2c,
                          int         i2c_addr,
-                         KeyVal*     config  );
+                         char*       config  );
 // Enables the given sensor with sensible defaults/given config
 int     mpu_enable    (  Sensor*     s,
                          KeyVal*     settings  );
