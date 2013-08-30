@@ -1,0 +1,2 @@
+# Sets the pca mux channel
+sudo ./build/imu/imu pca 1 0x74 set_channel $(echo $1) 1> /dev/null

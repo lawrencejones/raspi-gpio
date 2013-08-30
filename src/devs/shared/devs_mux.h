@@ -22,6 +22,8 @@ typedef uint8_t       (*ChannelFetch)(Mux *m);
 typedef void          (*ChannelSet)(Mux *m, uint8_t c);
 // Function for retrieving an i2c mux registry
 typedef MuxNetwork*   (*MuxDeviceDetect)(Mux *m);
+// Function for deallocing a mux
+typedef void          (*DeallocMux)(Mux **s);
 
 ///////////////////////////////////////////////////////////////////////////////
 // STRUCTS
@@ -49,6 +51,8 @@ struct Mux {
   ChannelSet set_channel;
   // Function to retrieve a list of all devices
   MuxDeviceDetect get_devs;
+  // Function to dealloc
+  DeallocMux dealloc;
 };
 
 // Define a struct to represent an i2c mux network of devices

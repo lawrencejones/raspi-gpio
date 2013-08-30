@@ -76,6 +76,8 @@ Mux *pca_init(char* name,
   //m->get_devs = &pca_get_devs;
   // Set the channel to 0 initially
   m->set_channel(m, 0);
+  // Assign dealloc function
+  m->dealloc = &pca_dealloc;
   // Return the struct
   return m;
 }

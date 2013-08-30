@@ -8,6 +8,7 @@
 #include "../i2c.h"
 #include "../devs.h"
 #include "../devs/mpu3300.h"
+#include "../devs/pca9548a.h"
 #include "imu_private.h"
 #include "../../tools/src/macros.h"
 
@@ -66,6 +67,8 @@ int imu_route(char **tokens, int argc)
     // Return the error
     return EXIT_FAILURE;
   }
+  // Init i2c
+  i2c_bus *i2c = i2c_init(bus);
   // If pca multiplexer
   if (!strcmp(tokens[1], "pca"))
   {
@@ -75,37 +78,71 @@ int imu_route(char **tokens, int argc)
       // Run pca test
       imu_pca_test(bus, addr);
     }
+    // Else if set_channel
+    else if (!strcmp(tokens[4], "set_channel"))
+    {
+      // Extract channel
+      short channel = atoi(tokens[5]);
+      // Verify channel
+      if (channel < 0 || channel > 3)
+      {
+        // Print error
+        ERR("Invalid pca channel value (%d).\n\n", channel);
+        // Return failure
+        return EXIT_FAILURE;
+      }
+      // Initialise a pca
+      Mux *pca = pca_init("PCA", addr, i2c);
+      // Set the channel
+      pca->set_channel(pca, (1 << channel));
+      // Dealloc
+      pca->dealloc(&pca);
+    }
+    // Else unsupported action
+    else
+    {
+      // Print error
+      ERR("Action `%s` is unsupported for pca.\n\n", tokens[5]);
+      // Return failure
+      return 1;
+    }
   }
   // Else if mpu gyro
   else if (!strcmp(tokens[1], "mpu"))
   {
     // If mpu test
-    if (!strcmp(tokens[4], "test"))
+    if (!strcmp(tokens[4], "read_axes"))
     {
       // Run mpu test with tokens[5] as config str
-      imu_mpu_test(bus, addr, tokens[5]);
+      imu_mpu_test_axes(bus, addr, tokens[5]);
     }
     // Else if mpu config
     else if (!strcmp(tokens[4], "config"))
     {
-      // Fetch i2c handle
-      i2c_bus *i2c =  i2c_init(bus);
       // Init mpu without config
       Sensor *mpu = mpu_init("MPU", i2c, addr, NULL);
       // If reset to defaults
       if (!strcmp(tokens[5], "reset"))
       {
         // Set the defaults on the mpu pointer
-        mpu_set_defaults(mpu);
+        mpu->reset(mpu);
       }
       // Else if general config
       else
       {
         // Configure the mpu
-        mpu_configure(mpu, tokens[5]);
+        mpu->config(mpu, tokens[5]);
       }
       // dealloc the mpu
-      mpu_dealloc(&mpu);
+      mpu->dealloc(&mpu);
+    }
+    // Else unsupported action
+    else
+    {
+      // Print error
+      ERR("Action `%s` is unsupported for mpu.\n\n", tokens[5]);
+      // Return failure
+      return 1;
     }
   }
   // Else unsupported option

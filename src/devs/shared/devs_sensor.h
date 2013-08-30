@@ -28,6 +28,12 @@ typedef int           (*SensorDisable)(Sensor *s);
 typedef int           (*PrepBoard)(Sensor *s);
 // Function type for configuration helpers
 typedef uint8_t       (*Configs)(Sensor *s, KeyVal *pairs);
+// Function for deallocing a sensor
+typedef void          (*DeallocSensor)(Sensor **s);
+// Typedef for a device configure function
+typedef int           (*SensorConfigure)(Sensor*, char*);
+// Typedef for a device reset function
+typedef void          (*SensorReset)(Sensor *);
 
 /////////////////////////////////////////////////////////////
 // Struct Typedefs   ////////////////////////////////////////
@@ -65,6 +71,12 @@ struct Sensor {                                     // Sensor
   ReadAxes read;
   // Function to prep the board for device access
   PrepBoard prep;
+  // Function to configure sensor
+  SensorConfigure config;
+  // Function to reset the default config
+  SensorReset reset;
+  // Dealloc function
+  DeallocSensor dealloc;
 };
 
 // Define a struct to map config keys to functions

@@ -93,6 +93,12 @@ Sensor *mpu_init(char*     name,
   // Assign null as the mux for now
   // TODO - Implement auto board prep
   s->mux = NULL;
+  // Assign dealloc
+  s->dealloc = &mpu_dealloc;
+  // Assign config
+  s->config = &mpu_configure;
+  // Assign reset
+  s->reset = &mpu_set_defaults;
   // If config is not null
   if (config != NULL)
   {

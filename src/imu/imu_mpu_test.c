@@ -14,7 +14,7 @@
 // MPU TESTING
 ///////////////////////////////////////////////////////////////////////////////
 
-int imu_mpu_test(int bus, short addr, char *config_str)
+int imu_mpu_test_axes(int bus, short addr, char *config_str)
 {
   // Prime i2c access /////////////////////////////////////////////////////////
   // Initialise i2c protocol for bus 1

@@ -1,0 +1,4 @@
+# Configure mux for the correct channel
+sudo ./build/imu/imu pca 1 0x74 set_channel 1 1> /dev/null
+sudo ./build/imu/imu mpu 1 0x69 read_axes
+
