@@ -6,6 +6,8 @@
 ///////////////////////////////////////////////////////////////////////////////
 
 #include "mpu_private.h"
+#include "mpu_registers.h"
+#include "../shared/devs_sensor.h"
 
 ///////////////////////////////////////////////////////////////////////////////
 // READ SENSOR DATA
@@ -21,14 +23,32 @@
 
 // Retrieves only the mpu's gyro axes data, then returns
 // the data as an Axes struct pointer.
-Axes *read_gyro(Sensor *s)
+static Axes *read_gyro(Sensor *s)
 {
-  return NULL;
+  // malloc new axes struct
+  Axes *res = malloc(sizeof(Axes));
+  // Read the results in a burst, starting from xout reg
+  uint8_t *readings = i2c_read_block( s->i2c,
+                                      s->i2c_addr,
+                                      MPU_XOUT_H,
+                                      6 );
+  // Extract x y z values
+  res->x = (readings[0] << 8) | readings[1];
+  res->y = (readings[2] << 8) | readings[3];
+  res->z = (readings[4] << 8) | readings[5];
+  // Free the array
+  free(readings);
+  // Set type of results
+  res->type = GYRO;
+  // No next axes (not reading aux here)
+  res->next = NULL;
+  // Return the resulting readings
+  return res;
 }
 
 // Retrieves only the aux sensor's axes data, then returns
 // the data as an Axes struct pointer.
-Axes *read_aux(Sensor *s)
+static Axes *read_aux(Sensor *s)
 {
   return NULL;
 }
@@ -38,5 +58,17 @@ Axes *read_aux(Sensor *s)
 // above.
 Axes *mpu_read(Sensor *s, target_t t)
 {
+  // If targetting the mpu
+  if (t == HOST)
+  {
+    // Return the gyro readings
+    return read_gyro(s);
+  }
+  // Else if targetting the auxiliary
+  else if (t == AUX)
+  {
+    // Return the auxiliary sensor readings
+    return read_aux(s);
+  }
   return NULL;
 }

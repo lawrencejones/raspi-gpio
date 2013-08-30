@@ -9,7 +9,6 @@
 #define MPU3300_PRIVATE_HEADER_INC
 
 #include "../mpu3300.h"
-#include "mpu_registers.h"
 
 ///////////////////////////////////////////////////////////////////////////////
 // MACROS
