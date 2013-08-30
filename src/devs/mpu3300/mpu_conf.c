@@ -74,16 +74,10 @@ int mpu_configure(Sensor *s, char *conf_str)
   // Generate the keyval
   KeyVal *k = str_to_keyval(conf_str),
          *_k = k;
-  // If k is null
-  if (k == NULL)
-  {
-    // Return 0 for no changes
-    return 0;
-  }
   // Initialise counters
   int applied = 0;
   // While there is another keyval
-  do 
+  while (k) 
   {
     // If the current keyval has not already been applied
     if (!k->applied)
@@ -105,7 +99,9 @@ int mpu_configure(Sensor *s, char *conf_str)
         }
       } while (!handle && map[++j].keys);
     }
-  } while ((k = k->next));
+    // Move to next k
+    k = k->next;
+  }
   // Dealloc the keyval
   keyval_dealloc(&_k);
   return applied;
