@@ -30,7 +30,7 @@ void mux_network_print(Mux *m)
     // Then exit function
     return;
   }
-  printf("MuxNetwork map for `%s`\n\n", m->name);
+  printf("MuxNetwork map for mux at addr 0x%02x\n\n", m->i2c_addr);
   // While there is a next net and that net has devices
   while ((net = net->next)) {
     int count = 0;

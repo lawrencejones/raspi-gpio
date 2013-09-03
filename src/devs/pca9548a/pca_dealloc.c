@@ -29,9 +29,6 @@ void pca_dealloc(Mux **m)
     // Exit with error
     exit(EXIT_FAILURE);
   }
-  // m is now a valid pointer, so proceed to free fields
-  // Free the mux name string
-  free((*m)->name);
   // Free the struct
   free(*m);
 }

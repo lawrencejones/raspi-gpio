@@ -33,8 +33,8 @@ void verify_mux(Mux *m)
   if (m->i2c == NULL)
   {
     // Print error message
-    ERR("Invalid i2c handle attached to mux `%s`.\
-         Cannot continue.\n\n", m->name);
+    ERR("Invalid i2c handle attached to mux with addr 0x%02x.\
+         Cannot continue.\n\n", m->i2c_addr);
     // Exit with failure
     exit(EXIT_FAILURE);
   }
@@ -70,7 +70,8 @@ void pca_set_channel(Mux *m, uint8_t c)
   if (c != m->channel)
   {
     // If not equal then write has failed
-    ERR("Write to mux named `%s` has failed.\n\n", m->name);
+    ERR("Write to mux with addr 0x%02x has failed.\n\n", 
+        m->i2c_addr);
     // Exit with error
     exit(EXIT_FAILURE);
   }

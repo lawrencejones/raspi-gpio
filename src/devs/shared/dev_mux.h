@@ -29,8 +29,6 @@ typedef void          (*DeallocMux)(Mux **s);
 
 // Define a struct to represent an i2c multiplexer
 struct Mux {
-  // Name for this i2c multiplexer
-  char *name;
   // Model of the mux
   model_t model;
   // An i2c bus handle for read and writing
