@@ -29,4 +29,9 @@ struct Board {
 // PRIVATE INTERFACE
 ///////////////////////////////////////////////////////////////////////////////
 
+// Read from the axes of the gyro
+int imu_mpu_route(i2c_bus *i2c, short addr, char **tokens, int argc);
+// Route the pca commands
+int imu_pca_route(i2c_bus *i2c, short addr, char **tokens, int argc);
+
 #endif

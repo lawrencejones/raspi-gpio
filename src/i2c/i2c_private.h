@@ -9,7 +9,7 @@
 #define I2C_PRIVATE_HEADER_INC
 
 #include "i2c.h"
-#include "../../tools/src/macros.h"
+#include "macros.h"
 
 ///////////////////////////////////////////////////////////////////////////////
 // PRIVATE FUNCTION STUBS

@@ -33,13 +33,6 @@ void mpu_dealloc(Sensor **s)
     // The return without doing anything
     return;
   }
-  // Free the device name
-  free((*s)->name);
-  // Free the controlling mux
-  if ((*s)->mux)
-  {
-    free((*s)->mux);
-  }
   // Free the sensor struct
   free(*s);
   // Null the pointer

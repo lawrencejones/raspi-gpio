@@ -43,7 +43,7 @@ void verify_mux(Mux *m)
 // Fetches the current channel code from the given mux,
 // then updates the field inside the given struct and
 // returns the code as the value
-uint8_t pca_fetch_channel(Mux *m)
+uint8_t pca_get_channel(Mux *m)
 {
   // Verify that the pointer is healthy
   verify_mux(m);
@@ -64,7 +64,7 @@ void pca_set_channel(Mux *m, uint8_t c)
   // the device
   i2c_write_byte(m->i2c, m->i2c_addr, (uint8_t)c);
   // Once written, verify that write has been successful
-  m->fetch_channel(m);
+  m->get_channel(m);
   // After fetching the channel, write has been successful
   // iff the new channel field is equal to the desired parameter
   if (c != m->channel)

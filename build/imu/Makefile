@@ -4,6 +4,10 @@ APPNAME := imu
 
 APP_SRC := imu.c
 
+ifeq ($(shell arch), armv6l)
+CFLAGS += -lm
+endif
+
 # Required modules from the gpio folder
 GPIO := \
 	gpio_init.c
@@ -41,6 +45,7 @@ MPU := \
 	mpu_conf_samplerate.c \
 	mpu_conf_user_ctrl.c \
 	mpu_dealloc.c \
+  mpu_selftest.c \
 	mpu_helpers.c \
 	mpu_init.c \
 	mpu_read.c

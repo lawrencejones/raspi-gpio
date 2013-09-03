@@ -47,9 +47,8 @@
 
 // Given name, i2c addr and i2c handle, allocates & initialises
 // a new Mux struct.
-Mux *pca_init(char* name,
-              short i2c_addr,
-              i2c_bus *i2c  )
+Mux *pca_init(i2c_bus *i2c,
+              short i2c_addr  )
 {
   // malloc the sensor struct
   Mux *m = malloc(sizeof(Mux));
@@ -60,10 +59,6 @@ Mux *pca_init(char* name,
     ERR("Failed to allocate memory (malloc) for Mux *m.\n");
     exit(EXIT_FAILURE);
   }
-  // Assign given sensor properties
-  m->name = malloc(sizeof(char) * strlen(name) + 1);
-  // Make copies of strings to avoid stack expiry
-  strcpy(m->name, name);
   // Assign the i2c addr
   m->i2c_addr = i2c_addr;
   // Assign the i2c handle
@@ -71,7 +66,7 @@ Mux *pca_init(char* name,
   // Assign the enum for model
   m->model = PCA9548A;
   // Set the channel fetch function
-  m->fetch_channel = &pca_fetch_channel;
+  m->get_channel = &pca_get_channel;
   // Assign the channel set function
   m->set_channel = &pca_set_channel;
   // Assign the mux networking function

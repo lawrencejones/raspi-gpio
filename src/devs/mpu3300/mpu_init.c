@@ -44,18 +44,20 @@
 
 char mpu_default_config[] = \
 " fifo_selection:xg|yg|zg\
+, samplerate:100hz\
+, fifo:on\
 , selftest:off\
 , fs_range:225\
 , i2c_bypass:off";
 
 // Set the default values of mpu3300
-void mpu_set_defaults(Sensor *s)
+void mpu_reset(Sensor *s)
 {
   // If default is not null
   if (mpu_default_config != NULL)
   {
     // Apply default config
-    mpu_configure(s, mpu_default_config);
+    mpu_config(s, mpu_default_config);
   }
 }
 
@@ -63,10 +65,11 @@ void mpu_set_defaults(Sensor *s)
 // struct with the given config options. `config` represents
 // an array of KeyVal pairs which correspond to mpu configuration
 // options. Supported config options are listed in config array.
-Sensor *mpu_init(char*     name, 
-                 i2c_bus*  i2c,
-                 int       i2c_addr,
-                 char*     config)
+Sensor *mpu_init(    i2c_bus*    i2c,
+                     int         i2c_addr,
+                     Mux*        mux,
+                     int         mux_channel,
+                     char*       config  )
 {
   // malloc the sensor struct
   Sensor *s = malloc(sizeof(Sensor));
@@ -77,36 +80,41 @@ Sensor *mpu_init(char*     name,
     ERR("Failed to allocate memory (malloc) for Sensor *s.\n");
     exit(EXIT_FAILURE);
   }
-  // Assign given sensor properties
-  s->name = malloc(sizeof(char) * strlen(name) + 1);
-  // Make copies of strings to avoid stack expiry
-  strcpy(s->name, name);
-  // Assign pointer to the i2c bus
-  s->i2c = i2c;
-  // Assign the i2c addr
-  s->i2c_addr = i2c_addr;
+  ///////////////////////////////////////////////
   // Assign the enum for model
   s->model = MPU3300;
   // Assign enum for sensor type
   s->type = GYRO;
-  // Assign the function pointer for an enable method
-  s->enable = &mpu_enable;
-  // Assign the read function
-  s->read = &mpu_read;
-  // Assign null as the mux for now
-  // TODO - Implement auto board prep
-  s->mux = NULL;
-  // Assign dealloc
-  s->dealloc = &mpu_dealloc;
-  // Assign config
-  s->config = &mpu_configure;
+  ///////////////////////////////////////////////
+  // Assign pointer to the i2c bus
+  s->i2c = i2c;
+  // Assign the i2c addr
+  s->i2c_addr = i2c_addr;
+  // Assign the mux handle, null or otherwise
+  s->mux = mux;
+  // Assign the mux channel setting
+  s->mux_channel = mux_channel;
+  ///////////////////////////////////////////////
   // Assign reset
-  s->reset = &mpu_set_defaults;
+  s->reset = &mpu_reset;                                    // RESET
+  // Assign the function pointer for an enable method
+  s->enable = &mpu_enable;                                  // ENABLE
+  // Assign the disable function pointer
+  s->disable = &mpu_disable;                                // DISABLE
+  // Assign the read function
+  s->read = &mpu_read;                                      // READ
+  // Assign config
+  s->config = &mpu_config;                                  // CONFIG
+  // Assign selftest
+  s->selftest = &mpu_selftest;
+  // Assign dealloc
+  s->dealloc = &mpu_dealloc;                                // DEALLOC
+  ///////////////////////////////////////////////
   // If config is not null
   if (config != NULL)
   {
     // Apply custom configuration
-    mpu_configure(s, config);
+    mpu_config(s, config);
   }
   return s;
 }

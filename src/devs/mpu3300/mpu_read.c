@@ -9,6 +9,7 @@
 #include <string.h>
 #include "mpu_private.h"
 #include "mpu_registers.h"
+#include "devs/shared/dev_mux.h"
 #include "macros.h"
 
 ///////////////////////////////////////////////////////////////////////////////
@@ -55,6 +56,65 @@ static Axes *read_aux(Sensor *s)
   return NULL;
 }
 
+///////////////////////////////////////////////////////////////////////////////
+// READ SENSOR DATA IN BURST
+///////////////////////////////////////////////////////////////////////////////
+/*
+   Once the fifo is configured, it is possible to read data from the device
+   using the built in 1024 byte buffer. As such, this read_burst method will
+   read the data from the fifo, assuming that the fifo is set to xg yg zg,
+   and then parse it into an Axes linked list.
+*/
+
+static Axes *read_burst(Sensor *s)
+{
+  // Get the current data count
+  int fifo_count = (FETCH_REG(MPU_FIFO_COUNTH) << 8) +
+                    FETCH_REG(MPU_FIFO_COUNTL);
+  // Return null if currently empty
+  if (!fifo_count)
+  {
+    // Return null
+    return NULL;
+  }
+  // Adjust count to a multiple of three
+  fifo_count = (fifo_count / 6) * 6;
+  // Otherwise generate an array of uint8_ts
+  uint8_t *block = i2c_read_block( s->i2c, 
+                                   s->i2c_addr, 
+                                   MPU_FIFO_R_W,
+                                   fifo_count ),
+          *data = block;
+  // Create pointers to Axes
+  Axes *head = malloc(sizeof(Axes)),
+       *a = head,
+       *b = NULL;
+  // Parse into axes data
+  for (int i = 0; i < fifo_count / 6; i++)
+  {
+    // Extract x y z values
+    a->x = (data[0] << 8) | data[1];
+    a->y = (data[2] << 8) | data[3];
+    a->z = (data[4] << 8) | data[5];
+    // Create the list links and move a on up
+    a->next = b;
+    b = a;
+    // Increment the data array to next set of
+    // 6 bytes
+    data += 6;
+    // malloc for next iteration unless last
+    a = malloc(sizeof(Axes) * (i != fifo_count / 6));
+  }
+  // Free the byte array
+  free(block);
+  // Return the Axes
+  return head;
+}
+
+///////////////////////////////////////////////////////////////////////////////
+// ENTRY FOR READS
+///////////////////////////////////////////////////////////////////////////////
+
 // Entry point for all reads. Takes a Sensor pointer (the selected mpu)
 // and a target. This is currently either `HOST` or `AUX`, as explained
 // above.
@@ -66,17 +126,29 @@ Axes *mpu_read(Sensor *s, target_t t)
     ERR("Sensor pointer is not valid.\n\n");
     exit(EXIT_FAILURE);
   }
-  // If targetting the mpu
-  if (t == HOST)
+  // If there is a multiplexer, configure for access
+  if (s->mux)
   {
-    // Return the gyro readings
-    return read_gyro(s);
+    // Set the channel
+    s->mux->set_channel(s->mux, s->mux_channel);
   }
-  // Else if targetting the auxiliary
-  else if (t == AUX)
+  switch (t)
   {
-    // Return the auxiliary sensor readings
-    return read_aux(s);
+    // If targetting the mpu
+    case HOST:
+      // Return the gyro readings
+      return read_gyro(s);
+      break;
+    // Else if targetting the auxiliary
+    case AUX:
+      // Return the auxiliary sensor readings
+      return read_aux(s);
+      break;
+    // Else if wanting fifo burst readings
+    case FIFO:
+      // Return fifo burst readings
+      return read_burst(s);
+      break;
   }
   return NULL;
 }

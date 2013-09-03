@@ -32,19 +32,19 @@
 ///////////////////////////////////////////////////////////////////////////////
 
 // Malloc and initialise a mux struct, return the pointer
-Mux         *pca_init            (  char*     name,
-                                    short     i2c_addr,
-                                    i2c_bus   *i2c  );
+Mux         *pca_init            (  i2c_bus   *i2c,                   // INIT
+                                    short     i2c_addr  ); 
+
 // Fetches the current channel code (raw reg val) and updates
 // the channel field inside the mux struct
-uint8_t     pca_fetch_channel    (  Mux *m  );
+uint8_t     pca_get_channel      (  Mux *m  );                        // GET CHANNEL
 // Sets the mux channel value with a given short
 // Also runs a write test to verify success (updates channel field)
-void        pca_set_channel      (  Mux     *m, 
+void        pca_set_channel      (  Mux     *m,                       // SET CHANNEL
                                     uint8_t c  );
 // Generates a mux network from all the devices visible on the buses
-MuxNetwork  *pca_get_devs        (  Mux *m  );
+MuxNetwork  *pca_get_devs        (  Mux *m  );                        // GET DEVS
 // Dealloc an pca mux struct, watch for any memory leaks
-void        pca_dealloc          (  Mux** m  );
+void        pca_dealloc          (  Mux** m  );                       // DEALLOC
 
 #endif

@@ -7,6 +7,7 @@
 
 #include <stdlib.h>
 #include "mpu_private.h"
+#include "devs/shared/dev_mux.h"
 
 ///////////////////////////////////////////////////////////////////////////////
 // CONFIGURE GYRO SETTINGS
@@ -65,8 +66,14 @@ static ConfigFunctionMap map[] = {
 // Specific mpu config function to be attached as the config
 // field of an mpu array. Hands majority of work to the dev_config
 // function (dev/shared/dev_config.c).
-int mpu_configure(Sensor *s, char *conf_str)
+int mpu_config(Sensor *s, char *conf_str)
 {
+  // If there is a multiplexer, configure for access
+  if (s->mux)
+  {
+    // Set the channel
+    s->mux->set_channel(s->mux, s->mux_channel);
+  }
   // Call dev_config with the function map
   return dev_config(s, conf_str, map);
 }
