@@ -55,7 +55,7 @@ static ConfigFunctionMap map[] = {
     &mpu_config_i2c_slv
   },
   {
-    "i2c_bypass",
+    "i2c_bypass,fifo_overflow_en,data_ready_en",
     &mpu_config_int_pin
   },
   { // Termination element
