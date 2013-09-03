@@ -63,7 +63,7 @@ uint8_t             i2c_read_reg        (  i2c_bus *i2c,
 uint8_t             *i2c_read_block     (  i2c_bus *i2c, 
                                            short addr, 
                                            short reg, 
-                                           short block_size  );
+                                           int   block_size  );
 
 /////////////////////////////////////////////////////////////
 // I2C Write ////////////////////////////////////////////////

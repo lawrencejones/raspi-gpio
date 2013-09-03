@@ -9,6 +9,7 @@
 #define I2C_PRIVATE_HEADER_INC
 
 #include "i2c.h"
+#include "i2c_err.h"
 #include "macros.h"
 
 ///////////////////////////////////////////////////////////////////////////////
@@ -17,5 +18,7 @@
 
 // mallocs an i2c_dev struct and returns the pointer
 i2c_dev* i2c_dev_malloc(short addr);
+// Waits for the fifo to be filled
+int i2c_wait_fifo(i2c_bus *i2c);
 
 #endif

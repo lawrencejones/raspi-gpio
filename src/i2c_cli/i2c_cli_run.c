@@ -58,6 +58,8 @@ register 0x%02x...\n\n", bytes, addr, reg);
     PRINTC(GREEN, "\nFinished read. I2C bus status is \
 0x%03x / ", BSC_S);
     PRINT_BIN_BYTE(BSC_S, "\n\n");
+    // Free the reading array
+    free(read);
   } 
   if (!strcmp(tokens[0], "write")) // **WRITE**
   // write [addr] [reg] [bytes] [content]
