@@ -15,8 +15,14 @@
 
 // Takes a string, formatted as `key:val,key:val,...`
 // and returns a processed keyval pointer.
-KeyVal *str_to_keyval(char *str)
+KeyVal *str_to_keyval(char *_str)
 {
+  // Make copy of string to ensure mutable
+  char *str = malloc(sizeof(char) * strlen(_str) + 1);
+  // Copy contents
+  strcpy(str, _str);
+  // Add termination char
+  str[strlen(_str)] = '\0';
   // Declare initial keyval pointer
   KeyVal *pairs = NULL, *tmp;
   // Use strtok to split the string for
@@ -39,6 +45,8 @@ KeyVal *str_to_keyval(char *str)
     // Split once again for the key
     key = strtok(NULL, ": ");
   }
+  // Free the copied string
+  free(str);
   // Return the pairs list
   return pairs;
 }

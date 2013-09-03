@@ -19,8 +19,10 @@ char selftest_conf[] = \
 " fsrange:225\
 , selftest:x|y|z";
 
+
 #define CALC_FT(test_reg) (25 * 145.6 * pow(1.046, test_reg - 1));
 
+// Run the build in hardware selftest
 int mpu_selftest(Sensor *mpu)
 {
   // Activate selftest

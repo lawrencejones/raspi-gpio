@@ -126,6 +126,8 @@ static int parse_path ( char *token,
     // Return and error
     return 1;
   }
+  // Free token
+  free(_token);
   // Return success
   return 0;
 }
