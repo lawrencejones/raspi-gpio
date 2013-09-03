@@ -44,7 +44,7 @@
 
 char mpu_default_config[] = \
 " fifo_selection:xg|yg|zg\
-, samplerate:100hz\
+, samplerate:200hz\
 , fifo:on\
 , selftest:off\
 , fs_range:225\

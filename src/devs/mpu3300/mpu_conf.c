@@ -38,7 +38,7 @@ static ConfigFunctionMap map[] = {
     &mpu_config_fifo
   },
   {
-    "i2c_mst_en,fifo",
+    "i2c_mst_en,fifo_en",
     &mpu_config_user_ctrl
   },
   {

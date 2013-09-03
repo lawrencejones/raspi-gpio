@@ -79,6 +79,7 @@ static Axes *read_burst(Sensor *s)
   }
   // Adjust count to a multiple of three
   fifo_count = (fifo_count / 6) * 6;
+  ERR("%d bytes in the fifo\n", fifo_count);
   // Otherwise generate an array of uint8_ts
   uint8_t *block = i2c_read_block( s->i2c, 
                                    s->i2c_addr, 

@@ -26,11 +26,11 @@ static void process_i2c_bypass_key(uint8_t *reg_val, char *val)
 
 // Configure the interupt pin and i2c bus
 //    i2c_bypass: (on:off)
-uint8_t mpu_config_int_pin(Sensor *s, KeyVal * pairs)
+uint8_t mpu_config_int_pin(Sensor *s, KeyVal *pairs)
 {
   // Fetch current value of register
-  uint8_t byte = FETCH_REG(MPU_INT_PIN_CFG),
-          reg_val = byte;
+  uint8_t cfg = FETCH_REG(MPU_INT_PIN_CFG),
+          _cfg = cfg;
   // Iterate through the setting pairs
   do {
     if (!pairs->applied)
@@ -41,7 +41,7 @@ uint8_t mpu_config_int_pin(Sensor *s, KeyVal * pairs)
       if (!strcmp(pairs->key, "i2c_bypass"))
       {
         // The process the bypass configuration
-        process_i2c_bypass_key(&reg_val, pairs->val);
+        process_i2c_bypass_key(&_cfg, pairs->val);
       }
       // Else unsupported key
       else
@@ -52,14 +52,23 @@ uint8_t mpu_config_int_pin(Sensor *s, KeyVal * pairs)
     }
 
   } while ((pairs = pairs->next));
-  // If the register value differs
-  if (reg_val != byte)
+  // Keep track of the number of reg changes
+  int applied = 0;
+  // If the config reg differs
+  if (cfg != _cfg)
   {
-    // The set the new value
-    SET_REG(MPU_INT_PIN_CFG, reg_val);
-    // Return 1 to signify reg write
-    return 1;
+    // Then set the new value
+    SET_REG(MPU_INT_PIN_CFG, _cfg);
+    // Note a write
+    applied++;
   }
-  // Else return 0 for no change
-  return 0;
+  if (status != _status)
+  {
+    // Then set the new value
+    SET_REG(MPU_INT_STATUS, _status);
+    // Note a write
+    applied++;
+  }
+  // Return applied value
+  return applied;
 }

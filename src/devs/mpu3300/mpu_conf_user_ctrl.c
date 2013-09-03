@@ -16,34 +16,14 @@
 
 static void process_i2c_mst_key(uint8_t *reg_val, char *val)
 {
-  // If the value is a yes
-  if (strstr(val, "yes") != NULL)
-  {
-    // Make bit 5 equal 1
-    *reg_val |= (1 << 5);
-  }
-  // Else if the value is a no
-  else if (strstr(val, "no") != NULL)
-  {
-    // Make bit 5 equal to 0
-    *reg_val &= 0xdf;
-  }
+  // Toggle for on off
+  yn_toggle(reg_val, 5, val);
 }
 
-static void process_fifo_key(uint8_t *reg_val, char *val)
+static void process_fifo_en_key(uint8_t *reg_val, char *val)
 {
-  // If the value is on
-  if (strstr(val, "on") != NULL)
-  {
-    // Make bit 6 equal 1
-    *reg_val |= (1 << 6);
-  }
-  // Else if the value is off
-  else if (strstr(val, "off") != NULL)
-  {
-    // Make bit 6 equal 0
-    *reg_val &= 0xbf;
-  }
+  // Toggle for on off
+  yn_toggle(reg_val, 6, val);
 }
 
 ///////////////////////////////////////////////////////////////////////////////
@@ -52,7 +32,7 @@ static void process_fifo_key(uint8_t *reg_val, char *val)
 
 // Configures the user settings
 //    i2c_mst_en: (yes:no)
-//    fifo: (on:off)
+//    fifo_en: (on:off)
 uint8_t mpu_config_user_ctrl(Sensor *s, KeyVal * pairs)
 {
   // Fetch the current register value
@@ -71,11 +51,11 @@ uint8_t mpu_config_user_ctrl(Sensor *s, KeyVal * pairs)
         // Configure for i2c master enable
         process_i2c_mst_key(&reg_val, pairs->val);
       }
-      // If the key is fifo
-      else if (!strcmp(pairs->key, "fifo"))
+      // If the key is fifo_en
+      else if (!strcmp(pairs->key, "fifo_en"))
       {
         // Configure for the fifo
-        process_fifo_key(&reg_val, pairs->val); 
+        process_fifo_en_key(&reg_val, pairs->val); 
       }
       // Else key not recognised
       else

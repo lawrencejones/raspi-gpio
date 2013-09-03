@@ -8,6 +8,7 @@
 #include <stdlib.h>
 #include <stdio.h>
 #include <math.h>
+#include <time.h>
 #include "mpu_private.h"
 #include "mpu_registers.h"
 
@@ -27,10 +28,14 @@ int mpu_selftest(Sensor *mpu)
 {
   // Activate selftest
   mpu->config(mpu, selftest_conf);
+  // Wait for the selftest to kick in
+  nanosleep((struct timespec[]) {{0, 500000}}, NULL);
   // Take readings
   Axes *selftest_axes = mpu->read(mpu, HOST);
   // Deactive selftest
   mpu->config(mpu, "selftest:off");
+  // Wait for the selftest to shut off
+  nanosleep((struct timespec[]) {{0, 500000}}, NULL);  
   // Take readings
   Axes *standard_axes = mpu->read(mpu, HOST);
   // Find selftest_response = (selftest - standard)

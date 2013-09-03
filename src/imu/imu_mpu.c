@@ -175,6 +175,8 @@ int imu_mpu_route(i2c_bus *i2c, short addr, char **tokens, int argc)
   {
     // Reset the mpu
     mpu->reset(mpu);
+    // Print success
+    printf("Gyro settings successfully reset.\n\n");
   }
   // Else if selftesting
   else if (!strcmp(tokens[4], "selftest"))                    // SELFTEST
