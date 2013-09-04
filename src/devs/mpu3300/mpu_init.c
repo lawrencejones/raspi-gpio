@@ -45,7 +45,7 @@
 char mpu_default_config[] = \
 " fifo_selection:xg|yg|zg\
 , samplerate:200hz\
-, fifo:on\
+, fifo_en:on\
 , selftest:off\
 , fs_range:225\
 , i2c_bypass:off";
