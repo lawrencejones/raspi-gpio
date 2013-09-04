@@ -29,7 +29,8 @@ I2C := $(addprefix i2c/, $(I2C))
 
 # Required shared devs modules
 DEV := \
-  dev_config.c
+  dev_config.c \
+  dev_axes.c
 
 DEV := $(addprefix devs/shared/, $(DEV))
 

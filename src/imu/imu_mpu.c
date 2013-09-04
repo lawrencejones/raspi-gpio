@@ -23,7 +23,8 @@ static int imu_mpu_read_axes(Sensor *mpu)
   printf("The axes readings are...\n\n");
   printf("  X : %d\n  Y : %d\n  Z : %d\n\n", 
     (int)ax->x, (int)ax->y, (int)ax->z);
-  free(ax);
+  // Free the memory
+  axes_dealloc(&ax);
   // Return success
   return 0;
 }
@@ -35,19 +36,23 @@ static int imu_mpu_read_axes(Sensor *mpu)
 static int imu_mpu_read_burst(Sensor *mpu)
 {
   // Attempt a burst read and print results
-  Axes *ax = mpu->read(mpu, FIFO);
+  Axes *head = mpu->read(mpu, FIFO),
+       *ax = head;
   printf("The axes readings are...\n\n");
-  printf  ("       |    X    |    Y    |    Z    |\n");
+  printf  ("             +---------+---------+---------+\n");
+  printf  ("             |    X    |    Y    |    Z    |\n");
+  printf  ("             +---------+---------+---------+\n");
   int count = 0;
   while (ax)
   {
-    printf(" %3d - | %7d | %7d | %7d |\n", 
-      count++, (int)ax->x, (int)ax->y, (int)ax->z);
-    // Increment ax
+    printf(" %3d -       | %7d | %7d | %7d |\n", 
+      count++, (short)ax->x, (short)ax->y, (short)ax->z);
     ax = ax->next;
   }
   // Print final clearing line
   printf("\n");
+  // Deallocate the returned axes
+  axes_dealloc(&head);
   // Return success
   return 0;
 }
@@ -181,8 +186,8 @@ int imu_mpu_route(i2c_bus *i2c, short addr, char **tokens, int argc)
   // Else if selftesting
   else if (!strcmp(tokens[4], "selftest"))                    // SELFTEST
   {
-    // Run the selftest
-    mpu->selftest(mpu);
+    // Run the selftest with print on
+    mpu->selftest(mpu, 1);
   }
   // Else unsupported action
   else

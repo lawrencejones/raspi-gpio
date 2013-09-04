@@ -36,7 +36,8 @@ Axes    *mpu_read         (  Sensor*     s,                           // READ
 int     mpu_config        (  Sensor*     s,                           // CONFIG
                              char*       conf_str  );
 // Runs a selftest on the gyro
-int     mpu_selftest      (  Sensor*     mpu  );                      // SELFTEST
+int     mpu_selftest      (  Sensor*     mpu,                         // SELFTEST
+                             int         print );
 // Dealloc an mpu sensor struct. See .c for dependency behaviour
 // and warnings.
 void    mpu_dealloc       (  Sensor**    s  );                        // DEALLOC

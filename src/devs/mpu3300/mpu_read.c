@@ -79,32 +79,25 @@ static Axes *read_burst(Sensor *s)
   }
   // Adjust count to a multiple of three
   fifo_count = (fifo_count / 6) * 6;
-  ERR("%d bytes in the fifo\n", fifo_count);
   // Otherwise generate an array of uint8_ts
   uint8_t *block = i2c_read_block( s->i2c, 
                                    s->i2c_addr, 
                                    MPU_FIFO_R_W,
                                    fifo_count ),
-          *data = block;
+          *data = (block + fifo_count);
   // Create pointers to Axes
-  Axes *head = malloc(sizeof(Axes)),
-       *a = head,
-       *b = NULL;
+  Axes *head = NULL;
   // Parse into axes data
-  for (int i = 0; i < fifo_count / 6; i++)
+  for (int i = fifo_count / 6; i > 0; i--)
   {
+    // malloc next link with the previous head as its next
+    head = axes_malloc(head);
+    // Decrement data
+    data -= 6;
     // Extract x y z values
-    a->x = (data[0] << 8) | data[1];
-    a->y = (data[2] << 8) | data[3];
-    a->z = (data[4] << 8) | data[5];
-    // Create the list links and move a on up
-    a->next = b;
-    b = a;
-    // Increment the data array to next set of
-    // 6 bytes
-    data += 6;
-    // malloc for next iteration unless last
-    a = malloc(sizeof(Axes) * (i != fifo_count / 6));
+    head->x = (data[0] << 8) | data[1];
+    head->y = (data[2] << 8) | data[3];
+    head->z = (data[4] << 8) | data[5];
   }
   // Free the byte array
   free(block);

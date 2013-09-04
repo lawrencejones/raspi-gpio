@@ -10,7 +10,7 @@
 
 #include <stdint.h>
 #include "i2c.h"
-#include "../shared.h"
+#include "devs/shared.h"
 
 ///////////////////////////////////////////////////////////////////////////////
 // TYPEDEFS
@@ -19,21 +19,21 @@
 /////////////////////////////////////////////////////////////
 // Function Typedefs   //////////////////////////////////////
 // Function to return an axes struct pointer
-typedef Axes*         (*ReadAxes)(Sensor *s, target_t t);
+typedef Axes*         (*ReadAxes)(Sensor*, target_t);
 // Typedef for a sensor enable function
-typedef int           (*SensorEnable)(Sensor *s, KeyVal *settings);
+typedef int           (*SensorEnable)(Sensor*, KeyVal*);
 // Typedef for a sensor disable function
-typedef int           (*SensorDisable)(Sensor *s);
+typedef int           (*SensorDisable)(Sensor*);
 // Function for deallocing a sensor
-typedef void          (*DeallocSensor)(Sensor **s);
+typedef void          (*DeallocSensor)(Sensor**);
 // Typedef for a device configure function
 typedef int           (*SensorConfigure)(Sensor*, char*);
 // Typedef for a device reset function
-typedef void          (*SensorReset)(Sensor *);
+typedef void          (*SensorReset)(Sensor*);
 // Typedef for a device read burst function
-typedef Axes*         (*ReadBurst)(Sensor *s);
+typedef Axes*         (*ReadBurst)(Sensor*);
 // Typedef for a selftest function
-typedef int           (*Selftest)(Sensor *s);
+typedef int           (*Selftest)(Sensor*, int);
 
 /////////////////////////////////////////////////////////////
 // Struct Typedefs   ////////////////////////////////////////
@@ -43,7 +43,7 @@ struct Axes {                                         // Axes
   // States what type of readings, accel or gyro
   type_t type;
   // The respective xyz readings
-  uint16_t x, y, z;
+  short x, y, z;
   // The next Axes result struct
   Axes *next;
 };

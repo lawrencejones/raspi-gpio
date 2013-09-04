@@ -39,5 +39,11 @@ struct ConfigFunctionMap {
 KeyVal *str_to_keyval(char *str);
 // General configuration function for sensors
 int dev_config(Sensor *s, char *conf_str, ConfigFunctionMap *map);
+// Malloc an Axes struct and return pointer
+Axes *axes_malloc(Axes *next);
+// Calculate the averages for the axes given an Axes linked list
+Axes *axes_average(Axes *ax);
+// Dealloc an Axes linked list and null up in stack
+void axes_dealloc(Axes **a);
 
 #endif
