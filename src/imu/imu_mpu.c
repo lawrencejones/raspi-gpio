@@ -155,8 +155,6 @@ int imu_mpu_route(i2c_bus *i2c, short addr, char **tokens, int argc)
   Mux *pca = pca_init(i2c, mux_addr);
   // Init a mpu sensor
   Sensor *mpu = mpu_init(i2c, mpu_addr, pca, mux_chan, NULL);
-  // Reset to default
-  mpu->reset(mpu);
   // If reading axis
   if (!strcmp(tokens[4], "read_axes"))                        // READ_AXES
   {

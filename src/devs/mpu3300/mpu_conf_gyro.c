@@ -14,10 +14,8 @@
 // SUB-CONFIGS
 ///////////////////////////////////////////////////////////////////////////////
 
-static void process_selftest_key(uint8_t *reg_val, char *_val)
+static void process_selftest_key(uint8_t *reg_val, char *val)
 {
-  // Make all uppercase to avoid case errors
-  char *val = make_upper(_val);
   // Find if the value contains 
   short off = (strstr(val, "off") != NULL),
         x = (strchr(val, 'X') != NULL) & !off,
@@ -25,8 +23,6 @@ static void process_selftest_key(uint8_t *reg_val, char *_val)
         z = (strchr(val, 'Z') != NULL) & !off;
   // Assign new x y z values
   *reg_val |= (x << 7) | (y << 6) | (z << 5);
-  // Free the malloced string
-  free(val);
 }
 
 static void process_fs_range_key(uint8_t *reg_val, char *val)

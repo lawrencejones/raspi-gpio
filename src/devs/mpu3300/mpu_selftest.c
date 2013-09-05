@@ -18,7 +18,12 @@
 ///////////////////////////////////////////////////////////////////////////////
 
 char selftest_conf[] = \
-" fsrange:225\
+" samplerate:200hz\
+, fifo_en:on\
+, fifo_selection:xg|yg|zg\
+, fifo_overflow_en:on\
+, data_ready_en:on\
+, fsrange:225\
 , selftest:x|y|z";
 
 
@@ -27,8 +32,10 @@ char selftest_conf[] = \
 // Run the build in hardware selftest, return a number representing
 // the health of each sensor in binary. So the int will be ZYX when
 // in binary, where 1's will represent sensor error beyond normal range.
-int mpu_selftest(Sensor *mpu, int print)
+int mpu_selftest(Sensor *mpu, int print_output)
 {
+  // Reset gyro defaults
+  mpu->reset(mpu);
   // Activate selftest
   mpu->config(mpu, selftest_conf);
   // Wait for the selftest to kick in
@@ -73,12 +80,12 @@ int mpu_selftest(Sensor *mpu, int print)
     (selftest_average->z - ft_z) / ft_z,
   };
   // If print is yes
-  if (print)
+  if (print_output)
   {
     printf("Selftest results are...\n\n");
-    printf("  Axes X: %.4f%%\n",   scores[0]);
-    printf("  Axes Y: %.4f%%\n",   scores[1]);
-    printf("  Axes Z: %.4f%%\n\n", scores[2]);
+    printf("  Axes X: %.3f %%\n",   scores[0]);
+    printf("  Axes Y: %.3f %%\n",   scores[1]);
+    printf("  Axes Z: %.3f %%\n\n", scores[2]);
   }
   // Initialise value that will represent what sensors are ok
   int health = 0;
@@ -91,7 +98,7 @@ int mpu_selftest(Sensor *mpu, int print)
     }
   }
   // If failed and print
-  if (health && print)
+  if (health && print_output)
   {
     ERR("Selftest has failed. -14 < tval < 14 is acceptable range.\n\n");
   }

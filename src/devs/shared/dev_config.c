@@ -52,6 +52,26 @@ KeyVal *str_to_keyval(char *_str)
 }
 
 ///////////////////////////////////////////////////////////////////////////////
+// YES NO CONVERSION
+///////////////////////////////////////////////////////////////////////////////
+
+void yn_toggle(uint8_t *reg, int bit, char *yn)
+{
+  // If the string is yes|on
+  if (strstr("yes,on", yn) != NULL)
+  {
+    // Set the value of the byte to a 1 on the given bit
+    *reg |= (1 << bit);
+  }
+  // Else if a no|off
+  else if (strstr("no,off", yn) != NULL)
+  {
+    // Set the value of the byte to 0 on the given bit
+    *reg &= ~(1 << bit);
+  }
+}
+
+///////////////////////////////////////////////////////////////////////////////
 // ENTRY FUNCTION FOR CONFIG
 ///////////////////////////////////////////////////////////////////////////////
 
@@ -61,6 +81,12 @@ KeyVal *str_to_keyval(char *_str)
 // Returns number of detected register changes made
 int dev_config(Sensor *s, char *conf_str, ConfigFunctionMap *map)
 {
+  // If there is a multiplexer, configure for access
+  if (s->mux)
+  {
+    // Set the channel
+    s->mux->set_channel(s->mux, s->mux_channel);
+  }
   // Generate the keyval
   KeyVal *k = str_to_keyval(conf_str),
          *_k = k;

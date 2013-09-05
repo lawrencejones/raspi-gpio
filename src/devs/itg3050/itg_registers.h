@@ -1,12 +1,12 @@
 ///////////////////////////////////////////////////////////////////////////////
 // Raspberry Pi GPIO Interface
 // ¯¯¯¯¯¯¯¯¯¯¯¯¯¯¯¯¯¯¯¯¯¯¯¯¯¯¯
-// File: itg3050.h
+// File: itg_registers.h
 // PA Consulting - Lawrence Jones
 ///////////////////////////////////////////////////////////////////////////////
 
-#ifndef ITG3050_HEADER_INC
-#define ITG3050_HEADER_INC
+#ifndef ITG3050_REGISTERS_INC
+#define ITG3050_REGISTERS_INC
 
 ///////////////////////////////////////////////////////////////////////////////
 // REGISTERS
@@ -22,6 +22,10 @@
 #define ITG_Y_OFFS_L 0x0f
 #define ITG_Z_OFFS_H 0x10
 #define ITG_Z_OFFS_L 0x11
+
+// Samplerate divider register
+#define ITG_SMPLRT_DIV 0x15
+#define ITG_SYNC_SET 0x16
 
 // Temperature registers
 #define ITG_TEMP_H 0x1b

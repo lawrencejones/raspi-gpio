@@ -5,7 +5,7 @@ APPNAME := imu
 APP_SRC := imu.c
 
 ifeq ($(shell arch), armv6l)
-CFLAGS += -lm
+LDFLAGS += -lm
 endif
 
 # Required modules from the gpio folder

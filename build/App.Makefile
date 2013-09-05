@@ -77,7 +77,7 @@ OBJECTS += $(addsuffix .o,$(basename $(APP_SRC)))
 PLATFORM ?= LINUX
 
 # Select compiler
-CC = gcc
+CC = clang
 
 # Legacy comand line support:
 ifeq ($(DEBUG),true)
@@ -100,6 +100,7 @@ CFLAGS += -I$(BUILDROOT)/src \
           -std=c99 \
           -fPIC \
           -D_POSIX_C_SOURCE=200803L \
+          -Qunused-arguments \
           -g
           
 # Initialise LDFLAGS

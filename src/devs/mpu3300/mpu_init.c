@@ -43,9 +43,11 @@
  */
 
 char mpu_default_config[] = \
-" fifo_selection:xg|yg|zg\
-, samplerate:200hz\
+" samplerate:200hz\
 , fifo_en:on\
+, fifo_overflow_en:on\
+, fifo_selection:xg|yg|zg\
+, data_ready_en:on\
 , selftest:off\
 , fs_range:225\
 , i2c_bypass:off";
@@ -106,7 +108,7 @@ Sensor *mpu_init(    i2c_bus*    i2c,
   // Assign config
   s->config = &mpu_config;                                  // CONFIG
   // Assign selftest
-  s->selftest = &mpu_selftest;
+  s->selftest = &mpu_selftest;                              // SELFTEST
   // Assign dealloc
   s->dealloc = &mpu_dealloc;                                // DEALLOC
   ///////////////////////////////////////////////

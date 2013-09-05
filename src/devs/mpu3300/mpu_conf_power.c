@@ -46,18 +46,15 @@ static void process_temp_key(uint8_t *reg_val, char *val)
   }
 }
 
-static void process_gyro_sleep(uint8_t *reg_val, char *_val)
+static void process_gyro_sleep(uint8_t *reg_val, char *val)
 {
-  // Make val all uppercase
-  char *val = make_upper(_val);
+  // Extract values
   short none = (strstr(val, "NONE") != NULL),
         x = (strchr(val, 'X') != NULL) & !none,
         y = (strchr(val, 'Y') != NULL) & !none,
         z = (strchr(val, 'Z') != NULL) & !none;
   // Compute new reg value
   *reg_val = (x << 2) | (y << 1) | (z << 0);
-  // Free the uppercased string
-  free(val);
 }
 
 ///////////////////////////////////////////////////////////////////////////////

@@ -37,6 +37,8 @@ struct ConfigFunctionMap {
 
 // Generate keyvals from a string
 KeyVal *str_to_keyval(char *str);
+// Yes no live bit swap
+void yn_toggle(uint8_t *reg, int bit, char *yn);
 // General configuration function for sensors
 int dev_config(Sensor *s, char *conf_str, ConfigFunctionMap *map);
 // Malloc an Axes struct and return pointer

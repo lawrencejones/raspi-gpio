@@ -39,6 +39,12 @@ Axes *axes_malloc(Axes *next)
 // Helper to produce an Axes struct containing averages
 Axes *axes_average(Axes *ax)
 {
+  // If axes are already null
+  if (ax == NULL)
+  {
+    // Return null
+    return NULL;
+  }
   // Produce result with initially 0 values
   Axes *res = malloc(sizeof(Axes));
   // Initialise variable to keep count
@@ -58,9 +64,9 @@ Axes *axes_average(Axes *ax)
     ax = ax->next;
   }
   // Set the averages into the res struct
-  res->x = (uint16_t) x / count;
-  res->y = (uint16_t) y / count;
-  res->z = (uint16_t) z / count;
+  res->x = (short) (x / count);
+  res->y = (short) (y / count);
+  res->z = (short) (z / count);
   // Return the result
   return res;
 }
