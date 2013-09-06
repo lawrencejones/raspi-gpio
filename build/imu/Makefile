@@ -53,6 +53,22 @@ MPU := \
 
 MPU := $(addprefix devs/mpu3300/, $(MPU))
 
+# Required modules from the itg folder
+ITG := \
+  itg_conf.c \
+  itg_conf_aux.c \
+  itg_conf_fifo.c \
+  itg_conf_gyro_offset.c \
+  itg_conf_i2c.c \
+  itg_conf_int.c \
+  itg_conf_sync.c \
+  itg_conf_user_ctrl.c \
+  itg_dealloc.c \
+  itg_init.c \
+  itg_read.c
+
+ITG := $(addprefix devs/itg3050/, $(ITG))
+
 # Required modules from the pca folder
 PCA := \
 	pca_conf.c \
@@ -64,7 +80,7 @@ PCA := $(addprefix devs/pca9548a/, $(PCA))
 
 # Required modules from the imu folder
 IMU := \
-	imu_mpu.c \
+	imu_gyro.c \
 	imu_pca.c \
 	imu_routing.c
 
@@ -83,6 +99,6 @@ TOOLS := \
 TOOLS := $(addprefix ../tools/src/, $(TOOLS))
 
 MODULES := \
-	$(GPIO) $(I2C) $(DEV) $(MPU) $(PCA) $(IMU) $(SHARED) $(TOOLS)
+	$(GPIO) $(I2C) $(DEV) $(MPU) $(ITG) $(PCA) $(IMU) $(SHARED) $(TOOLS)
 
 include $(BUILDROOT)/build/App.Makefile

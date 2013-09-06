@@ -1,7 +1,7 @@
 ///////////////////////////////////////////////////////////////////////////////
 // Raspberry Pi GPIO Interface
 // ¯¯¯¯¯¯¯¯¯¯¯¯¯¯¯¯¯¯¯¯¯¯¯¯¯¯¯
-// File: mpu_conf_sync.c
+// File: itg_conf_sync.c
 // PA Consulting - Lawrence Jones
 ///////////////////////////////////////////////////////////////////////////////
 
@@ -43,7 +43,6 @@ static void process_fs_sel_key(uint8_t *reg_val, char *val)
       setting++;
     case 500:
       setting++;
-    case 250:
   }
   *reg_val &= 0xe7;
   *reg_val |= ((0x03 & setting) << 3);
@@ -92,13 +91,13 @@ uint8_t itg_config_sync(Sensor *s, KeyVal *pairs)
       else if (!strcmp(pairs->key, "fs_sel"))
       {
         // Configure for full scale range
-        process_fs_sel_key(&_sync_reg, val);
+        process_fs_sel_key(&_sync_reg, pairs->val);
       }
       // Else if dlpf_config
       else if (!strcmp(pairs->key, "dlpf_config"))
       {
         // Configure for the digital low pass filter
-        process_dlpf_config_key(&_sync_reg, val);
+        process_dlpf_config_key(&_sync_reg, pairs->val);
       }
       // Else not supported key
       else
@@ -108,14 +107,23 @@ uint8_t itg_config_sync(Sensor *s, KeyVal *pairs)
       }
     }
   } while ((pairs = pairs->next));
+  int applied = 0;
   // If the register is not already correct
-  if (reg_val != byte)
+  if (smplrt_div != _smplrt_div)
   {
     // The set it's new value
-    SET_REG(ITG_SMPLRT_DIV, reg_val);
-    // Return 1 to show change
-    return 1;
+    SET_REG(ITG_SMPLRT_DIV, _smplrt_div);
+    // Increment applied
+    applied++;
   }
-  // Else return 0
-  return 0;
+  // If reg changed
+  if (sync_reg != _sync_reg)
+  {
+    // Set new value
+    SET_REG(ITG_SYNC_SET, _sync_reg);
+    // Increment applied
+    applied++;
+  }
+  // Return applied
+  return applied;
 }

@@ -52,6 +52,8 @@
 #define ITG_FIFO_COUNTL 0x3b
 // Entry point for FIFO
 #define ITG_FIFO_R 0x3c
+// Address of fifo controls
+#define ITG_FIFO_EN 0x12
 
 // Interupt status
 #define ITG_INT_STATUS 0x1a

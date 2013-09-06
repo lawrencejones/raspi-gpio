@@ -82,6 +82,14 @@ Sensor *mpu_init(    i2c_bus*    i2c,
     ERR("Failed to allocate memory (malloc) for Sensor *s.\n");
     exit(EXIT_FAILURE);
   }
+  // Assign for error
+  int err = 0;
+  // Verify the bus
+  if ((err = dev_fails_to_respond(i2c, i2c_addr, mux, mux_channel)))
+  {
+    // Handle errors if necessary, then return null pointer
+    return NULL;
+  }
   ///////////////////////////////////////////////
   // Assign the enum for model
   s->model = MPU3300;

@@ -47,20 +47,16 @@ static ConfigFunctionMap map[] = {
   },
   {
     "int_out,int_drive_type,latch_int_en,int_rdy_en,raw_rdy_en",
-    &itg_config_interupt
+    &itg_config_int_pin
   },
   {
     "aux_burst_addr",
     &itg_config_aux
   },
   {
-    "fifo_en,i2c_bypass,reset_aux_i2c,fifo_reset,gyro_reset",
+    "fifo_en,i2c_bypass,reset_aux_i2c,fifo_reset",
     &itg_config_user_ctrl
   },
-  {
-    "gyro_reset,sleep",
-    &itg_config_power
-  }
   { // Termination element
     NULL, NULL
   }

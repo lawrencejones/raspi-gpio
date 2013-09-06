@@ -77,14 +77,14 @@ int imu_route(char **tokens, int argc)
   // Init i2c
   i2c_bus *i2c = i2c_init(bus);
   // If pca multiplexer
-  if (!strcmp(tokens[1], "pca"))                          // PCA
+  if (!strcmp(tokens[1], "pca"))                                       // PCA
   {
     return imu_pca_route(i2c, addr, tokens, argc);
   }
   // Else if mpu gyro
-  else if (!strcmp(tokens[1], "mpu"))                     // MPU
+  else if (!strcmp(tokens[1], "mpu") || !strcmp(tokens[1], "itg"))     // MPU || ITG
   {
-    return imu_mpu_route(i2c, addr, tokens, argc);
+    return imu_gyro_route(i2c, addr, tokens, argc);
   }
   // Else unsupported option
   else

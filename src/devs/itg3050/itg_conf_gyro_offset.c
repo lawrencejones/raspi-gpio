@@ -1,10 +1,12 @@
 ///////////////////////////////////////////////////////////////////////////////
 // Raspberry Pi GPIO Interface
 // ¯¯¯¯¯¯¯¯¯¯¯¯¯¯¯¯¯¯¯¯¯¯¯¯¯¯¯
-// File: mpu_conf_gyro_offset.c
+// File: itg_conf_gyro_offset.c
 // PA Consulting - Lawrence Jones
 ///////////////////////////////////////////////////////////////////////////////
 
+#include <stdlib.h>
+#include <string.h>
 #include "itg_private.h"
 #include "itg_registers.h"
 
@@ -16,9 +18,9 @@
 //   gyro_offset_x: N
 //   gyro_offset_y: N
 //   gyro_offset_z: N
-uint8_t mpu_config_i2c(Sensor *s, KeyVal * pairs)
+uint8_t itg_config_gyro_offset(Sensor *s, KeyVal * pairs)
 {
-  int applied;
+  int applied = 0;
   // Iterate through the settings
   do {
     if (!pairs->applied)
@@ -55,9 +57,11 @@ uint8_t mpu_config_i2c(Sensor *s, KeyVal * pairs)
       {
         // Extract the value
         int offset = atoi(pairs->val);
+        uint8_t h = 0xff & (offset >> 8),
+                l = 0xff & (offset);
         // Set the value
-        SET_REG(addr, 0xff & (offset >> 16));
-        SET_REG(addr + 1, 0xff & offset);
+        SET_REG(addr, h);
+        SET_REG(addr + 1, l);
         // Increment applied
         applied++;
       }

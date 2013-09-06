@@ -7,7 +7,9 @@
 
 #include <stdlib.h>
 #include <string.h>
-#include "devs/shared.h"
+#include "devs/shared/dev_mux.h"
+#include "devs/shared/dev_sensor.h"
+#include "macros.h"
 
 ///////////////////////////////////////////////////////////////////////////////
 // HELPERS
@@ -69,6 +71,34 @@ void yn_toggle(uint8_t *reg, int bit, char *yn)
     // Set the value of the byte to 0 on the given bit
     *reg &= ~(1 << bit);
   }
+}
+
+///////////////////////////////////////////////////////////////////////////////
+// DEVICE VERIFICATION
+///////////////////////////////////////////////////////////////////////////////
+
+int dev_fails_to_respond(i2c_bus *i2c, int i2c_addr, Mux *mux, int mux_channel)
+{
+  // Verify the i2c bus handle
+  if (!i2c)
+  {
+    // Print error
+    ERR("Invalid I2C bus handle.\n\n");
+    return DEV_INVALID_HANDLE;
+  }
+  // If mux exists, then configure for the address test
+  if (mux)
+  {
+    mux->set_channel(mux, mux_channel);
+  }
+  // Verify the presense of the device on the bus
+  if (!i2c_bus_addr_active(i2c, i2c_addr))
+  {
+    ERR("Device did not respond at address `0x%02x`\n\n", i2c_addr);
+    // If device doesn't respond
+    return DEV_NOT_RESPOND;
+  }
+  return 0;
 }
 
 ///////////////////////////////////////////////////////////////////////////////

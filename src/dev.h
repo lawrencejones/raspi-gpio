@@ -19,7 +19,7 @@ typedef enum {GYRO, ACCEL} type_t;
 // Define enum for sensor read target
 typedef enum {HOST, AUX, FIFO} target_t;
 // Enum for all model numbers
-typedef enum {MPU3300, ITG3050, L3G4200D, PCA9548A} model_t;
+typedef enum {MPU3300, ITG3050, L3G4200D, PCA9548A, NA} model_t;
 
 /////////////////////////////////////////////////////////////
 // Function Typedefs   //////////////////////////////////////

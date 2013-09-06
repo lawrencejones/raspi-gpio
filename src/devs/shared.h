@@ -11,6 +11,14 @@
 #include <stdint.h>
 #include "dev.h"
 #include "keyval.h"
+#include "i2c.h"
+
+///////////////////////////////////////////////////////////////////////////////
+// ERROR CODES
+///////////////////////////////////////////////////////////////////////////////
+
+#define DEV_INVALID_HANDLE 0xf0
+#define DEV_NOT_RESPOND    0xf1
 
 ///////////////////////////////////////////////////////////////////////////////
 // TYPEDEF
@@ -47,5 +55,7 @@ Axes *axes_malloc(Axes *next);
 Axes *axes_average(Axes *ax);
 // Dealloc an Axes linked list and null up in stack
 void axes_dealloc(Axes **a);
+// Verify a device
+int dev_fails_to_respond(i2c_bus *i2c, int i2c_addr, Mux *mux, int mux_channel);
 
 #endif

@@ -1,10 +1,12 @@
 ///////////////////////////////////////////////////////////////////////////////
 // Raspberry Pi GPIO Interface
 // ¯¯¯¯¯¯¯¯¯¯¯¯¯¯¯¯¯¯¯¯¯¯¯¯¯¯¯
-// File: mpu_conf_itg.c
+// File: itg_conf_itg.c
 // PA Consulting - Lawrence Jones
 ///////////////////////////////////////////////////////////////////////////////
 
+#include <stdlib.h>
+#include <string.h>
 #include "itg_private.h"
 #include "itg_registers.h"
 
@@ -24,7 +26,7 @@ static void process_i2c_if_dis_key(uint8_t *reg_val, char *val)
 
 // Configure i2c settings
 //   i2c_if_dis: (yes:no)
-uint8_t mpu_config_i2c(Sensor *s, KeyVal * pairs)
+uint8_t itg_config_i2c(Sensor *s, KeyVal * pairs)
 {
   // Fetch the current register value
   uint8_t byte = FETCH_REG(ITG_WHO_AM_I),
