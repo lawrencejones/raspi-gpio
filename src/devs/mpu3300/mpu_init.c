@@ -107,10 +107,6 @@ Sensor *mpu_init(    i2c_bus*    i2c,
   ///////////////////////////////////////////////
   // Assign reset
   s->reset = &mpu_reset;                                    // RESET
-  // Assign the function pointer for an enable method
-  s->enable = &mpu_enable;                                  // ENABLE
-  // Assign the disable function pointer
-  s->disable = &mpu_disable;                                // DISABLE
   // Assign the read function
   s->read = &mpu_read;                                      // READ
   // Assign config

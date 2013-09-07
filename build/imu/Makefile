@@ -47,7 +47,6 @@ MPU := \
 	mpu_conf_user_ctrl.c \
 	mpu_dealloc.c \
   mpu_selftest.c \
-	mpu_helpers.c \
 	mpu_init.c \
 	mpu_read.c
 

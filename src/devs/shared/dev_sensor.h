@@ -39,7 +39,7 @@ typedef int           (*Selftest)(Sensor*, int);
 // Struct Typedefs   ////////////////////////////////////////
 // Define a struct to represent 3-axes data
 // Will form a linked list of axes readings
-struct Axes {                                         // Axes
+struct Axes {                                             // Axes
   // States what type of readings, accel or gyro
   type_t type;
   // The respective xyz readings
@@ -49,7 +49,7 @@ struct Axes {                                         // Axes
 };
 
 // Define a struct to represent a sensor
-struct Sensor {                                     // Sensor
+struct Sensor {                                           // Sensor
   // Model of the device
   model_t model;
   // Specifies gyro or accel
@@ -66,14 +66,8 @@ struct Sensor {                                     // Sensor
   ///////////////////////////////////////////////
   // Function to reset the default config
   SensorReset reset;                                      // RESET
-  // Function to enable the device
-  SensorEnable enable;                                    // ENABLE
-  // Function to disable the device
-  SensorDisable disable;                                  // DISABLE
   // Function to read axes data from given target
   ReadAxes read;                                          // READ
-  // Function to read the data burst from the sensor
-  ReadBurst readBurst;                                    // READ_BURST
   // Function to configure sensor
   SensorConfigure config;                                 // CONFIG
   // Function for selftesting
