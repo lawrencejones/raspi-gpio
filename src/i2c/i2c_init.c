@@ -32,6 +32,8 @@ volatile unsigned* i2c_init(int bus)                                // i2c_init
     case 0: 
       data = 28;
       clk = 29; 
+      INP_GPIO(0);
+      INP_GPIO(1);
       break;
       // For i2c_1, gpio pins 2 and 3
     case 1:
