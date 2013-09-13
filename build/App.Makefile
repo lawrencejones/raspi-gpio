@@ -1,4 +1,4 @@
-##############################################################################
+###############################################################################
 # Common Makefile Template
 # 
 # == Building Apps ==
@@ -101,7 +101,6 @@ CFLAGS += -I$(BUILDROOT)/src \
           -fPIC \
           -D_POSIX_C_SOURCE=200803L \
           -Qunused-arguments \
-          -shared \
           -g
           
 # Initialise LDFLAGS
