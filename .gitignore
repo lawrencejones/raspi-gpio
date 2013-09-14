@@ -28,3 +28,6 @@ bin/*
 
 # Rsync script
 rsync
+
+# GSL Library
+gsl-*
