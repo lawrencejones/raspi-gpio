@@ -17,14 +17,10 @@ clean:
 	@-$(MAKE) -C ./build/imu clean
 
 $(PROG):
-	ifeq($@, dsp)
-		$(MAKE) gsl
-	endif
 	@-$(MAKE) -C ./build/$@
 
 # General Scientific Library (GSL)
-
-gsl: gsl-
+gsl:
 	@-echo "Removing previous gsl libraries..."
 	@-rm -rf gsl-*/* && rm -f gsl-*.*.*
 	@-echo "Downloading gsl..."
@@ -33,6 +29,10 @@ gsl: gsl-
 	@-tar xzf gsl-$(GVER).tar.gz 2>&1
 	@-echo "Removing gsl-$(GVER) tar..."
 	@-rm gsl-$(GVER).tar.gz*
+	@-echo "Making the gsl library..."
+	@-echo "  Configuring gsl..."
+	@-cd gsl-$(GVER) && ./configure > /dev/null
+	@-echo "  Compiling gsl shared library..."
+	@-cd gsl-$(GVER) && make > /dev/null
+	@-echo "Done!"
 
-gsl-:
-	@-mkdir $@$(GVER)
