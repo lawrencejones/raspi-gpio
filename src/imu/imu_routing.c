@@ -7,8 +7,8 @@
 
 #include "i2c.h"
 #include "imu_private.h"
-#include "devs/mpu3300.h"
-#include "devs/pca9548a.h"
+#include "dev/mpu3300.h"
+#include "dev/pca9548a.h"
 #include "macros.h"
 
 ///////////////////////////////////////////////////////////////////////////////

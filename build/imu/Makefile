@@ -33,7 +33,7 @@ DEV := \
   dev_config.c \
   dev_axes.c
 
-DEV := $(addprefix devs/shared/, $(DEV))
+DEV := $(addprefix dev/shared/, $(DEV))
 
 # Required modules from the mpu folder
 MPU := \
@@ -51,7 +51,7 @@ MPU := \
 	mpu_init.c \
 	mpu_read.c
 
-MPU := $(addprefix devs/mpu3300/, $(MPU))
+MPU := $(addprefix dev/mpu3300/, $(MPU))
 
 # Required modules from the itg folder
 ITG := \
@@ -67,7 +67,7 @@ ITG := \
   itg_init.c \
   itg_read.c
 
-ITG := $(addprefix devs/itg3050/, $(ITG))
+ITG := $(addprefix dev/itg3050/, $(ITG))
 
 # Required modules from the pca folder
 PCA := \
@@ -76,7 +76,7 @@ PCA := \
 	pca_init.c \
 	pca_muxnet.c
 
-PCA := $(addprefix devs/pca9548a/, $(PCA))
+PCA := $(addprefix dev/pca9548a/, $(PCA))
 
 # Required modules from the imu folder
 IMU := \

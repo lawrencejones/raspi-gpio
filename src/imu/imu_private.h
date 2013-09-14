@@ -9,8 +9,8 @@
 #define IMU_PRIVATE_HEADER_INC
 
 #include "imu.h"
-#include "devs/shared/dev_sensor.h"
-#include "devs/shared/dev_mux.h"
+#include "dev/shared/dev_sensor.h"
+#include "dev/shared/dev_mux.h"
 
 ///////////////////////////////////////////////////////////////////////////////
 // TYPEDEFS

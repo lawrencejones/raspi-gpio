@@ -9,7 +9,7 @@
 #include <string.h>
 #include "mpu_private.h"
 #include "mpu_registers.h"
-#include "devs/shared/dev_mux.h"
+#include "dev/shared/dev_mux.h"
 #include "macros.h"
 
 ///////////////////////////////////////////////////////////////////////////////

@@ -8,7 +8,7 @@
 #ifndef PCA9548A_PRIVATE_HEADER_INC
 #define PCA9548A_PRIVATE_HEADER_INC
 
-#include "devs/pca9548a.h"
+#include "dev/pca9548a.h"
 
 ///////////////////////////////////////////////////////////////////////////////
 // PCA PRIVATE INTERFACE

@@ -8,8 +8,8 @@
 #ifndef PCA9548A_HEADER_INC
 #define PCA9548A_HEADER_INC
 
-#include "devs/shared.h"
-#include "devs/shared/dev_mux.h"
+#include "dev/shared.h"
+#include "dev/shared/dev_mux.h"
 
 ///////////////////////////////////////////////////////////////////////////////
 // DEFINE CHANNEL CODES

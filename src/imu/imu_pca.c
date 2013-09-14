@@ -8,7 +8,7 @@
 #include <stdlib.h>
 #include "i2c.h"
 #include "imu_private.h"
-#include "devs/pca9548a.h"
+#include "dev/pca9548a.h"
 #include "macros.h"
 
 ///////////////////////////////////////////////////////////////////////////////

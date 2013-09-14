@@ -9,7 +9,7 @@
 #include <string.h>
 #include "itg_private.h"
 #include "itg_registers.h"
-#include "devs/shared/dev_mux.h"
+#include "dev/shared/dev_mux.h"
 #include "macros.h"
 
 ///////////////////////////////////////////////////////////////////////////////

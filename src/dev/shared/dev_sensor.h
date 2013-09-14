@@ -10,7 +10,7 @@
 
 #include <stdint.h>
 #include "i2c.h"
-#include "devs/shared.h"
+#include "dev/shared.h"
 
 ///////////////////////////////////////////////////////////////////////////////
 // TYPEDEFS

@@ -8,8 +8,8 @@
 #ifndef ITG3050_HEADER_INC
 #define ITG3050_HEADER_INC
 
-#include "devs/shared.h"
-#include "devs/shared/dev_sensor.h"
+#include "dev/shared.h"
+#include "dev/shared/dev_sensor.h"
 
 ///////////////////////////////////////////////////////////////////////////////
 // INTERFACE - FUNCTION STUBS

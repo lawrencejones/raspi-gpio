@@ -8,8 +8,8 @@
 #ifndef MPU3300_PRIVATE_HEADER_INC
 #define MPU3300_PRIVATE_HEADER_INC
 
-#include "devs/mpu3300.h"
-#include "devs/shared/dev_sensor.h"
+#include "dev/mpu3300.h"
+#include "dev/shared/dev_sensor.h"
 
 ///////////////////////////////////////////////////////////////////////////////
 // MACROS

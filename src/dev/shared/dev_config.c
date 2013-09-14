@@ -7,8 +7,8 @@
 
 #include <stdlib.h>
 #include <string.h>
-#include "devs/shared/dev_mux.h"
-#include "devs/shared/dev_sensor.h"
+#include "dev/shared/dev_mux.h"
+#include "dev/shared/dev_sensor.h"
 #include "macros.h"
 
 ///////////////////////////////////////////////////////////////////////////////

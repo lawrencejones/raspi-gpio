@@ -9,7 +9,7 @@
 #define DEVS_MUX_HEADER_INC
 
 #include "i2c.h"
-#include "devs/shared.h"
+#include "dev/shared.h"
 
 ///////////////////////////////////////////////////////////////////////////////
 // FUNCTION TYPEDEFS

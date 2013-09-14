@@ -8,8 +8,8 @@
 #ifndef ITG3050_PRIVATE_HEADER_INC
 #define ITG3050_PRIVATE_HEADER_INC
 
-#include "devs/itg3050.h"
-#include "devs/shared/dev_sensor.h"
+#include "dev/itg3050.h"
+#include "dev/shared/dev_sensor.h"
 
 ///////////////////////////////////////////////////////////////////////////////
 // MACROS
