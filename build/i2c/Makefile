@@ -16,6 +16,12 @@ I2C := \
 
 I2C := $(addprefix i2c/, $(I2C))
 
+GPIO := \
+	gpio_context.c \
+	gpio_init.c
+
+GPIO := $(addprefix gpio/, $(GPIO))
+
 I2C_CLI := \
   i2c_cli_display.c \
   i2c_cli_helpers.c \
@@ -25,10 +31,8 @@ I2C_CLI := \
 I2C_CLI := $(addprefix i2c_cli/, $(I2C_CLI))
 
 OTHERS := \
-  gpio/gpio_init.c \
-  ../tools/src/tokeniser.c \
-	shared/io.c
+  ../tools/src/tokeniser.c
 
-MODULES := $(I2C) $(I2C_CLI) $(OTHERS)
+MODULES := $(I2C) $(I2C_CLI) $(OTHERS) $(GPIO)
 
 include $(BUILDROOT)/build/App.Makefile

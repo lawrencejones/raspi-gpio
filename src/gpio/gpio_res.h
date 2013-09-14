@@ -8,7 +8,7 @@
 #ifndef GPIO_RES_HEADER_INC
 #define GPIO_RES_HEADER_INC
 
-#include "shared/io.h"
+#include "gpio/raspi_peri.h"
 
 #define GPIO_BASE ( BCM2835_PERI_BASE + 0x00200000u )
 

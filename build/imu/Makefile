@@ -10,6 +10,7 @@ endif
 
 # Required modules from the gpio folder
 GPIO := \
+	gpio_context.c \
 	gpio_init.c
 
 GPIO := $(addprefix gpio/, $(GPIO))
@@ -84,12 +85,6 @@ IMU := \
 	imu_routing.c
 
 IMU := $(addprefix imu/, $(IMU))
-
-# Required modules from the shared folder
-SHARED := \
-	io.c
-
-SHARED := $(addprefix shared/, $(SHARED))
 
 # Required modules from the git submodule
 TOOLS := \

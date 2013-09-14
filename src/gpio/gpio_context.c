@@ -1,15 +1,15 @@
 ///////////////////////////////////////////////////////////////////////////////
 // Raspberry Pi GPIO Interface
 // ¯¯¯¯¯¯¯¯¯¯¯¯¯¯¯¯¯¯¯¯¯¯¯¯¯¯¯
-// File: io.c
+// File: gpio_context.c
 // PA Consulting - Lawrence Jones
 ///////////////////////////////////////////////////////////////////////////////
 
 #include <fcntl.h>
 #include <unistd.h>
 #include <sys/mman.h>
-#include "io.h"
-#include "../../tools/src/macros.h"
+#include "raspi_peri.h"
+#include "macros.h"
 
 // Configure the memory access required to alter
 // the GPIO pins. Will request memory access from the system,

@@ -11,6 +11,6 @@ MODULES := \
 	gpio/gpio_malloc.c \
 	gpio/gpio_read.c \
 	gpio/gpio_write.c \
-	shared/io.c
+	gpio/gpio_context.c
 
 include $(BUILDROOT)/build/App.Makefile

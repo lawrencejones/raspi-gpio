@@ -14,6 +14,9 @@
 // TYPEDEFS / STRUCTS
 ///////////////////////////////////////////////////////////////////////////////
 
+// Alias for i2c buses
+typedef volatile unsigned gpio_bus;
+
 // Define the Pin struct
 typedef struct Pin Pin;
 // Define the Chip struct

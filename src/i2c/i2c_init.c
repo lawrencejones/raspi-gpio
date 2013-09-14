@@ -8,8 +8,8 @@
 #include <stdlib.h>
 #include "i2c_private.h"
 #include "i2c_res.h"
+#include "gpio/raspi_peri.h"
 #include "gpio.h"
-#include "shared/io.h"
 
 ///////////////////////////////////////////////////////////////////////////////
 // INITIALISATION
