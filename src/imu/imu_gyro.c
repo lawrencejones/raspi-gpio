@@ -214,12 +214,19 @@ int imu_gyro_route(i2c_bus *i2c, short addr, char **tokens, int argc)
         printf("Gyro settings successfully reset.\n\n");
         supported = 1;
       }
+      // Else if piping
+      else if (!strcmp(tokens[4], "pipe"))
+      {
+        // Initialise pipe
+        gyro->pipe(gyro, tokens[5]);
+        supported = 1;
+      }
     default:
       // Else if unsupported action
       if (!supported)
       {
         // Print error
-        ERR("Action `%s` is unsupported for gyro.\n\n", tokens[5]);
+        ERR("Action `%s` is unsupported for gyro.\n\n", tokens[4]);
       }
   }
 

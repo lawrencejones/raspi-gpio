@@ -8,6 +8,8 @@ ifeq ($(shell arch), armv6l)
 LDFLAGS += -lm
 endif
 
+LDFLAGS += -lpthread
+
 # Required modules from the gpio folder
 GPIO := \
 	gpio_context.c \

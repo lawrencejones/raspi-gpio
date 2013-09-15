@@ -49,6 +49,7 @@ uint8_t itg_config_i2c(Sensor *s, KeyVal * pairs);
 uint8_t itg_config_int_pin(Sensor *s, KeyVal *pairs);
 uint8_t itg_config_sync(Sensor *s, KeyVal *pairs);
 uint8_t itg_config_user_ctrl(Sensor *s, KeyVal *pairs);
-void yn_toggle(uint8_t *reg, int bit, char *yn);
+float   itg_fifo_capacity(Sensor *s);
+void    yn_toggle(uint8_t *reg, int bit, char *yn);
 
 #endif

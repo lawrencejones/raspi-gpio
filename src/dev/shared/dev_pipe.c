@@ -14,6 +14,12 @@
 #include "macros.h"
 #include "dev_sensor.h"
 
+// Contains copied path string to allow unlinking
+struct PipeInfo {
+  char *path;
+  Sensor *s;
+};
+
 ///////////////////////////////////////////////////////////////////////////////
 // IO READ LOOP
 ///////////////////////////////////////////////////////////////////////////////
@@ -22,7 +28,7 @@
 void *dev_pipe_start(void *arg)
 {
   // Cast a sensor pointer from the given args
-  Sensor *s = (Sensor*)arg;
+  Sensor *s = ((struct PipeInfo*)arg)->s;
   // Maintain a parity bit
   int par = 0;
   // Verify pointer
@@ -31,11 +37,12 @@ void *dev_pipe_start(void *arg)
     // Print error
     ERR("Sensor pointer no longer valid.\n\n");
   }
+  int i = 0;
   // Start loop
-  while (s->pipe_running)
+  while (s->pipe_running && i++ < 100)
   {
-    // If the sensor fifo buffer capacity is over 50%
-    if (s->fifo_capacity(s) > 0.5)
+    // If the sensor fifo buffer capacity is over 75%
+    if (s->fifo_capacity(s) > 0.75)
     {
       // Read from the fifo buffer
       Axes *ax = s->read(s, FIFO),
@@ -43,24 +50,27 @@ void *dev_pipe_start(void *arg)
       // Iterate through the axes
       while (crrt)
       {
-        // Adjust parity
-        par = !par;
         // Write parity
-        write(s->wpipe, (void*)&par, sizeof(int));
+        write(s->wpipe, (void*)&(par), sizeof(int));
         // Load next three values into array
         short vals[3] = {crrt->x, crrt->y, crrt->z};
         // Write the readings into the fifo
         write(s->wpipe, (void*)vals, sizeof(short) * 3);
         // Move to next reading
         crrt = crrt->next;
+        // Increment the parity value to preserve lockstep
+        par++;
       }
       // Deallocate the axes struct
       axes_dealloc(&ax);
     }
     // Pause the thread
-    nanosleep((struct timespec[]) {{0, 5000000}}, NULL);
+    nanosleep((struct timespec[]) {{0, 50000000}}, NULL);
   }
-  return NULL;
+  // Unlink the fifo
+  unlink(((struct PipeInfo*)arg)->path);
+  // Quit thread
+  pthread_exit(0);
 }
 
 ///////////////////////////////////////////////////////////////////////////////
@@ -68,7 +78,7 @@ void *dev_pipe_start(void *arg)
 ///////////////////////////////////////////////////////////////////////////////
 
 // Takes a Sensor struct pointer and creates a fifo access point
-int dev_pipe(Sensor *s, const char* path)
+int dev_pipe(Sensor *s, const char* _path)
 {
   // If the pipe is enabled
   if (s->pipe_running)
@@ -84,8 +94,11 @@ int dev_pipe(Sensor *s, const char* path)
       exit(EXIT_FAILURE);
     }
   }
+  // Make a copy of the fifo path
+  char path[strlen(_path) + 1];
+  strcpy(path, _path);
   // Make the fifo page
-  if (!mkfifo(path, 0666))
+  if (mkfifo(path, 0666))
   {
     // Print error
     ERR("Make fifo failed to location `%s`\n\n", path);
@@ -93,7 +106,7 @@ int dev_pipe(Sensor *s, const char* path)
     exit(EXIT_FAILURE);
   }
   // Open the new fifo for write only
-  int fifo = open(path, O_WRONLY);
+  int fifo = open(path, O_RDWR);
   // Check successful open
   if (!fifo)
   {
@@ -102,10 +115,15 @@ int dev_pipe(Sensor *s, const char* path)
     // Exit as a failure
     exit(EXIT_FAILURE);
   }
+  // Use fcntl to make access non-blocking
+  fcntl(fifo, F_SETFL, fcntl(fifo, F_GETFL) | O_NONBLOCK);
   // Assign fifo handle to the sensor
   s->wpipe = fifo;
   // Start the new thread
-  int err = pthread_create(&(s->pipe_thread), NULL, &dev_pipe_start, (void*)s);
+  int err = pthread_create( &(s->pipe_thread), 
+                            NULL, 
+                            &dev_pipe_start, 
+                            (void*)&((struct PipeInfo){path, s}) );
   // If the error code is non-zero
   if (err)
   {
@@ -116,6 +134,8 @@ int dev_pipe(Sensor *s, const char* path)
   }
   // Set pipe_running to true
   s->pipe_running = !err;
-  // Detach and run the thread
-  return pthread_detach(s->pipe_thread);
+  // Run thread and wait for execution to finish
+  pthread_join(s->pipe_thread, 0);
+  // Return success
+  return 0;
 }

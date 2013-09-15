@@ -102,6 +102,21 @@ static Axes *read_burst(Sensor *s)
 }
 
 ///////////////////////////////////////////////////////////////////////////////
+// FIFO CAPACITY
+///////////////////////////////////////////////////////////////////////////////
+
+// Calculates the current percentage (actual value is 0-1) of
+// the itg's fifo that is filled given that the itg has a 512 byte fifo
+float itg_fifo_capacity(Sensor *s)
+{
+  // Get the current data count
+  int fifo_count = (FETCH_REG(ITG_FIFO_COUNTH) << 8) +
+                    FETCH_REG(ITG_FIFO_COUNTL);
+  // Return used / fifo capacity
+  return ((float)fifo_count / 512);
+}
+
+///////////////////////////////////////////////////////////////////////////////
 // ENTRY FOR READS
 ///////////////////////////////////////////////////////////////////////////////
 

@@ -104,6 +104,8 @@ Sensor *mpu_init(    i2c_bus*    i2c,
   s->mux = mux;
   // Assign the mux channel setting
   s->mux_channel = mux_channel;
+  // Assign pipe_running as false
+  s->pipe_running = 0;
   ///////////////////////////////////////////////
   // Assign reset
   s->reset = &mpu_reset;                                    // RESET

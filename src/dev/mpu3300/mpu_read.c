@@ -117,7 +117,7 @@ float mpu_fifo_capacity(Sensor *s)
   int fifo_count = (FETCH_REG(MPU_FIFO_COUNTH) << 8) +
                     FETCH_REG(MPU_FIFO_COUNTL);
   // Return used / fifo capacity
-  return (fifo_count / 512);
+  return ((float)fifo_count / 1024);
 }
 
 ///////////////////////////////////////////////////////////////////////////////

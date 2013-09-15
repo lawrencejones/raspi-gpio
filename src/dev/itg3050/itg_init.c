@@ -88,6 +88,10 @@ Sensor *itg_init(    i2c_bus*    i2c,
   s->read = &itg_read;                                      // READ
   // Assign config
   s->config = &itg_config;                                  // CONFIG
+  // Assign the pipe function
+  s->pipe = &dev_pipe;                                      // PIPE
+  // Assign the fifo capacity function
+  s->fifo_capacity = &itg_fifo_capacity;                    // FIFO_CAPACITY
   // Assign dealloc
   s->dealloc = &itg_dealloc;                                // DEALLOC
   ///////////////////////////////////////////////
