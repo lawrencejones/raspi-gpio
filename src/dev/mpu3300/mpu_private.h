@@ -27,11 +27,6 @@
 
 // Set the mpu to the default config
 void    mpu_reset         (  Sensor      *s  );                       // RESET
-// Enables the given sensor with sensible defaults/given config
-int     mpu_enable        (  Sensor*     s,                           // ENABLE
-                             KeyVal*     settings  );
-// Disables the given sensor
-int     mpu_disable       (  Sensor*     s );                         // DISABLE
 // Read from the given sensor with the given target
 Axes    *mpu_read         (  Sensor*     s,                           // READ
                              target_t    t  );
@@ -58,6 +53,7 @@ uint8_t mpu_config_int_pin(Sensor *s, KeyVal * pairs);
 uint8_t mpu_config_power(Sensor *s, KeyVal * pairs);
 uint8_t mpu_config_samplerate(Sensor *s, KeyVal *pairs);
 uint8_t mpu_config_user_ctrl(Sensor *s, KeyVal * pairs);
-void yn_toggle(uint8_t *reg, int bit, char *yn);
+float   mpu_fifo_capacity(Sensor *s);
+void    yn_toggle(uint8_t *reg, int bit, char *yn);
 
 #endif

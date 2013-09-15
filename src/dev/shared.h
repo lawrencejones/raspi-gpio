@@ -57,5 +57,7 @@ Axes *axes_average(Axes *ax);
 void axes_dealloc(Axes **a);
 // Verify a device
 int dev_fails_to_respond(i2c_bus *i2c, int i2c_addr, Mux *mux, int mux_channel);
+// Initialise a device fifo
+int dev_pipe(Sensor *s, const char* path);
 
 #endif

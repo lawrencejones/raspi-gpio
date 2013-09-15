@@ -113,6 +113,10 @@ Sensor *mpu_init(    i2c_bus*    i2c,
   s->config = &mpu_config;                                  // CONFIG
   // Assign selftest
   s->selftest = &mpu_selftest;                              // SELFTEST
+  // Assign the pipe function
+  s->pipe = &dev_pipe;                                      // PIPE
+  // Assign the fifo capacity function
+  s->fifo_capacity = &mpu_fifo_capacity;                    // FIFO_CAPACITY
   // Assign dealloc
   s->dealloc = &mpu_dealloc;                                // DEALLOC
   ///////////////////////////////////////////////

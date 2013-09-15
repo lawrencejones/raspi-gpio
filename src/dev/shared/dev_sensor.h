@@ -9,6 +9,7 @@
 #define DEVS_SENSOR_HEADER_INC
 
 #include <stdint.h>
+#include <pthread.h>
 #include "i2c.h"
 #include "dev/shared.h"
 
@@ -34,6 +35,10 @@ typedef void          (*SensorReset)(Sensor*);
 typedef Axes*         (*ReadBurst)(Sensor*);
 // Typedef for a selftest function
 typedef int           (*Selftest)(Sensor*, int);
+// Sensor pipe
+typedef int           (*SensorPipe)(Sensor*, const char*);
+// Get's current fifo capacity
+typedef float         (*SensorFifoCapcity)(Sensor*);
 
 /////////////////////////////////////////////////////////////
 // Struct Typedefs   ////////////////////////////////////////
@@ -64,6 +69,13 @@ struct Sensor {                                           // Sensor
   // Specifies the i2c channel
   short mux_channel;
   ///////////////////////////////////////////////
+  // The handle to write to the pipe file
+  int wpipe;
+  // A status int for whether the thread is active
+  int pipe_running;
+  // Keeps a pointer to the pipe thread
+  pthread_t pipe_thread;
+  ///////////////////////////////////////////////
   // Function to reset the default config
   SensorReset reset;                                      // RESET
   // Function to read axes data from given target
@@ -72,6 +84,10 @@ struct Sensor {                                           // Sensor
   SensorConfigure config;                                 // CONFIG
   // Function for selftesting
   Selftest selftest;                                      // SELFTEST
+  // Function to initiate piping of results
+  SensorPipe pipe;                                        // PIPE
+  // Function to determine current fifo capacity
+  SensorFifoCapcity fifo_capacity;                        // FIFO_CAPACITY
   // Dealloc function
   DeallocSensor dealloc;                                  // DEALLOC
 };
