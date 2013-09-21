@@ -46,17 +46,17 @@ uint32_t i2c_write_reg(i2c_bus *i2c,                           // i2c_write_reg
   return status;
 }
 
-uint32_t i2c_write_block(i2c_bus *i2c,                       // i2c_write_block
-    short addr, 
-    short size, 
-    uint8_t *content)
+uint32_t i2c_write_block( i2c_bus *i2c,                      // i2c_write_block
+                          short addr, 
+                          short size, 
+                          uint8_t *content)
 {
   // Verify that the addressed device is currently active and registered
   // on the bus
   if (!i2c_bus_addr_active(i2c, addr))
   {
     ERR("No device found at current address (0x%02x)\n\n", addr);
-    exit(EXIT_FAILURE);
+    exit(I2C_DEV_DEAD);
   }
   // Clear the current fifo
   // TODO - Investigate if this is actually the best method

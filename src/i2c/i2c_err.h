@@ -12,6 +12,9 @@
 // DEFINE ERROR CODES
 ///////////////////////////////////////////////////////////////////////////////
 
+// Signifies i2c device not active
+#define I2C_DEV_DEAD  0xa0
+
 // Signifies that after the given timeout period, the i2c
 // fifo buffer has not become full nor has the transfer ended
 #define FIFO_TIMEOUT  0xf0
