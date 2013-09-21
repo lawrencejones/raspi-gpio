@@ -9,6 +9,7 @@
 #define PCA9548A_HEADER_INC
 
 #include "dev/shared.h"
+#include "i2c/i2c_err.h"
 #include "dev/shared/dev_mux.h"
 
 ///////////////////////////////////////////////////////////////////////////////
@@ -40,7 +41,7 @@ Mux         *pca_init            (  i2c_bus   *i2c,                   // INIT
 uint8_t     pca_get_channel      (  Mux *m  );                        // GET CHANNEL
 // Sets the mux channel value with a given short
 // Also runs a write test to verify success (updates channel field)
-void        pca_set_channel      (  Mux     *m,                       // SET CHANNEL
+int         pca_set_channel      (  Mux     *m,                       // SET CHANNEL
                                     uint8_t c  );
 // Generates a mux network from all the devices visible on the buses
 MuxNetwork  *pca_get_devs        (  Mux *m  );                        // GET DEVS

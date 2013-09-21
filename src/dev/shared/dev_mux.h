@@ -18,7 +18,7 @@
 // Function type for fetching/updating an i2c mux channel
 typedef uint8_t       (*ChannelGet)(Mux *m);
 // Function type for setting an i2c mux channel
-typedef void          (*ChannelSet)(Mux *m, uint8_t c);
+typedef int           (*ChannelSet)(Mux *m, uint8_t c);
 // Function for retrieving an i2c mux registry
 typedef MuxNetwork*   (*MuxDeviceDetect)(Mux *m);
 // Function for deallocing a mux

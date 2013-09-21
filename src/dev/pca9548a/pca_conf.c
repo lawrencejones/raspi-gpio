@@ -56,8 +56,16 @@ uint8_t pca_get_channel(Mux *m)
 
 // Sets the pca control channel and verifies write
 // success
-void pca_set_channel(Mux *m, uint8_t c)
+int pca_set_channel(Mux *m, uint8_t c)
 {
+  // Verify the mux is accessible
+  if (!i2c_bus_addr_active(m->i2c, m->i2c_addr))
+  {
+    // Print error
+    ERR("PCA Mux is not accessible at address 0x%02x\n\n", m->i2c_addr);
+    // Return error
+    return I2C_DEV_DEAD;
+  }
   // Verify arg health
   verify_mux(m);
   // Once verified, transfer the channel code to
@@ -75,4 +83,5 @@ void pca_set_channel(Mux *m, uint8_t c)
     // Exit with error
     exit(EXIT_FAILURE);
   }
+  return 0;
 }
