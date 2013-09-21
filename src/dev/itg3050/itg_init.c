@@ -38,6 +38,19 @@ void itg_reset(Sensor *s)
   }
 }
 
+// Set the i2c_bypass on
+void itg_i2c_bypass(Sensor *s, int bypass)
+{
+  if (bypass)
+  {
+    s->config(s, "i2c_bypass:on");
+  }
+  else
+  {
+    s->config(s, "i2c_bypass:off");
+  }
+}
+
 // Given name and i2c address, allocates and initialises a itg
 // struct with the given config options. `config` represents
 // an array of KeyVal pairs which correspond to itg configuration
@@ -84,6 +97,8 @@ Sensor *itg_init(    i2c_bus*    i2c,
   ///////////////////////////////////////////////
   // Assign reset
   s->reset = &itg_reset;                                    // RESET
+  // Assign i2c bypass switch
+  s->i2c_bypass = &itg_i2c_bypass;                          // I2C_BYPASS
   // Assign the read function
   s->read = &itg_read;                                      // READ
   // Assign config

@@ -23,6 +23,8 @@
 typedef Axes*         (*ReadAxes)(Sensor*, target_t);
 // Typedef for a sensor enable function
 typedef int           (*SensorEnable)(Sensor*, KeyVal*);
+// Typedef for a sensor i2c bypass enable function
+typedef void          (*SensorBypass)(Sensor*, int);
 // Typedef for a sensor disable function
 typedef int           (*SensorDisable)(Sensor*);
 // Function for deallocing a sensor
@@ -78,6 +80,8 @@ struct Sensor {                                           // Sensor
   ///////////////////////////////////////////////
   // Function to reset the default config
   SensorReset reset;                                      // RESET
+  // Function to turn the i2c bypass on
+  SensorBypass i2c_bypass;                                // I2C_BYPASS
   // Function to read axes data from given target
   ReadAxes read;                                          // READ
   // Function to configure sensor

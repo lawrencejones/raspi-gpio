@@ -63,6 +63,19 @@ void mpu_reset(Sensor *s)
   }
 }
 
+// Set the i2c_bypass on
+void mpu_i2c_bypass(Sensor *s, int bypass)
+{
+  if (bypass)
+  {
+    s->config(s, "i2c_bypass:on,i2c_mst_en:off");
+  }
+  else
+  {
+    s->config(s, "i2c_bypass:off");
+  }
+}
+
 // Given name and i2c address, allocates and initialises a mpu
 // struct with the given config options. `config` represents
 // an array of KeyVal pairs which correspond to mpu configuration
@@ -109,6 +122,8 @@ Sensor *mpu_init(    i2c_bus*    i2c,
   ///////////////////////////////////////////////
   // Assign reset
   s->reset = &mpu_reset;                                    // RESET
+  // Assign bypass switch
+  s->i2c_bypass = &mpu_i2c_bypass;                          // I2C_BYPASS
   // Assign the read function
   s->read = &mpu_read;                                      // READ
   // Assign config
