@@ -9,7 +9,7 @@
 #define I2C_CLI_PRIVATE_HEADER_INC
 
 #include "i2c.h"
-#include "../../tools/src/macros.h"
+#include "macros.h"
 
 ///////////////////////////////////////////////////////////////////////////////
 // PRIVATE I2C CLI FUNCTION STUBS

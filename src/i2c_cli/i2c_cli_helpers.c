@@ -7,7 +7,6 @@
 
 #include <stdio.h>
 #include "i2c_cli_private.h"
-#include "../tools/src/macros.h"
 
 ///////////////////////////////////////////////////////////////////////////////
 // VALIDATION
