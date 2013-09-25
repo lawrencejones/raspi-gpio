@@ -132,6 +132,7 @@ $(APPNAME) : $(OBJECTS)
 	@echo "  Linking $@"
 	@-rm -f $@
 	@$(CC) -o $(APPNAME) $(OBJECTS) $(APPLIBS) $(CFLAGS) $(CPPFLAGS) $(LDFLAGS)
+	@$(CC) -o $(APPNAME).so $(OBJECTS) $(APPLIBS) $(CFLAGS) $(CPPFLAGS) $(LDFLAGS) -shared
 	@echo Finished building target: $@
 
 clean :

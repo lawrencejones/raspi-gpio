@@ -8,7 +8,7 @@ ifeq ($(shell arch), armv6l)
 LDFLAGS += -lm
 endif
 
-LDFLAGS += -lpthread -shared
+LDFLAGS += -lpthread
 
 # Required modules from the gpio folder
 GPIO := \
