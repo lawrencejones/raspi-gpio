@@ -6,6 +6,7 @@ bin/*
 
 # Object files
 *.o
+*.so
 
 # Libraries
 *.lib
