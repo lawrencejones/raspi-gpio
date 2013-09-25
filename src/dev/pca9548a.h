@@ -22,11 +22,11 @@
 // simulataneously.
 // Ex - { Mux *m->set_channel(m, PCA_C0|PCA_C2) } for channel 0+2
 // PCA_CD is ChannelDisabled
-#define PCA_CD 0x00
-#define PCA_C0 0x01
-#define PCA_C1 0x02
-#define PCA_C2 0x04
-#define PCA_C3 0x08
+#define PCA_CD -1
+#define PCA_C0 0x00
+#define PCA_C1 0x01
+#define PCA_C2 0x02
+#define PCA_C3 0x03
 
 ///////////////////////////////////////////////////////////////////////////////
 // INTERFACE - FUNCTION STUBS
@@ -42,7 +42,7 @@ uint8_t     pca_get_channel      (  Mux *m  );                        // GET CHA
 // Sets the mux channel value with a given short
 // Also runs a write test to verify success (updates channel field)
 int         pca_set_channel      (  Mux     *m,                       // SET CHANNEL
-                                    uint8_t c  );
+                                    short c  );
 // Generates a mux network from all the devices visible on the buses
 MuxNetwork  *pca_get_devs        (  Mux *m  );                        // GET DEVS
 // Dealloc an pca mux struct, watch for any memory leaks

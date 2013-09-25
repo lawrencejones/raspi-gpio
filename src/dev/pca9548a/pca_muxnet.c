@@ -127,7 +127,7 @@ MuxNetwork *pca_get_devs(Mux *m)
   for (int i = 0; i < 4; i++)
   {
     // Set the channel
-    m->set_channel(m, 1 << i);
+    m->set_channel(m, i);
     // Scan bus for devices
     muxdevs = i2c_dev_detect(m->i2c);
     // TODO - Implement filter

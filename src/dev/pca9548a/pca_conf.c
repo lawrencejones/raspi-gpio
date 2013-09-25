@@ -56,8 +56,9 @@ uint8_t pca_get_channel(Mux *m)
 
 // Sets the pca control channel and verifies write
 // success
-int pca_set_channel(Mux *m, uint8_t c)
+int pca_set_channel(Mux *m, short c)
 {
+  uint8_t byte = 0;
   // Verify the mux is accessible
   if (!i2c_bus_addr_active(m->i2c, m->i2c_addr))
   {
@@ -70,12 +71,20 @@ int pca_set_channel(Mux *m, uint8_t c)
   verify_mux(m);
   // Once verified, transfer the channel code to
   // the device
-  i2c_write_byte(m->i2c, m->i2c_addr, (uint8_t)c);
+  if (c == -1)
+  {
+    byte = 0;
+  }
+  else
+  {
+    byte = 1 << c;
+  }
+  i2c_write_byte(m->i2c, m->i2c_addr, byte);
   // Once written, verify that write has been successful
   m->get_channel(m);
   // After fetching the channel, write has been successful
   // iff the new channel field is equal to the desired parameter
-  if (c != m->channel)
+  if (byte != m->channel)
   {
     // If not equal then write has failed
     ERR("Write to mux with addr 0x%02x has failed.\n\n", 

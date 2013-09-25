@@ -45,7 +45,7 @@ static int imu_pca_set_channel(Mux *pca, char **tokens)
     return EXIT_FAILURE;
   }
   // Set the pca channel
-  pca->set_channel(pca, 1 << channel);
+  pca->set_channel(pca, channel);
   // Return 0
   return 0;
 }

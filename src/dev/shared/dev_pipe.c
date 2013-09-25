@@ -84,7 +84,7 @@ int dev_pipe(Sensor *s, const char* _path)
   if (s->pipe_running)
   {
     // Cancel the pipe if currently running
-    s->pipe_running = pthread_cancel(s->pipe_thread);
+    s->pipe_running = pthread_cancel(*(s->pipe_thread));
     // Check cancellation was a success
     if (s->pipe_running)
     {
@@ -120,7 +120,7 @@ int dev_pipe(Sensor *s, const char* _path)
   // Assign fifo handle to the sensor
   s->wpipe = fifo;
   // Start the new thread
-  int err = pthread_create( &(s->pipe_thread), 
+  int err = pthread_create( s->pipe_thread, 
                             NULL, 
                             &dev_pipe_start, 
                             (void*)&((struct PipeInfo){path, s}) );
@@ -135,7 +135,7 @@ int dev_pipe(Sensor *s, const char* _path)
   // Set pipe_running to true
   s->pipe_running = !err;
   // Run thread and wait for execution to finish
-  pthread_join(s->pipe_thread, 0);
+  pthread_join(*(s->pipe_thread), 0);
   // Return success
   return 0;
 }

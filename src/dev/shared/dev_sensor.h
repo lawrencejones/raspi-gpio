@@ -76,7 +76,7 @@ struct Sensor {                                           // Sensor
   // A status int for whether the thread is active
   int pipe_running;
   // Keeps a pointer to the pipe thread
-  pthread_t pipe_thread;
+  pthread_t *pipe_thread;
   ///////////////////////////////////////////////
   // Function to reset the default config
   SensorReset reset;                                      // RESET
