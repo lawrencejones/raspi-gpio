@@ -89,8 +89,6 @@ int pca_set_channel(Mux *m, short c)
     // If not equal then write has failed
     ERR("Write to mux with addr 0x%02x has failed.\n\n", 
         m->i2c_addr);
-    // Exit with error
-    exit(EXIT_FAILURE);
   }
   return 0;
 }
