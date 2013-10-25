@@ -6,8 +6,7 @@ PROG = i2c gpio imu
 
 all: $(PROG)
 
-rebuild:
-	@-$(MAKE) clean
+rebuild: clean
 	@-clear
 	@-$(MAKE) all
 
